@@ -16,10 +16,3 @@ django-cors-headers==4.4.0
 
 # Manipulação de imagens (caso precise)
 Pillow==11.0.0
-
-# Documentação automática de API (Swagger)
-drf-yasg==1.21.7
-
-# Qualidade e formatação de código
-black==24.10.0
-flake8==7.1.1
