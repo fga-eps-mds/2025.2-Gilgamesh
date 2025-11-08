@@ -1,18 +1,9 @@
-
-# Framework principal
+asgiref==3.10.0
 Django==5.1.2
-
-# Banco de dados PostgreSQL
-psycopg2-binary==2.9.9
-
-# Criação de APIs REST
-djangorestframework==3.15.2
-
-# Configurações com variáveis de ambiente (.env)
-python-decouple==3.8
-
-# Permitir comunicação entre backend e frontend (CORS)
 django-cors-headers==4.4.0
-
-# Manipulação de imagens (caso precise)
-Pillow==11.0.0
+djangorestframework==3.15.2
+pillow==11.0.0
+psycopg2-binary==2.9.9
+python-decouple==3.8
+sqlparse==0.5.3
+#pip install -r requirements.txt para instalar as dependências listadas neste arquivo no seu ambiente.
