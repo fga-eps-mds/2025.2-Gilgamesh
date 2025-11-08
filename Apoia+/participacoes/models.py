@@ -1,6 +1,6 @@
 from django.db import models
-from usuario.models import Usuario
-from evento.models import Evento
+from autenticacao.models import Usuario
+from eventos.models import Evento
 
 class Participacao(models.Model):
     STATUS_CHOICES = [
