@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'autenticacao',
+    'eventos',
+    'ongs',
 ]
 
 MIDDLEWARE = [
@@ -72,16 +75,19 @@ WSGI_APPLICATION = 'apoia.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+import os
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mds_apoia',
-        'USER': 'apoia_usuario',
-        'PASSWORD': '1234',
-        'HOST': 'localhost',
+        'NAME': os.environ.get('POSTGRES_DB'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': os.environ.get('POSTGRES_HOST', 'db'),
         'PORT': '5432',
     }
 }
+
 
 
 
