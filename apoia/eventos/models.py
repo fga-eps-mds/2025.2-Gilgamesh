@@ -1,6 +1,7 @@
-import uuid #para o id aleatório
+import uuid
 from django.db import models
-from autenticacao.models import Usuario
+from autenticacao.models import Usuario 
+
 
 class Evento(models.Model):
     nome_evento = models.TextField(max_length=255)
@@ -10,20 +11,21 @@ class Evento(models.Model):
     localizacao_evento = models.TextField(max_length=25)
     vagas_totais = models.IntegerField()
     numero_participantes = models.IntegerField()
+    
+    def __str__(self):
+        return self.nome_evento
+
 
 class Participacao(models.Model):
     
-    #id_usuario
-    id_usuario = Usuario.id_usuario
-    #id_evento
-    id_evento = Evento.id_evento
+    id_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    id_evento = models.ForeignKey(Evento, on_delete=models.CASCADE)
     
     class Status(models.TextChoices):
         PENDENTE = 'PEN', 'Pendente'
         CONFIRMADO = 'CONF', 'Confirmado'
         CANCELADO = 'CAN', 'Cancelado'
 
-    # O status da participação 
     status = models.CharField(
         max_length=4,
         choices=Status.choices,
@@ -31,5 +33,9 @@ class Participacao(models.Model):
     )
     
     data_inscricao = models.DateTimeField(auto_now_add=True) 
-    
     data_confirmacao = models.DateTimeField(null=True, blank=True)
+
+    # Adicione isso para o painel de admin ler um nome amigável
+    def __str__(self):
+        # f-string para formatar o texto
+        return f"{self.id_usuario.email} em {self.id_evento.nome_evento}"
