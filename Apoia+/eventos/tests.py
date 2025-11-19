@@ -1,58 +1,85 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
+from django.contrib.auth import get_user_model # <--- Usa o modelo de usuário correto do projeto
 from .models import Evento
 
-class EventoAPITestCase(APITestCase):
+class EventoCRUDTestCase(APITestCase):
     
-    # 1. PREPARAÇÃO (O que acontece ANTES de cada teste)
     def setUp(self):
-        # Vamos criar um evento "de mentirinha" no banco temporário
-        # para garantir que sempre tenha algo para listar.
-        self.evento_teste = Evento.objects.create(
-            nome="Evento Teste Automatizado",
-            descricao="Isso é apenas um teste",
-            data_inicio="2025-12-25T20:00:00Z"
+        # Pega a classe de usuário correta (seja a padrão ou customizada)
+        User = get_user_model()
+
+        # 1. Criamos um usuário comum
+        self.user = User.objects.create_user(
+            username='ong_tester', 
+            password='123',
+            email='ong@teste.com'
         )
-        # Definimos a URL que vamos testar (o endereço da sua API)
-        self.url = '/api/eventos/'
 
-    # 2. TESTE DE LEITURA (GET)
+        # 2. O SEGREDO: Colocamos a etiqueta de ONG nele
+        # Isso satisfaz a regra: request.user.tipo_usuario == 'ong'
+        self.user.tipo_usuario = 'ong' 
+        self.user.save() # Salva a alteração no banco
+        
+        # 3. Autenticamos o robô com esse usuário ONG
+        self.client.force_authenticate(user=self.user)
+        
+        # Criação do evento inicial (igual antes)
+        self.evento = Evento.objects.create(
+            nome="Evento Original",
+            descricao="Descrição Original",
+            data_inicio="2025-01-01T12:00:00Z"
+        )
+        self.list_url = '/api/eventos/'
+        self.detail_url = f'/api/eventos/{self.evento.id}/'
+
+    # --- TESTES DE LEITURA (READ) ---
+    
     def test_deve_listar_eventos(self):
-        """
-        Verifica se a API retorna status 200 e se mostra o evento criado.
-        """
-        # O robô acessa a URL (simula um navegador)
-        resposta = self.client.get(self.url)
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
 
-        # VERIFICAÇÕES (Asserts):
-        # O status code foi 200 (Sucesso)?
-        self.assertEqual(resposta.status_code, status.HTTP_200_OK)
-        
-        # O nome do evento apareceu na resposta?
-        self.assertEqual(len(resposta.data), 1) # Tem que ter 1 evento na lista
-        self.assertEqual(resposta.data[0]['nome'], "Evento Teste Automatizado")
+    def test_deve_buscar_um_evento_especifico(self):
+        response = self.client.get(self.detail_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['nome'], "Evento Original")
 
-    # 3. TESTE DE CRIAÇÃO (POST)
-    def test_deve_criar_novo_evento(self):
-        """
-        Verifica se a API aceita criar um novo evento via POST.
-        """
-        # Dados do novo evento
-        novo_evento = {
-            "nome": "Novo Evento via Teste",
-            "descricao": "Criando pelo script",
-            "data_inicio": "2026-01-01T10:00:00Z"
+    # --- TESTE DE CRIAÇÃO (CREATE) ---
+
+    def test_deve_criar_evento(self):
+        dados = {
+            "nome": "Novo Evento",
+            "data_inicio": "2025-12-31T23:59:59Z",
+            "descricao": "Testando criação"
         }
-
-        # O robô envia os dados (POST)
-        resposta = self.client.post(self.url, novo_evento, format='json')
-
-        # VERIFICAÇÕES:
-        # O status foi 201 (Created/Criado)?
-        self.assertEqual(resposta.status_code, status.HTTP_201_CREATED)
-        
-        # O banco de dados agora tem 2 eventos? (O do setUp + este novo)
+        response = self.client.post(self.list_url, dados, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Evento.objects.count(), 2)
+
+    def test_nao_deve_criar_evento_sem_nome(self):
+        dados = {
+            "data_inicio": "2025-12-31T23:59:59Z"
+        }
+        response = self.client.post(self.list_url, dados, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    # --- TESTE DE ATUALIZAÇÃO (UPDATE) ---
+
+    def test_deve_atualizar_evento(self):
+        novos_dados = {
+            "nome": "Evento Atualizado",
+            "data_inicio": "2025-01-01T12:00:00Z"
+        }
+        response = self.client.put(self.detail_url, novos_dados, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         
-        # O nome salvo é igual ao que enviamos?
-        self.assertEqual(Evento.objects.last().nome, "Novo Evento via Teste")
+        self.evento.refresh_from_db()
+        self.assertEqual(self.evento.nome, "Evento Atualizado")
+
+    # --- TESTE DE REMOÇÃO (DELETE) ---
+
+    def test_deve_deletar_evento(self):
+        response = self.client.delete(self.detail_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Evento.objects.count(), 0)
