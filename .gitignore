@@ -4,3 +4,7 @@ __pycache__/
 db.sqlite3
 venv/
 .env
+# Coverage (Relatórios de teste)
+.coverage
+htmlcov/
+coverage.xml
