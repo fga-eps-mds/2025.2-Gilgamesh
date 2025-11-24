@@ -1,6 +1,5 @@
 from django.db import models
 
-
 class Usuario(models.Model):
     TIPOS_USUARIO = [
         ('ong', 'ONG'),
@@ -17,5 +16,10 @@ class Usuario(models.Model):
         default='voluntario'
     )
     data_criacao = models.DateTimeField(auto_now_add=True)
+    
+    # Adicionado para corrigir o erro do login()
+    # O Django precisa desse campo para registrar quando o usuário entrou
+    last_login = models.DateTimeField(null=True, blank=True)
+
     def __str__(self):
         return f"{self.nome} ({self.get_tipo_usuario_display()})"
