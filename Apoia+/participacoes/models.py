@@ -19,5 +19,5 @@ class Participacao(models.Model):
     data_inscricao = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.usuario.nome} - {self.evento.titulo} ({self.status_confirmacao})"
+        return f"{self.usuario.nome} - {self.evento.nome} ({self.status_confirmacao})"
 
