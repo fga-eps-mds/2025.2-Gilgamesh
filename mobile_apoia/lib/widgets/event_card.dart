@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/event.dart';
 
+//Card do Evento
 class EventCard extends StatelessWidget {
   final Event event;
   final VoidCallback onTap;
@@ -9,53 +10,89 @@ class EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+    return Container(
+      width: 170,
+      margin: const EdgeInsets.only(right: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.grey[300],
+      ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(event.nome, style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 6),
-
-              Text(
-                event.descricao,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+        borderRadius: BorderRadius.circular(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // IMAGEM
+            Container(
+              height: 120,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey[400],
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(12),
+                ),
               ),
-              const SizedBox(height: 8),
+              child: const Center(child: Text("IMAGEM DA CAMPANHA")),
+            ),
 
-              Row(
+            const SizedBox(height: 8),
+
+            // NOME E DATA
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.calendar_month, size: 20),
-                  const SizedBox(width: 6),
                   Text(
-                    "${event.date.day}/${event.date.month}/${event.date.year}",
-                  ),
-                ],
-              ),
-
-              Row(
-                children: [
-                  Icon(Icons.location_on_outlined, size: 18),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      event.location,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    event.nome,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
+
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_month,
+                        size: 20,
+                        color: Colors.grey[700],
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        "${event.date.day}/${event.date.month}/${event.date.year}",
+                        style: const TextStyle(fontSize: 10),
+                      ),
+                    ],
+                  ),
                 ],
               ),
-            ],
-          ),
+            ),
+
+            const SizedBox(height: 10),
+
+            // BOTÃO GERENCIAR
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2EAF73),
+                  minimumSize: const Size(100, 28),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                onPressed: onTap,
+                child: const Text(
+                  "GERENCIAR",
+                  style: TextStyle(fontSize: 12, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
