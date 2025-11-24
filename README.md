@@ -6,7 +6,7 @@ Essa Branch deve ser usada exclusivamente para a versão de produção dos softw
 
 O repositório conta com mais 3 branchs:
 * docs: Usada para armazenar a documentação do projeto.
-* developer: usada como um intermediário antes do código chegar realmente para produção. É o ambiente ideal para realizar os últimos testes antes das apresentações.
+* develop: usada como um intermediário antes do código chegar realmente para produção. É o ambiente ideal para realizar os últimos testes antes das apresentações.
 * gh-pages: Local dos arquivos estáticos de deploy da documentação. (Para deploy da documentação, consultar seu monitor)
 
 ## Especificações Técnicas do Repositório
