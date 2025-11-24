@@ -51,7 +51,7 @@ class BottomNavBar extends StatelessWidget {
 }
 
 //Barra superior
-class SuperiorBar extends StatelessWidget {
+class SuperiorBar extends StatelessWidget implements PreferredSizeWidget {
   const SuperiorBar({super.key});
 
   @override
@@ -70,4 +70,7 @@ class SuperiorBar extends StatelessWidget {
       ),
     );
   }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(60);
 }
