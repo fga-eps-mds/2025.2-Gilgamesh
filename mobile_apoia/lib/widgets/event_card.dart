@@ -12,6 +12,7 @@ class EventCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 170,
+      height: 200,
       margin: const EdgeInsets.only(right: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
