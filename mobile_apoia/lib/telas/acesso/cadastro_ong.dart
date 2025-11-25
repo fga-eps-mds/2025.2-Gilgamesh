@@ -10,6 +10,17 @@ class CadastroOngs extends StatefulWidget {
 }
 
 class _CadastroOngsState extends State<CadastroOngs> {
+  // --- 1. CONTROLADORES (Para capturar o texto digitado) ---
+  final TextEditingController _nomeOngController = TextEditingController();
+  final TextEditingController _cnpjController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _telefoneController = TextEditingController();
+  final TextEditingController _enderecoController = TextEditingController();
+  final TextEditingController _senhaController = TextEditingController();
+  final TextEditingController _confirmaSenhaController =
+      TextEditingController();
+  final TextEditingController _decricaoController = TextEditingController();
+
   // Estado para o Dropdown de UF
   String estadoSelecionado = 'UF'; // Valor inicial
   final List<String> _estados = [
@@ -73,24 +84,30 @@ class _CadastroOngsState extends State<CadastroOngs> {
 
                 // --- CAMPOS DO FORMULÁRIO ---
                 // Usando nosso widget customizado _buildGrayInput
-                caixaInput(hintText: "NOME DA INSTITUIÇÃO"),
+                caixaInput(
+                  hintText: "NOME DA INSTITUIÇÃO",
+                  controller: _nomeOngController,
+                ),
                 const SizedBox(height: 15),
 
                 caixaInput(
                   hintText: "CNPJ",
                   keyboardType: TextInputType.number,
+                  controller: _cnpjController,
                 ),
                 const SizedBox(height: 15),
 
                 caixaInput(
                   hintText: "E-MAIL INSTITUCIONAL",
                   keyboardType: TextInputType.emailAddress,
+                  controller: _emailController,
                 ),
                 const SizedBox(height: 15),
 
                 caixaInput(
                   hintText: "TELEFONE",
                   keyboardType: TextInputType.phone,
+                  controller: _telefoneController,
                 ),
                 const SizedBox(height: 15),
 
@@ -98,7 +115,12 @@ class _CadastroOngsState extends State<CadastroOngs> {
                 Row(
                   children: [
                     // Endereço ocupa o espaço que sobrar (Expanded)
-                    Expanded(child: caixaInput(hintText: "ENDEREÇO / CIDADE")),
+                    Expanded(
+                      child: caixaInput(
+                        hintText: "ENDEREÇO / CIDADE",
+                        controller: _enderecoController,
+                      ),
+                    ),
                     const SizedBox(width: 10),
                     // Dropdown tem tamanho fixo
                     caixaEstados(),
@@ -106,16 +128,25 @@ class _CadastroOngsState extends State<CadastroOngs> {
                 ),
                 const SizedBox(height: 15),
 
-                caixaInput(hintText: "SENHA", obscureText: true),
+                caixaInput(
+                  hintText: "SENHA",
+                  obscureText: true,
+                  controller: _senhaController,
+                ),
                 const SizedBox(height: 15),
 
-                caixaInput(hintText: "CONFIRMAR SENHA", obscureText: true),
+                caixaInput(
+                  hintText: "CONFIRMAR SENHA",
+                  obscureText: true,
+                  controller: _confirmaSenhaController,
+                ),
                 const SizedBox(height: 15),
 
                 // Campo de Descrição (Multi-linhas)
                 caixaInput(
                   hintText: "DESCRIÇÃO CURTA (EX: MISSÃO, ÁREA DE ATUAÇÃO)",
                   maxLines: 3, // Permite mais linhas
+                  controller: _decricaoController,
                 ),
                 const SizedBox(height: 15),
 
@@ -142,7 +173,16 @@ class _CadastroOngsState extends State<CadastroOngs> {
                   height: 55,
                   child: ElevatedButton(
                     onPressed: () {
-                      print("Enviar formulário de ONG");
+                      // impimindo dados para teste
+                      print("--- DADOS DO VOLUNTÁRIO ---");
+                      print("Nome: ${_nomeOngController.text}");
+                      print("CPF: ${_cnpjController.text}");
+                      print("Email: ${_emailController.text}");
+                      print("Telefone: ${_telefoneController.text}");
+                      print("Endereço: ${_enderecoController.text}");
+                      print("Estado: $estadoSelecionado");
+                      print("Senha: ${_senhaController.text}");
+                      print("Descrição: ${_decricaoController.text}");
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.laranjaBotao,
@@ -177,6 +217,7 @@ class _CadastroOngsState extends State<CadastroOngs> {
     TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
     Widget? suffixIcon, // Ícone opcional no final (para o upload)
+    TextEditingController? controller,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
@@ -187,6 +228,7 @@ class _CadastroOngsState extends State<CadastroOngs> {
         ), // Cantos retos conforme a imagem
       ),
       child: TextField(
+        controller: controller, //conecta ao campo de texto
         obscureText: obscureText,
         keyboardType: keyboardType,
         maxLines: maxLines,
@@ -212,7 +254,7 @@ class _CadastroOngsState extends State<CadastroOngs> {
         color: AppColors.cinzaInputFundo,
         borderRadius: BorderRadius.circular(0),
       ),
-      // DropdownButtonHideUnderline remove a linha padrão chata do dropdown
+
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: estadoSelecionado,
@@ -221,12 +263,11 @@ class _CadastroOngsState extends State<CadastroOngs> {
           elevation: 16,
           style: const TextStyle(color: Colors.black87, fontSize: 14),
           onChanged: (String? newValue) {
-            // É aqui que a mágica do StatefulWidget acontece
             setState(() {
               estadoSelecionado = newValue!;
             });
           },
-          // Cria a lista de itens do menu baseado na nossa lista _estados
+          // Cria a lista de itens do menu baseado na lista _estados
           items: _estados.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(value: value, child: Text(value));
           }).toList(),

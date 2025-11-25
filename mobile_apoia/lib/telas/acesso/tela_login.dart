@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_apoia/widgets/custom_inputs.dart';
 import 'package:mobile_apoia/telas/acesso/pre_cadastro.dart';
 import 'package:mobile_apoia/widgets/logo.dart';
-import 'package:mobile_apoia/widgets/cores.dart';
+import 'package:mobile_apoia/widgets/cores.dart'; // Certifique-se que AppColors está aqui
 
-class TelaLogin extends StatelessWidget {
+class TelaLogin extends StatefulWidget {
   const TelaLogin({super.key});
+
+  @override
+  State<TelaLogin> createState() => _TelaLoginState();
+}
+
+class _TelaLoginState extends State<TelaLogin> {
+  // controladores(Para capturar o texto)
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _senhaController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +31,8 @@ class TelaLogin extends StatelessWidget {
                 Column(
                   children: [
                     const Logo(),
-
                     RichText(
-                      text: TextSpan(
+                      text: const TextSpan(
                         style: TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
@@ -48,28 +55,30 @@ class TelaLogin extends StatelessWidget {
 
                 const SizedBox(height: 30),
 
-                // Campo de Email/CPF
-                buildCustomInput(
+                // 3. CAMPO EMAIL (Com o controlador conectado)
+                _buildCustomInput(
                   icon: Icons.mail_outline,
                   hintText: "EMAIL OU CPF/CNPJ",
-                  corFundoIcone: AppColors.corCinzaIcone,
+                  corFundoIcone: AppColors.cinzaEscuroIcone,
                   corFundoInput: AppColors.cinzaInputFundo,
+                  controller: _emailController, // <--- CONECTADO AQUI
                 ),
 
                 const SizedBox(height: 20),
 
-                // Campo de Senha
-                buildCustomInput(
+                // 4. CAMPO SENHA (Com o controlador conectado)
+                _buildCustomInput(
                   icon: Icons.lock_outline,
                   hintText: "SENHA",
-                  isPassword: true, // Ativa o modo senha
-                  corFundoIcone: AppColors.corCinzaIcone,
+                  isPassword: true,
+                  corFundoIcone: AppColors.cinzaEscuroIcone,
                   corFundoInput: AppColors.cinzaInputFundo,
+                  controller: _senhaController, // <--- CONECTADO AQUI
                 ),
 
                 const SizedBox(height: 10),
 
-                // "Esqueci minha senha"
+                // Esqueci minha senha
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
@@ -85,10 +94,15 @@ class TelaLogin extends StatelessWidget {
 
                 const SizedBox(height: 40),
 
+                // BOTÃO ENTRAR
                 InkWell(
                   onTap: () {
-                    print("Botão Entrar clicado");
-                    // Navegar para a Home
+                    // 5. TESTE DE LOGICA: Verificando se pegou o texto
+                    print("Email digitado: ${_emailController.text}");
+                    print("Senha digitada: ${_senhaController.text}");
+
+                    // lógica backend
+                    // authService.login(_emailController.text, _senhaController.text);
                   },
                   borderRadius: BorderRadius.circular(8),
                   child: Container(
@@ -96,7 +110,7 @@ class TelaLogin extends StatelessWidget {
                     height: 55,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         colors: [
                           AppColors.verdeGradiente1,
                           AppColors.verdeGradiente2,
@@ -104,11 +118,11 @@ class TelaLogin extends StatelessWidget {
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
                           color: AppColors.verdeGradiente2,
                           blurRadius: 8,
-                          offset: const Offset(0, 4),
+                          offset: Offset(0, 4),
                         ),
                       ],
                     ),
@@ -136,7 +150,7 @@ class TelaLogin extends StatelessWidget {
                         style: TextStyle(color: Colors.black87, fontSize: 12),
                       ),
                     ),
-                    Text(
+                    const Text(
                       "OU",
                       style: TextStyle(
                         color: AppColors.laranjaApoia,
@@ -166,6 +180,46 @@ class TelaLogin extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCustomInput({
+    required IconData icon,
+    required String hintText,
+    required Color corFundoIcone,
+    required Color corFundoInput,
+    TextEditingController? controller,
+    bool isPassword = false,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width: 60,
+          height: 60,
+          color: corFundoIcone,
+          child: Icon(icon, color: Colors.black87, size: 28),
+        ),
+        Expanded(
+          child: Container(
+            height: 60,
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            color: corFundoInput,
+            child: TextField(
+              controller: controller,
+              obscureText: isPassword,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: hintText,
+                hintStyle: const TextStyle(color: Colors.black45),
+                isDense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
+              style: const TextStyle(fontSize: 16),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

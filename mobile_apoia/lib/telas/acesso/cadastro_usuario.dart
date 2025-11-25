@@ -10,9 +10,19 @@ class CadastroUsuarios extends StatefulWidget {
 }
 
 class _CadastroUsuariosState extends State<CadastroUsuarios> {
+  // --- 1. CONTROLADORES (Para capturar o texto digitado) ---
+  final TextEditingController _nomeController = TextEditingController();
+  final TextEditingController _cpfController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _telefoneController = TextEditingController();
+  final TextEditingController _enderecoController = TextEditingController();
+  final TextEditingController _senhaController = TextEditingController();
+  final TextEditingController _confirmaSenhaController =
+      TextEditingController();
+
   // Estado para o Dropdown de UF
-  String estadoSelecionado = 'UF'; // Valor inicial
-  // Lista de exemplo (em um app real, você teria todos os estados)
+  String estadoSelecionado = 'UF';
+
   final List<String> _estados = [
     'UF',
     'AC',
@@ -48,8 +58,6 @@ class _CadastroUsuariosState extends State<CadastroUsuarios> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      // SingleChildScrollView é obrigatório aqui porque o formulário é alto
-      // e o teclado vai cobrir a tela.
       body: SingleChildScrollView(
         child: SafeArea(
           child: Padding(
@@ -61,8 +69,8 @@ class _CadastroUsuariosState extends State<CadastroUsuarios> {
                   children: [
                     const Logo(),
                     RichText(
-                      text: TextSpan(
-                        style: const TextStyle(
+                      text: const TextSpan(
+                        style: TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
                         ),
@@ -73,48 +81,65 @@ class _CadastroUsuariosState extends State<CadastroUsuarios> {
 
                 const SizedBox(height: 40),
 
-                // --- CAMPOS DO FORMULÁRIO ---
-                // Usando nosso widget customizado _buildGrayInput
-                caixaInput(hintText: "NOME COMPLETO"),
+                // --- formulários(Conectando os controladores) ---
+                caixaInput(
+                  hintText: "NOME COMPLETO",
+                  controller: _nomeController, // <--- Conectado
+                ),
                 const SizedBox(height: 15),
 
-                caixaInput(hintText: "CPF", keyboardType: TextInputType.number),
+                caixaInput(
+                  hintText: "CPF",
+                  keyboardType: TextInputType.number,
+                  controller: _cpfController, // <--- Conectado
+                ),
                 const SizedBox(height: 15),
 
                 caixaInput(
                   hintText: "E-MAIL",
                   keyboardType: TextInputType.emailAddress,
+                  controller: _emailController, // <--- Conectado
                 ),
                 const SizedBox(height: 15),
 
                 caixaInput(
                   hintText: "TELEFONE",
                   keyboardType: TextInputType.phone,
+                  controller: _telefoneController, // <--- Conectado
                 ),
                 const SizedBox(height: 15),
 
-                // --- LINHA ENDEREÇO + DROPDOWN ESTADO ---
                 Row(
                   children: [
-                    // Endereço ocupa o espaço que sobrar (Expanded)
-                    Expanded(child: caixaInput(hintText: "ENDEREÇO / CIDADE")),
+                    Expanded(
+                      child: caixaInput(
+                        hintText: "ENDEREÇO / CIDADE",
+                        controller: _enderecoController, // <--- Conectado
+                      ),
+                    ),
                     const SizedBox(width: 10),
-                    // Dropdown tem tamanho fixo
                     caixaEstados(),
                   ],
                 ),
                 const SizedBox(height: 15),
 
-                caixaInput(hintText: "SENHA", obscureText: true),
+                caixaInput(
+                  hintText: "SENHA",
+                  obscureText: true,
+                  controller: _senhaController, // <--- Conectado
+                ),
                 const SizedBox(height: 15),
 
-                caixaInput(hintText: "CONFIRMAR SENHA", obscureText: true),
+                caixaInput(
+                  hintText: "CONFIRMAR SENHA",
+                  obscureText: true,
+                  controller: _confirmaSenhaController, // <--- Conectado
+                ),
                 const SizedBox(height: 15),
 
-                // Campo de Upload (Com ícone no final)
+                // Campo de Upload
                 caixaInput(
                   hintText: "UPLOAD DE FOTO (OPCIONAL)",
-                  // Usamos um InkWell no ícone para ele ser clicável
                   suffixIcon: InkWell(
                     onTap: () {
                       print("Abrir seletor de arquivos");
@@ -134,12 +159,22 @@ class _CadastroUsuariosState extends State<CadastroUsuarios> {
                   height: 55,
                   child: ElevatedButton(
                     onPressed: () {
-                      print("Enviar formulário de ONG");
+                      // impimindo dados para teste
+                      print("--- DADOS DO VOLUNTÁRIO ---");
+                      print("Nome: ${_nomeController.text}");
+                      print("CPF: ${_cpfController.text}");
+                      print("Email: ${_emailController.text}");
+                      print("Telefone: ${_telefoneController.text}");
+                      print("Endereço: ${_enderecoController.text}");
+                      print("Estado: $estadoSelecionado");
+                      print("Senha: ${_senhaController.text}");
+
+                      // backend
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.azulBotao,
                       foregroundColor: Colors.black87,
-                      elevation: 0, // Flat na imagem
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -153,7 +188,7 @@ class _CadastroUsuariosState extends State<CadastroUsuarios> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20), // Espaço final para scroll
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -162,31 +197,30 @@ class _CadastroUsuariosState extends State<CadastroUsuarios> {
     );
   }
 
-  // --- WIDGET REUTILIZÁVEL PARA OS INPUTS CINZAS ---
   Widget caixaInput({
     required String hintText,
     bool obscureText = false,
     TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
-    Widget? suffixIcon, // Ícone opcional no final (para o upload)
+    Widget? suffixIcon,
+    TextEditingController? controller,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
       decoration: BoxDecoration(
         color: AppColors.cinzaInputFundo,
-        borderRadius: BorderRadius.circular(
-          0,
-        ), // Cantos retos conforme a imagem
+        borderRadius: BorderRadius.circular(0),
       ),
       child: TextField(
+        controller: controller, // conecta ao campo de texto
         obscureText: obscureText,
         keyboardType: keyboardType,
         maxLines: maxLines,
         decoration: InputDecoration(
-          border: InputBorder.none, // Remove a linha padrão
+          border: InputBorder.none,
           hintText: hintText,
           hintStyle: const TextStyle(color: Colors.black87, fontSize: 14),
-          suffixIcon: suffixIcon, // Adiciona o ícone se ele for passado
+          suffixIcon: suffixIcon,
           contentPadding: (maxLines > 1)
               ? const EdgeInsets.symmetric(vertical: 10)
               : null,
@@ -195,30 +229,26 @@ class _CadastroUsuariosState extends State<CadastroUsuarios> {
     );
   }
 
-  // --- WIDGET ESPECÍFICO PARA O DROPDOWN DE ESTADO ---
   Widget caixaEstados() {
     return Container(
-      width: 110, // Largura fixa para o dropdown
+      width: 110,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: AppColors.cinzaInputFundo,
         borderRadius: BorderRadius.circular(0),
       ),
-      // DropdownButtonHideUnderline remove a linha padrão chata do dropdown
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: estadoSelecionado,
           icon: const Icon(Icons.keyboard_arrow_down),
-          isExpanded: true, // Ocupa todo o espaço do container
+          isExpanded: true,
           elevation: 16,
           style: const TextStyle(color: Colors.black87, fontSize: 14),
           onChanged: (String? newValue) {
-            // É aqui que a mágica do StatefulWidget acontece
             setState(() {
               estadoSelecionado = newValue!;
             });
           },
-          // Cria a lista de itens do menu baseado na nossa lista _estados
           items: _estados.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(value: value, child: Text(value));
           }).toList(),
