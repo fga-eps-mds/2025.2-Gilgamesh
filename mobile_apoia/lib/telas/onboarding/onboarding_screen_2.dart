@@ -1,18 +1,14 @@
 import 'package:mobile_apoia/telas/onboarding/onboarding_screen_3.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/widgets/bolinhas_navegacao_telasiniciais.dart';
+import 'package:mobile_apoia/widgets/botao_pular_introducao.dart';
+import 'package:mobile_apoia/widgets/cores.dart';
 
 class OnboardingScreen2 extends StatelessWidget {
   const OnboardingScreen2({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Mantendo as mesmas cores da tela anterior para consistência
-    final Color corVerde = const Color(0xFF5ABF86);
-    final Color corAzulTexto = const Color(0xFF2E8EB6);
-    final Color corCinzaAtivo = const Color(0xFF666666);
-    final Color corCinzaInativo = const Color(0xFFDDDDDD);
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -25,7 +21,7 @@ class OnboardingScreen2 extends StatelessWidget {
               Icon(
                 Icons.location_on_rounded, // Ícone de pino de mapa
                 size: 150,
-                color: corVerde,
+                color: AppColors.verdePrincipal,
               ),
 
               const Spacer(flex: 1),
@@ -36,7 +32,7 @@ class OnboardingScreen2 extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: corAzulTexto,
+                  color: AppColors.azulTexto,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -61,11 +57,11 @@ class OnboardingScreen2 extends StatelessWidget {
                   // Indicadores (Dots)
                   Row(
                     children: [
-                      buildDot(corCinzaInativo), // 1º Inativo
+                      buildDot(AppColors.corCinzaInativo), // 1º Inativo
                       const SizedBox(width: 8),
-                      buildDot(corCinzaAtivo), // 2º ATIVO (Escuro)
+                      buildDot(AppColors.corCinzaAtivo), // 2º ATIVO (Escuro)
                       const SizedBox(width: 8),
-                      buildDot(corCinzaInativo), // 3º Inativo
+                      buildDot(AppColors.corCinzaInativo), // 3º Inativo
                     ],
                   ),
 
@@ -84,7 +80,7 @@ class OnboardingScreen2 extends StatelessWidget {
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                        color: corVerde,
+                        color: AppColors.verdePrincipal,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -99,19 +95,8 @@ class OnboardingScreen2 extends StatelessWidget {
 
               const Spacer(flex: 1),
 
-              // Rodapé
-              TextButton(
-                onPressed: () {
-                  print("Pular explicação");
-                },
-                child: const Text(
-                  "pular explicação",
-                  style: TextStyle(
-                    color: Colors.black54,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ),
+              // botão pular explicação
+              const BotaoPular(),
 
               const SizedBox(height: 20),
             ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/telas/onboarding/onboarding_screen_2.dart';
 import 'package:mobile_apoia/widgets/bolinhas_navegacao_telasiniciais.dart';
+import 'package:mobile_apoia/widgets/botao_pular_introducao.dart'; //impor necessário para o botão pular introdução
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -102,18 +103,7 @@ class OnboardingScreen extends StatelessWidget {
               const Spacer(flex: 1),
 
               //botão pular explicação
-              TextButton(
-                onPressed: () {
-                  print("Pular explicação");
-                },
-                child: const Text(
-                  "pular explicação",
-                  style: TextStyle(
-                    color: Colors.black54,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ),
+              const BotaoPular(),
 
               const SizedBox(height: 20), // Espacinho final
             ],

@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/widgets/bolinhas_navegacao_telasiniciais.dart';
+import 'package:mobile_apoia/telas/acesso/tela_login.dart';
+import 'package:mobile_apoia/widgets/cores.dart';
 
 class OnboardingScreen3 extends StatelessWidget {
   const OnboardingScreen3({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final Color corVerde = const Color(0xFF5ABF86);
-    final Color corAzulTexto = const Color(0xFF2E8EB6);
-    final Color corCinzaAtivo = const Color(0xFF666666);
-    final Color corCinzaInativo = const Color(0xFFDDDDDD);
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -24,7 +21,7 @@ class OnboardingScreen3 extends StatelessWidget {
               Icon(
                 Icons.volunteer_activism, // Ícone de "Entrega/Doação"
                 size: 150,
-                color: corVerde,
+                color: AppColors.verdePrincipal,
               ),
 
               const Spacer(flex: 1),
@@ -35,7 +32,7 @@ class OnboardingScreen3 extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: corAzulTexto,
+                  color: AppColors.azulTexto,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -56,11 +53,11 @@ class OnboardingScreen3 extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  buildDot(corCinzaInativo), // 1º
+                  buildDot(AppColors.corCinzaInativo), // 1º
                   const SizedBox(width: 8),
-                  buildDot(corCinzaInativo), // 2º
+                  buildDot(AppColors.corCinzaInativo), // 2º
                   const SizedBox(width: 8),
-                  buildDot(corCinzaAtivo), // 3º ATIVO (Escuro)
+                  buildDot(AppColors.corCinzaAtivo), // 3º ATIVO (Escuro)
                 ],
               ),
 
@@ -71,12 +68,17 @@ class OnboardingScreen3 extends StatelessWidget {
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () {
-                    // AÇÃO FINAL: Ir para Login ou Home
-                    print("Navegar para a Home do App");
-                    // Navigator.pushReplacement(context, ...);
+                    // leva para tela de login
+                    //o pushReplace faz com que ao passar pela introdução e apertar o botão voltar, o usuário não volte tudo, ficando no login
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const TelaLogin(),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: corVerde, // Cor do fundo
+                    backgroundColor: AppColors.verdePrincipal, // Cor do fundo
                     foregroundColor: Colors.white, // Cor do texto
                     elevation: 0,
                     shape: RoundedRectangleBorder(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/telas/onboarding/onboarding_screen_1.dart';
+import 'package:mobile_apoia/widgets/logo.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,7 +14,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     // O comando abaixo espera 1.5 segundos e executa a navegação, tive que colocar milisegundos pq o dart não aceita o double aqui
-    Future.delayed(const Duration(milliseconds: 1500), () {
+    Future.delayed(const Duration(milliseconds: 2000), () {
       // Verificamos se o widget ainda está montado na tela por segurança
       if (mounted) {
         Navigator.pushReplacement(
@@ -32,23 +33,13 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.volunteer_activism, size: 100, color: Colors.blue),
+            const Logo(height: 300),
 
             const SizedBox(height: 20),
 
             RichText(
               text: const TextSpan(
                 style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-                children: [
-                  TextSpan(
-                    text: 'apoia',
-                    style: TextStyle(color: Colors.black87),
-                  ),
-                  TextSpan(
-                    text: '+',
-                    style: TextStyle(color: Colors.orange),
-                  ),
-                ],
               ),
             ),
 
