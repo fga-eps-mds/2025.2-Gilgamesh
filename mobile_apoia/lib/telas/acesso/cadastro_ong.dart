@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/widgets/cores.dart';
 import 'package:mobile_apoia/widgets/logo.dart';
+import 'package:mobile_apoia/telas/acesso/tela_login.dart';
 
 class CadastroOngs extends StatefulWidget {
   const CadastroOngs({super.key});
@@ -173,6 +174,11 @@ class _CadastroOngsState extends State<CadastroOngs> {
                   height: 55,
                   child: ElevatedButton(
                     onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => TelaLogin()),
+                      );
+
                       // impimindo dados para teste
                       print("--- DADOS DO VOLUNTÁRIO ---");
                       print("Nome: ${_nomeOngController.text}");
