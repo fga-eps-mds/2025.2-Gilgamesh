@@ -55,7 +55,7 @@ class SucessoInscricaoTela extends StatelessWidget {
               const SizedBox(height: 15),
 
               const Text(
-                'MENSAGEM DE AGRADECIMENTO',
+                'Apoia+ agradece sua participação! Juntos, fazemos a diferença.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
@@ -67,7 +67,7 @@ class SucessoInscricaoTela extends StatelessWidget {
               ElevatedButton(
                 onPressed: () => _voltarParaHome(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: corLaranjaSecundaria,
+                  backgroundColor: corAzulPrincipal,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   shape: RoundedRectangleBorder(
@@ -75,7 +75,7 @@ class SucessoInscricaoTela extends StatelessWidget {
                   ),
                 ),
                 child: const Text(
-                  'VOLTAR PARA O INÍCIO',
+                  'VOLTAR ',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
