@@ -1,42 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_apoia/widgets/barra_inferior_e_superior.dart'; 
-import 'package:mobile_apoia/widgets/custom_inputs.dart'; 
+import 'package:mobile_apoia/widgets/barra_inferior_e_superior.dart';
+import 'package:mobile_apoia/widgets/logo.dart';
 
 // Cores
-const Color corAzulTexto = Color(0xFF007AFF); 
-const Color corCinzaInput = Color(0xFFEFEFEF); 
-const Color corLaranjaONG = Color(0xFFFF9900); 
+const Color corAzulTexto = Color(0xFF007AFF);
+const Color corCinzaInput = Color(0xFFEFEFEF);
+const Color corLaranjaONG = Color(0xFFFF9900);
 
-//BARRA SUPERIOR 
+//BARRA SUPERIOR
 class BarraSuperiorONG extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onBack;
   const BarraSuperiorONG({super.key, this.onBack});
-  
+
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: corLaranjaONG, 
+      backgroundColor: corLaranjaONG,
       elevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.white),
         onPressed: onBack ?? () => Navigator.of(context).pop(),
       ),
-      title: const Text(
-        "Apoia+",
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
-        ),
-      ),
-      centerTitle: true, 
+      title: const Logo(),
+      centerTitle: true,
     );
   }
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
-
 
 class CriarEventoTela extends StatefulWidget {
   const CriarEventoTela({super.key});
@@ -46,19 +38,44 @@ class CriarEventoTela extends StatefulWidget {
 }
 
 class _CriarEventoTelaState extends State<CriarEventoTela> {
-  int _selectedIndex = 0; 
-  
+  int _selectedIndex = 0;
+
   final TextEditingController _tituloController = TextEditingController();
   final TextEditingController _enderecoController = TextEditingController();
   final TextEditingController _horarioController = TextEditingController();
   final TextEditingController _fotoController = TextEditingController();
   final TextEditingController _descricaoController = TextEditingController();
 
-  String estadoSelecionado = 'UF'; 
+  String estadoSelecionado = 'UF';
   final List<String> _estados = const [
-    'UF', 'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 
-    'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 
-    'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO',
+    'UF',
+    'AC',
+    'AL',
+    'AP',
+    'AM',
+    'BA',
+    'CE',
+    'DF',
+    'ES',
+    'GO',
+    'MA',
+    'MT',
+    'MS',
+    'MG',
+    'PA',
+    'PB',
+    'PR',
+    'PE',
+    'PI',
+    'RJ',
+    'RN',
+    'RS',
+    'RO',
+    'RR',
+    'SC',
+    'SP',
+    'SE',
+    'TO',
   ];
 
   @override
@@ -75,17 +92,17 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
     required String hintText,
     TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
-    Widget? suffixIcon, 
+    Widget? suffixIcon,
     TextEditingController? controller,
   }) {
-    double height = (maxLines > 1) ? 100 : 48; 
+    double height = (maxLines > 1) ? 100 : 48;
 
     return Container(
-      height: height, 
-      padding: const EdgeInsets.only(left: 15, right: 8), 
+      height: height,
+      padding: const EdgeInsets.only(left: 15, right: 8),
       decoration: BoxDecoration(
         color: corCinzaInput,
-        borderRadius: BorderRadius.circular(4), 
+        borderRadius: BorderRadius.circular(4),
       ),
       child: Center(
         child: TextField(
@@ -94,26 +111,26 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
           maxLines: maxLines,
           style: const TextStyle(fontSize: 14, color: Colors.black87),
           decoration: InputDecoration(
-            border: InputBorder.none, 
-            hintText: hintText.toUpperCase(), 
+            border: InputBorder.none,
+            hintText: hintText.toUpperCase(),
             hintStyle: TextStyle(
-              color: Colors.grey.shade700, 
+              color: Colors.grey.shade700,
               fontSize: 14,
-              fontWeight: FontWeight.normal, 
+              fontWeight: FontWeight.normal,
             ),
             suffixIcon: suffixIcon,
             contentPadding: (maxLines > 1)
                 ? const EdgeInsets.symmetric(vertical: 10)
-                : const EdgeInsets.fromLTRB(0, 5, 0, 5), 
+                : const EdgeInsets.fromLTRB(0, 5, 0, 5),
           ),
         ),
       ),
     );
   }
-  
+
   Widget _buildStateDropdown() {
     return Container(
-      height: 48, 
+      height: 48,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: corCinzaInput,
@@ -123,9 +140,9 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
         child: DropdownButton<String>(
           value: estadoSelecionado == 'UF' ? null : estadoSelecionado,
           hint: Text(
-            "ESTADO (UF)", 
+            "ESTADO (UF)",
             style: TextStyle(
-              color: Colors.grey.shade700, 
+              color: Colors.grey.shade700,
               fontSize: 14,
               fontWeight: FontWeight.normal,
             ),
@@ -141,8 +158,12 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
           items: _estados
               .where((item) => item != 'UF')
               .map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(child: Text(value), value: value);
-          }).toList(),
+                return DropdownMenuItem<String>(
+                  child: Text(value),
+                  value: value,
+                );
+              })
+              .toList(),
         ),
       ),
     );
@@ -156,7 +177,7 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
       ),
     );
     Future.delayed(const Duration(seconds: 2), () {
-      Navigator.of(context).popUntil((route) => route.isFirst); 
+      Navigator.of(context).popUntil((route) => route.isFirst);
     });
   }
 
@@ -172,22 +193,20 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
         children: [
           Icon(icon, color: color, size: 50),
           const SizedBox(height: 4),
-          Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+          Text(
+            text,
+            style: TextStyle(color: color, fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: BarraSuperiorONG(onBack: () => Navigator.of(context).pop()),
 
-      appBar: BarraSuperiorONG(
-        onBack: () => Navigator.of(context).pop(),
-      ),
-      
-      
       bottomNavigationBar: BottomNavBar(
         iconSelecionado: _selectedIndex,
         onTap: (index) {
@@ -195,7 +214,7 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
             _selectedIndex = index;
           });
         },
-      ), 
+      ),
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
@@ -205,64 +224,72 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
             const Center(
               child: Text(
                 'CRIAR EVENTO',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: corAzulTexto),
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: corAzulTexto,
+                ),
               ),
             ),
             const SizedBox(height: 30.0),
 
-            
             _buildGrayInput(
-              hintText: 'TITULO DO EVENTO', 
+              hintText: 'TITULO DO EVENTO',
               controller: _tituloController,
-              suffixIcon: const Icon(Icons.edit_outlined, color: corAzulTexto, size: 24),
+              suffixIcon: const Icon(
+                Icons.edit_outlined,
+                color: corAzulTexto,
+                size: 24,
+              ),
             ),
             const SizedBox(height: 20.0),
-            
-            
+
             Row(
               children: [
                 Expanded(
                   child: _buildGrayInput(
-                    hintText: 'Endereço / Cidade', 
+                    hintText: 'Endereço / Cidade',
                     controller: _enderecoController,
-                    suffixIcon: const Icon(Icons.edit_outlined, color: corAzulTexto, size: 24),
+                    suffixIcon: const Icon(
+                      Icons.edit_outlined,
+                      color: corAzulTexto,
+                      size: 24,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
-                Expanded(
-                  child: _buildStateDropdown(),
-                ),
+                Expanded(child: _buildStateDropdown()),
               ],
             ),
             const SizedBox(height: 20.0),
 
-            
             _buildGrayInput(
-              hintText: 'HORÁRIO', 
-              controller: _horarioController, 
+              hintText: 'HORÁRIO',
+              controller: _horarioController,
             ),
             const SizedBox(height: 20.0),
 
-            
             _buildGrayInput(
-              hintText: 'FOTO DE DIVULGAÇÃO', 
-              controller: _fotoController, 
+              hintText: 'FOTO DE DIVULGAÇÃO',
+              controller: _fotoController,
               suffixIcon: InkWell(
-                 onTap: () => print('Abrir seletor de fotos'),
-                 child: const Icon(Icons.file_download, color: corAzulTexto, size: 24),
+                onTap: () => print('Abrir seletor de fotos'),
+                child: const Icon(
+                  Icons.file_download,
+                  color: corAzulTexto,
+                  size: 24,
+                ),
               ),
-            ), 
+            ),
             const SizedBox(height: 20.0),
 
-            
             _buildGrayInput(
-              hintText: 'DESCRIÇÃO', 
-              controller: _descricaoController, 
-              maxLines: 5, 
+              hintText: 'DESCRIÇÃO',
+              controller: _descricaoController,
+              maxLines: 5,
             ),
             const SizedBox(height: 40.0),
 
-             
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
