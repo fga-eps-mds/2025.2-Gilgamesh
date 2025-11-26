@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/event.dart';
 import '../widgets/event_card.dart';
 import '../widgets/barra_inferior_e_superior.dart';
+import '/telas/criar_evento.dart';
 
 class TelaListaDeEventos extends StatefulWidget {
   const TelaListaDeEventos({super.key});
@@ -77,6 +78,11 @@ class _TelaListaDeEventosState extends State<TelaListaDeEventos> {
           FloatingActionButton(
             backgroundColor: const Color(0xFFDF8F2C),
             onPressed: () {
+              // Lógica de navegação para a tela CriarEventoTela
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CriarEventoTela()),
+              );
               print("Criar novo evento");
             },
             child: const Icon(Icons.add, size: 30),
