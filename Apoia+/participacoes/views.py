@@ -1,3 +1,7 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from .models import Participacao
+from .serializers import ParticipacaoSerializer
 
-# Create your views here.
+class ParticipacaoViewSet(viewsets.ModelViewSet):
+    queryset = Participacao.objects.all()
+    serializer_class = ParticipacaoSerializer
