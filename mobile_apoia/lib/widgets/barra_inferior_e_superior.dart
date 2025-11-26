@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_apoia/widgets/logo.dart';
 
 //Barra inferior de navegação
 class BottomNavBar extends StatelessWidget {
@@ -60,14 +61,7 @@ class SuperiorBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: const Color(0xFFE2952A),
       elevation: 0,
       centerTitle: true,
-      title: Text(
-        "Apoia+",
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
-        ),
-      ),
+      title: const Logo(height: 50),
     );
   }
 
