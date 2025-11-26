@@ -81,7 +81,9 @@ class _TelaListaDeEventosState extends State<TelaListaDeEventos> {
               // Lógica de navegação para a tela CriarEventoTela
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const CriarEventoTela()),
+                MaterialPageRoute(
+                  builder: (context) => const CriarEventoTela(),
+                ),
               );
               print("Criar novo evento");
             },
