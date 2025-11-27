@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/telas/acesso/pre_cadastro.dart';
 import 'package:mobile_apoia/widgets/logo.dart';
-import 'package:mobile_apoia/widgets/cores.dart'; // Certifique-se que AppColors está aqui
+import 'package:mobile_apoia/widgets/cores.dart';
+import 'package:mobile_apoia/services/auth_service.dart';
 
 class TelaLogin extends StatefulWidget {
   const TelaLogin({super.key});
@@ -12,8 +13,8 @@ class TelaLogin extends StatefulWidget {
 
 class _TelaLoginState extends State<TelaLogin> {
   // controladores(Para capturar o texto)
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _senhaController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _senhaController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -55,25 +56,25 @@ class _TelaLoginState extends State<TelaLogin> {
 
                 const SizedBox(height: 30),
 
-                // 3. CAMPO EMAIL (Com o controlador conectado)
+                // CAMPO EMAIL (Com o controlador conectado)
                 _buildCustomInput(
                   icon: Icons.mail_outline,
                   hintText: "EMAIL OU CPF/CNPJ",
                   corFundoIcone: AppColors.cinzaEscuroIcone,
                   corFundoInput: AppColors.cinzaInputFundo,
-                  controller: _emailController, // <--- CONECTADO AQUI
+                  controller: _emailController, // <--- controlador
                 ),
 
                 const SizedBox(height: 20),
 
-                // 4. CAMPO SENHA (Com o controlador conectado)
+                // CAMPO SENHA (Com o controlador conectado)
                 _buildCustomInput(
                   icon: Icons.lock_outline,
                   hintText: "SENHA",
                   isPassword: true,
                   corFundoIcone: AppColors.cinzaEscuroIcone,
                   corFundoInput: AppColors.cinzaInputFundo,
-                  controller: _senhaController, // <--- CONECTADO AQUI
+                  controller: _senhaController, // <--- controlador
                 ),
 
                 const SizedBox(height: 10),
@@ -96,13 +97,48 @@ class _TelaLoginState extends State<TelaLogin> {
 
                 // BOTÃO ENTRAR
                 InkWell(
-                  onTap: () {
-                    // 5. TESTE DE LOGICA: Verificando se pegou o texto
+                  onTap: () async {
+                    if (_emailController.text.isEmpty ||
+                        _senhaController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Por favor, preencha e-mail e senha'),
+                        ),
+                      );
+                      return;
+                    }
+
                     print("Email digitado: ${_emailController.text}");
                     print("Senha digitada: ${_senhaController.text}");
 
-                    // lógica backend
-                    // authService.login(_emailController.text, _senhaController.text);
+                    // Chamando BACKEND
+                    // Mostra um loading rápido ou apenas trava o botão
+                    bool sucesso = await AuthService().login(
+                      _emailController.text,
+                      _senhaController.text,
+                    );
+
+                    if (!context.mounted)
+                      return; // Segurança do Flutter para não dar erro se a tela fechar
+
+                    if (sucesso) {
+                      print("Login autorizado! Indo para Home...");
+                      // Navega para a próxima tela e remove a tela de login da pilha (para não voltar)
+                      Navigator.pushReplacementNamed(
+                        context,
+                        '/home',
+                      ); // LEMBRAR DE ARRUMAR ESSA ROTA
+                    } else {
+                      print("Falha no login.");
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Login falhou. Verifique e-mail e senha.',
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
                   },
                   borderRadius: BorderRadius.circular(8),
                   child: Container(
