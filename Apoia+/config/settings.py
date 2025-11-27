@@ -25,13 +25,14 @@ SECRET_KEY = 'django-insecure-=$4v2@(pw)uut^y2g9ci^()1l7^&8e)nqb7^8!h-s=*!bq**!6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
     'rest_framework', #comunicação com o flutter
+    'rest_framework.authtoken',
     'corsheaders', #comunicação com o flutter
     'django.contrib.admin',
     'django.contrib.auth',
@@ -132,3 +133,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'autenticacao.Usuario'  # Formato: 'nome_da_app.NomeDaClasse'

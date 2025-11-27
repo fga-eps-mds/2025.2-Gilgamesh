@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User  
+from django.conf import settings
+
 
 class Evento(models.Model):
     nome = models.CharField(max_length=100)
@@ -7,7 +8,7 @@ class Evento(models.Model):
     data_inicio = models.DateTimeField()
     data_fim = models.DateTimeField(blank=True, null=True)
     local = models.CharField(max_length=200, blank=True, null=True)
-    criado_por = models.ForeignKey(User, on_delete=models.CASCADE, related_name='eventos', null=True, blank=True)
+    criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
 
