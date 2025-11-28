@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/event.dart';
 import '../widgets/event_card.dart';
 import '../widgets/barra_inferior_e_superior.dart';
+import '../widgets/barra_de_pesquisa.dart';
 import '/telas/criar_evento.dart';
 
 class TelaListaDeEventos extends StatefulWidget {
@@ -55,20 +56,31 @@ class _TelaListaDeEventosState extends State<TelaListaDeEventos> {
     return Scaffold(
       appBar: const SuperiorBar(),
 
-      body: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
+      body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Row(
-          children: eventosMock
-              .map(
-                (e) => EventCard(
-                  event: e,
-                  onTap: () {
-                    print("Clicou no evento: ${e.nome}");
-                  },
+        child: Column(
+          children: [
+            const BarraDePesquisa(),
+            const SizedBox(height: 16),
+
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: eventosMock
+                      .map(
+                        (e) => EventCard(
+                          event: e,
+                          onTap: () {
+                            print("Clicou no evento: ${e.nome}");
+                          },
+                        ),
+                      )
+                      .toList(),
                 ),
-              )
-              .toList(),
+              ),
+            ),
+          ],
         ),
       ),
 
@@ -78,7 +90,6 @@ class _TelaListaDeEventosState extends State<TelaListaDeEventos> {
           FloatingActionButton(
             backgroundColor: const Color(0xFFDF8F2C),
             onPressed: () {
-              // Lógica de navegação para a tela CriarEventoTela
               Navigator.push(
                 context,
                 MaterialPageRoute(
