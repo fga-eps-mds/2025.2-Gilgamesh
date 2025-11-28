@@ -4,59 +4,44 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import check_password
 # (REMOVIDO): make_password não é necessário aqui, pois não vamos salvar senha nova
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
 from .models import Usuario
+from .serializers import UsuarioSerializer
+from rest_framework.authtoken.models import Token
+
 
 
 class LoginView(APIView):
-    """
-    Recebe email e senha, valida e cria sessão (ou token) de login.
-    """
     def post(self, request):
         email = request.data.get('email')
         senha = request.data.get('senha')
 
         if not email or not senha:
-            return Response({'erro': 'Email e senha são obrigatórios!'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response({'erro': 'Email e senha obrigatórios'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # MUDANÇA 1: Troquei get_object_or_404 por try/except.
-        # Motivo: Segurança. Se usarmos 404, um atacante descobre quais emails existem no banco.
-        # Agora retornamos "Credenciais inválidas" (401) tanto para email errado quanto para senha errada.
-        try:
-            usuario = Usuario.objects.get(email=email)
-        except Usuario.DoesNotExist:
-            return Response({'erro': 'Credenciais inválidas'},
-                            status=status.HTTP_401_UNAUTHORIZED)
+        # Procura o usuário pelo email
+        # Verifica o hash da senha automaticamente
+        # Retorna o usuário pronto para login (ou None se falhar), tudo feito pelo Django
+        user = authenticate(request, email=email, password=senha)
 
-        # CORREÇÃO CRÍTICA (BUG DE SEGURANÇA):
-        # A linha abaixo foi REMOVIDA. Ela pegava a senha enviada, gerava um hash e
-        # substituía a senha do banco na memória. Isso fazia qualquer senha ser aceita.
-        # usuario.senha = make_password(senha)  <-- REMOVIDO
-
-        # Valida senha
-        # Agora comparamos a 'senha' (texto puro enviada pelo user)
-        # com 'usuario.senha' (hash original salvo no banco de dados)
-        if not check_password(senha, usuario.senha):
-            return Response({'erro': 'Credenciais inválidas'}, # Mensagem genérica por segurança
-                            status=status.HTTP_401_UNAUTHORIZED)
-
-        # Cria a sessão Django
-        # OBS: Isso agora funciona porque adicionamos o campo 'last_login' no models.py
-        if usuario.tipo_usuario: # Verificação simples para garantir que o objeto está íntegro
-            login(request, usuario)
-
-        return Response({
-            'mensagem': 'Login realizado com sucesso.',
-            'usuario': {
-                'id': usuario.id,
-                'nome': usuario.nome,
-                'email': usuario.email,
-                'tipo_usuario': usuario.tipo_usuario
-            }
-        }, status=status.HTTP_200_OK)
-
-
+        if user is not None:
+            
+            token, created = Token.objects.get_or_create(user=user) #gera ou recupera token de usuário
+            
+            return Response({
+                'mensagem': 'Login realizado com sucesso.',
+                'token' : token.key, #flutter precisa desse token
+                'usuario': {
+                    'id': user.id,
+                    'nome': user.nome,
+                    'email': user.email,
+                    # Se tiver mudado para AbstractBaseUser, acesse os campos corretamente
+                    'tipo_usuario': getattr(user, 'tipo_usuario', 'desconhecido') 
+                }
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({'erro': 'Credenciais inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
+        
 class LogoutView(APIView):
     """
     Endpoint para encerrar a sessão do usuário.
@@ -65,3 +50,29 @@ class LogoutView(APIView):
         logout(request)
         return Response({'mensagem': 'Logout realizado com sucesso.'},
                         status=status.HTTP_200_OK)
+        
+class CadastroView(APIView):
+    """
+    Recebe os dados do formulário, valida via Serializer e cria o usuário.
+    """
+    def post(self, request):
+        # Passamos os dados do request para o Serializer
+        serializer = UsuarioSerializer(data=request.data)
+        
+        # O serializer valida tudo (se email já existe, se CNPJ é obrigatório, etc)
+        if serializer.is_valid():
+            # O método .save() chama o create() que escrevemos no serializer
+            novo_usuario = serializer.save()
+            
+            return Response({
+                'mensagem': 'Usuário cadastrado com sucesso!',
+                'usuario': {
+                    'id': novo_usuario.id,
+                    'nome': novo_usuario.nome,
+                    'email': novo_usuario.email,
+                    'tipo': novo_usuario.tipo_usuario
+                }
+            }, status=status.HTTP_201_CREATED)
+            
+        # Se houver erro (ex: senha curta, email repetido), retorna o erro detalhado
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
