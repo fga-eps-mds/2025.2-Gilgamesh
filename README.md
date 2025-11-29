@@ -1,6 +1,6 @@
-# template-repository - Branch Main
+# 2025.2-Gilgamesh - Backend (Apoia+)
 
-Template de Repositório para a matéria de Métodos de Desenvolvimento de Software lecionado pelo professor Ricardo Ajax.
+Repositório de código fonte para a matéria de Métodos de Desenvolvimento de Software, lecionada pelos professores Ricardo Ajax e Hilmer Neri.
 
 Essa Branch deve ser usada exclusivamente para a versão de produção dos softwares da equipe.
 
@@ -13,43 +13,45 @@ O repositório conta com mais 3 branchs:
 
 ## 🧪 Testes e Qualidade de Código
 
-A garantia de qualidade do projeto utiliza uma suíte de testes automatizados com **Pytest** e verificação de cobertura (coverage).
+A garantia de qualidade do projeto utiliza uma suíte de testes automatizados com **Pytest** rodando em ambiente containerizado (Docker).
 
 ### Pré-requisitos
-Para rodar os testes localmente, certifique-se de que as dependências estão instaladas:
+Para rodar certifique-se de ter o **Docker Desktop** instalado e em execução.
 
+1. Suba o ambiente de desenvolvimento:
 ```bash
-pip install -r requirements.txt
+docker-compose up -d --build
 ```
 
-### 🚀 Comandos Rápidos
+### 🚀 Comandos Rápidos(Via Docker)
 
 **1. Rodar todos os testes:**
-Executa todos os testes unitários e de integração do backend.
+Executa a suíte completa dentro do container da aplicação.
 
 ```bash
-pytest
+docker-compose exec web pytest
 ```
 
 **2. Verificar cobertura (Coverage):**
-Este comando exibe a porcentagem de código coberto e lista as linhas exatas que não foram testadas no terminal.
+Exibe a porcentagem de código coberto e lista as linhas exatas que não foram testadas.
 
 ```bash
-pytest --cov=. --cov-report=term-missing
+docker-compose exec web pytest --cov=. --cov-report=term-missing
 ```
 
 **3. Relatório Visual (HTML):**
 Para gerar um site estático navegável com o detalhe de cada linha (útil para debugging):
 
 ```bash
-pytest --cov=. --cov-report=html
+docker-compose exec web pytest --cov=. --cov-report=html
 ```
 
 *O relatório será gerado na pasta `htmlcov/`. Abra o arquivo `index.html` no navegador para visualizar.*
 
 ### ⚙️ Configuração
 
-  * As configurações de exclusão (arquivos que não precisam de teste, como migrações e configs) estão definidas no arquivo `.coveragerc`.
+  * Ambiente: Os testes rodam isolados no container web, garantindo paridade com o ambiente de produção.
+  * Exclusões: Arquivos de configuração e migrações são ignorados na contagem de cobertura (via .coveragerc).
   * O projeto conta com **Integração Contínua (CI)** via GitHub Actions, rodando a bateria de testes automaticamente a cada *push* ou *Pull Request* nas branches principais.
 
 ---
