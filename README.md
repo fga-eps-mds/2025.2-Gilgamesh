@@ -5,9 +5,9 @@ Repositório de código fonte para a matéria de Métodos de Desenvolvimento de 
 Essa Branch deve ser usada exclusivamente para a versão de produção dos softwares da equipe.
 
 O repositório conta com mais 3 branchs:
-* **docs:** Usada para armazenar a documentação do projeto.
-* **develop:** Usada como um intermediário antes do código chegar realmente para produção. É o ambiente ideal para realizar os últimos testes antes das apresentações.
-* **gh-pages:** Local dos arquivos estáticos de deploy da documentação. (Para deploy da documentação, consultar seu monitor)
+* **main:** Versão de produção (estável). Contém apenas código testado e validado (Releases).
+* **develop:** Ambiente de desenvolvimento e integração (pré-produção). É o destino dos Pull Requests de novas funcionalidades.
+* **feature/nome-da-feature:** Branches temporárias criadas a partir da `develop` para desenvolver novas funcionalidades (ex: `feature/login`, `feature/CRUDeventos`).
 
 ---
 
