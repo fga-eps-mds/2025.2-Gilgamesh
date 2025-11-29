@@ -2,23 +2,22 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 from eventos.models import Evento
-from tests.eventos.factories import EventoFactory, DjangoUserFactory
+# CORREÇÃO: Removemos DjangoUserFactory e importamos UsuarioFactory do outro app
+from tests.eventos.factories import EventoFactory
+from tests.autenticacao.factories import UsuarioFactory
 
 @pytest.mark.django_db
 class TestEventoViewSet:
     
     @pytest.fixture
     def usuario_ong(self):
-        user = DjangoUserFactory()
-        # Mockando o atributo para passar na permissão IsONG
-        user.tipo_usuario = 'ong' 
-        return user
+        # CORREÇÃO: Usa a factory do nosso sistema, criando uma ONG
+        return UsuarioFactory(tipo_usuario='ong')
 
     @pytest.fixture
     def usuario_comum(self):
-        user = DjangoUserFactory()
-        user.tipo_usuario = 'comum'
-        return user
+        # CORREÇÃO: Usa a factory do nosso sistema, criando um voluntário
+        return UsuarioFactory(tipo_usuario='voluntario')
 
     def test_listar_eventos_publico(self, api_client):
         EventoFactory.create_batch(3)
@@ -44,4 +43,6 @@ class TestEventoViewSet:
         dados = {"nome": "Evento Fake", "data_inicio": "2025-01-01T00:00:00Z"}
         url = reverse('evento-list')
         response = api_client.post(url, dados)
+        
+        # Espera erro 403 Forbidden (Bloqueado pelo IsONG)
         assert response.status_code == status.HTTP_403_FORBIDDEN
