@@ -1,0 +1,37 @@
+name: Django CI
+
+on:
+  push:
+
+    branches: [ "main", "develop", "fix/compatibilidade-docker-tests" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # Define a pasta padrão para todos os comandos (Para encontrar o docker-compose.yml)
+    defaults:
+      run:
+        working-directory: ./Apoia+
+
+    steps:
+    - uses: actions/checkout@v4
+
+    # Passo 1: Subir o ambiente Docker
+    # Atualizado para 'docker compose' (V2) para compatibilidade com Linux atual
+    - name: Build and Start Containers
+      run: |
+        docker compose up -d --build
+        # Espera um pouco para o Banco de Dados iniciar completamente
+        sleep 10
+
+    # Passo 2: Rodar Migrações (Para criar as tabelas no banco de teste)
+    - name: Run Migrations
+      run: docker compose exec -T web python manage.py migrate
+
+    # Passo 3: Rodar os Testes
+    # O flag -T é essencial no CI para evitar erro de "input device is not a TTY"
+    - name: Run Tests
+      run: docker compose exec -T web pytest
