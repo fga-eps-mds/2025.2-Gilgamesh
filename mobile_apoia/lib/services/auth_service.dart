@@ -61,7 +61,7 @@ class AuthService {
     String? telefone,
     String? descricao,
   }) async {
-    final url = Uri.parse('$baseUrl/registro/');
+    final url = Uri.parse('$baseUrl/cadastro/');
 
     // Json que comunica com o Django
     Map<String, dynamic> body = {
