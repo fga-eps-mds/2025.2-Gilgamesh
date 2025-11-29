@@ -2,16 +2,15 @@ name: Django CI
 
 on:
   push:
-    branches: [ "main", "develop", "fix/ajustes-eventos", "feat/implementacao-testes" ]
+    branches: [ "main", "develop", "fix/compatibilidade-docker-tests" ]
   pull_request:
-    # O teste vai rodar quando abrirem PR para essas branches
-    branches: [ "main", "develop", "feature/CRUDeventos" ]
+    branches: [ "main", "develop"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    # Diz ao GitHub para entrar na pasta Apoia+ antes de rodar comandos
+    # Define a pasta padrão para todos os comandos
     defaults:
       run:
         working-directory: ./Apoia+
@@ -19,19 +18,18 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Python 3.13
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.13"
-
-    - name: Install Dependencies
+    # Passo 1: Subir o ambiente Docker
+    - name: Build and Start Containers
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        docker-compose up -d --build
+        # Espera um pouco para o Banco de Dados acordar (segurança)
+        sleep 10
 
+    # Passo 2: Rodar Migrações (Para criar as tabelas no banco de teste)
+    - name: Run Migrations
+      run: docker-compose exec -T web python manage.py migrate
+
+    # Passo 3: Rodar os Testes
+    # O flag -T é importante no CI para não pedir terminal interativo
     - name: Run Tests
-      env:
-        SECRET_KEY: 'django-insecure-test-key'
-        DEBUG: 'True'
-      run: |
-        pytest
+      run: docker-compose exec -T web pytest
