@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/widgets/logo.dart';
 import 'package:mobile_apoia/widgets/cores.dart';
+import 'package:mobile_apoia/telas/acesso/tela_login.dart';
+import 'package:mobile_apoia/services/auth_service.dart';
 
 class CadastroUsuarios extends StatefulWidget {
   const CadastroUsuarios({super.key});
@@ -10,15 +12,14 @@ class CadastroUsuarios extends StatefulWidget {
 }
 
 class _CadastroUsuariosState extends State<CadastroUsuarios> {
-  // --- 1. CONTROLADORES (Para capturar o texto digitado) ---
-  final TextEditingController _nomeController = TextEditingController();
-  final TextEditingController _cpfController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _telefoneController = TextEditingController();
-  final TextEditingController _enderecoController = TextEditingController();
-  final TextEditingController _senhaController = TextEditingController();
-  final TextEditingController _confirmaSenhaController =
-      TextEditingController();
+  // CONTROLADORES (Para capturar o texto digitado)
+  final _nomeController = TextEditingController();
+  final _cpfController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _telefoneController = TextEditingController();
+  final _enderecoController = TextEditingController();
+  final _senhaController = TextEditingController();
+  final _confirmaSenhaController = TextEditingController();
 
   // Estado para o Dropdown de UF
   String estadoSelecionado = 'UF';
@@ -64,7 +65,6 @@ class _CadastroUsuariosState extends State<CadastroUsuarios> {
             padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 20),
             child: Column(
               children: [
-                // --- LOGO ---
                 Column(
                   children: [
                     const Logo(),
@@ -158,18 +158,84 @@ class _CadastroUsuariosState extends State<CadastroUsuarios> {
                   width: double.infinity,
                   height: 55,
                   child: ElevatedButton(
-                    onPressed: () {
-                      // impimindo dados para teste
-                      print("--- DADOS DO VOLUNTÁRIO ---");
-                      print("Nome: ${_nomeController.text}");
-                      print("CPF: ${_cpfController.text}");
-                      print("Email: ${_emailController.text}");
-                      print("Telefone: ${_telefoneController.text}");
-                      print("Endereço: ${_enderecoController.text}");
-                      print("Estado: $estadoSelecionado");
-                      print("Senha: ${_senhaController.text}");
+                    onPressed: () async {
+                      print("--- INICIANDO CLIQUE ---");
+                      //Confere se as senhas são iguais e retorna mensagem de erro se não for
+                      if (_senhaController.text !=
+                          _confirmaSenhaController.text) {
+                        print("ERRO: Senhas não batem");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('As senhas não coincidem!'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return; // Para a execução aqui
+                      }
 
-                      // backend
+                      if (_nomeController.text.isEmpty ||
+                          _emailController.text.isEmpty ||
+                          _cpfController.text.isEmpty ||
+                          _senhaController.text.isEmpty ||
+                          estadoSelecionado == 'UF') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Preencha todos os campos obrigatórios.',
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+                      print("Enviando dados para o Django...");
+                      // Dica: Juntamos Endereço + UF para salvar completo no banco
+                      String enderecoCompleto =
+                          "${_enderecoController.text} - $estadoSelecionado";
+
+                      print("Enviando cadastro de: ${_nomeController.text}");
+
+                      // chama o backend django
+                      bool sucesso = await AuthService().cadastrar(
+                        nome: _nomeController.text,
+                        email: _emailController.text,
+                        password: _senhaController.text,
+                        tipoUsuario: 'voluntario',
+                        cpf: _cpfController.text,
+                        telefone: _telefoneController.text,
+                        // ADICIONADO: Passando endereço formatado com UF
+                        endereco: enderecoCompleto,
+                      );
+                      print("RESPOSTA DO SERVIÇO (Sucesso?): $sucesso");
+                      // resposta visual
+                      if (!context.mounted) return; // Segurança do Flutter
+
+                      if (sucesso) {
+                        print("Sucesso! Navegando para Login...");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Cadastro realizado! Faça login.'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                        // Remove tudo da pilha e vai pro login
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const TelaLogin(),
+                          ),
+                          (route) => false,
+                        );
+                      } else {
+                        print("Fracasso! Mostrando erro na tela.");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Erro ao cadastrar. Verifique email/CPF.',
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.azulBotao,
@@ -195,6 +261,19 @@ class _CadastroUsuariosState extends State<CadastroUsuarios> {
         ),
       ),
     );
+  }
+
+  //Limpeza de memória (boa prática)
+  @override
+  void dispose() {
+    _nomeController.dispose();
+    _cpfController.dispose();
+    _emailController.dispose();
+    _telefoneController.dispose();
+    _enderecoController.dispose();
+    _senhaController.dispose();
+    _confirmaSenhaController.dispose();
+    super.dispose();
   }
 
   Widget caixaInput({

@@ -61,7 +61,7 @@ class SuperiorBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: const Color(0xFFE2952A),
       elevation: 0,
       centerTitle: true,
-      title: Logo(),
+      title: const Logo(height: 50),
     );
   }
 

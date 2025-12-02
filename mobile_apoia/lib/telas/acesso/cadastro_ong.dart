@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/widgets/cores.dart';
 import 'package:mobile_apoia/widgets/logo.dart';
+import 'package:mobile_apoia/telas/acesso/tela_login.dart';
+import 'package:mobile_apoia/services/auth_service.dart';
 
 class CadastroOngs extends StatefulWidget {
   const CadastroOngs({super.key});
@@ -10,16 +12,15 @@ class CadastroOngs extends StatefulWidget {
 }
 
 class _CadastroOngsState extends State<CadastroOngs> {
-  // --- 1. CONTROLADORES (Para capturar o texto digitado) ---
-  final TextEditingController _nomeOngController = TextEditingController();
-  final TextEditingController _cnpjController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _telefoneController = TextEditingController();
-  final TextEditingController _enderecoController = TextEditingController();
-  final TextEditingController _senhaController = TextEditingController();
-  final TextEditingController _confirmaSenhaController =
-      TextEditingController();
-  final TextEditingController _decricaoController = TextEditingController();
+  // CONTROLADORES (Para capturar o texto digitado)
+  final _nomeOngController = TextEditingController();
+  final _cnpjController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _telefoneController = TextEditingController();
+  final _enderecoController = TextEditingController();
+  final _senhaController = TextEditingController();
+  final _confirmaSenhaController = TextEditingController();
+  final _descricaoController = TextEditingController();
 
   // Estado para o Dropdown de UF
   String estadoSelecionado = 'UF'; // Valor inicial
@@ -58,8 +59,6 @@ class _CadastroOngsState extends State<CadastroOngs> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      // SingleChildScrollView é obrigatório aqui porque o formulário é alto
-      // e o teclado vai cobrir a tela.
       body: SingleChildScrollView(
         child: SafeArea(
           child: Padding(
@@ -146,7 +145,7 @@ class _CadastroOngsState extends State<CadastroOngs> {
                 caixaInput(
                   hintText: "DESCRIÇÃO CURTA (EX: MISSÃO, ÁREA DE ATUAÇÃO)",
                   maxLines: 3, // Permite mais linhas
-                  controller: _decricaoController,
+                  controller: _descricaoController,
                 ),
                 const SizedBox(height: 15),
 
@@ -172,17 +171,96 @@ class _CadastroOngsState extends State<CadastroOngs> {
                   width: double.infinity,
                   height: 55,
                   child: ElevatedButton(
-                    onPressed: () {
+                    //o async (assincrono) impede que a aplicação congele enquanto espera os dados do backend
+                    onPressed: () async {
+                      print("Iniciou o clique");
+
+                      //Confere se as senhas são iguais e retorna mensagem de erro se não for
+                      if (_senhaController.text !=
+                          _confirmaSenhaController.text) {
+                        print("Erro! Senhas não conferem!");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('As senhas não coincidem!'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return; //Para a execução
+                      }
+
+                      if (_nomeOngController.text.isEmpty ||
+                          _emailController.text.isEmpty ||
+                          _cnpjController.text.isEmpty ||
+                          _senhaController.text.isEmpty ||
+                          estadoSelecionado == 'UF') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Preencha todos os campos obrigatórios',
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+                      print("Enviando dados para o Django...");
+                      //Junta a UF com o endereço para salvar no BD
+                      String enderecoCompleto =
+                          "${_enderecoController.text} - $estadoSelecionado";
+
+                      print("Enviando cadastro de: $_nomeOngController ");
                       // impimindo dados para teste
-                      print("--- DADOS DO VOLUNTÁRIO ---");
+                      /* print("--- DADOS DA ONG ---");
                       print("Nome: ${_nomeOngController.text}");
-                      print("CPF: ${_cnpjController.text}");
+                      print("Cnpj: ${_cnpjController.text}");
                       print("Email: ${_emailController.text}");
                       print("Telefone: ${_telefoneController.text}");
                       print("Endereço: ${_enderecoController.text}");
                       print("Estado: $estadoSelecionado");
                       print("Senha: ${_senhaController.text}");
-                      print("Descrição: ${_decricaoController.text}");
+                      print("Descrição: ${_decricaoController.text}"); */
+                      // 3. chama o backend django
+                      bool sucesso = await AuthService().cadastrar(
+                        nome: _nomeOngController.text,
+                        email: _emailController.text,
+                        password: _senhaController.text,
+                        tipoUsuario: 'ong',
+                        cnpj: _cnpjController.text,
+                        telefone: _telefoneController.text,
+                        // Passando endereço formatado com UF
+                        endereco: enderecoCompleto,
+                        descricao: _descricaoController.text,
+                      );
+                      print("RESPOSTA DO SERVIÇO (Sucesso?): $sucesso");
+                      // resposta visual
+                      if (!context.mounted) return; // Segurança do Flutter
+
+                      if (sucesso) {
+                        print("Sucesso! Navegando para Login...");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Cadastro realizado! Faça login.'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                        // Remove tudo da pilha e vai pro login
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const TelaLogin(),
+                          ),
+                          (route) => false,
+                        );
+                      } else {
+                        print("Fracasso! Mostrando erro na tela.");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Erro ao cadastrar. Verifique email/CPF.',
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.laranjaBotao,
@@ -243,6 +321,20 @@ class _CadastroOngsState extends State<CadastroOngs> {
         ),
       ),
     );
+  }
+
+  //Limpeza de memória (boa prática)
+  @override
+  void dispose() {
+    _nomeOngController.dispose();
+    _cnpjController.dispose();
+    _emailController.dispose();
+    _telefoneController.dispose();
+    _enderecoController.dispose();
+    _senhaController.dispose();
+    _confirmaSenhaController.dispose();
+    _descricaoController.dispose();
+    super.dispose();
   }
 
   // --- WIDGET ESPECÍFICO PARA O DROPDOWN DE ESTADO ---

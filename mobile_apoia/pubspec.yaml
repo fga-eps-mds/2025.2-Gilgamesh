@@ -20,6 +20,7 @@ version: 1.0.0+1
 
 environment:
   sdk: ^3.10.0
+  
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -30,6 +31,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  http: ^1.2.0 
+  shared_preferences: ^2.2.2 #Salva o token no celular igual a um cookie 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
