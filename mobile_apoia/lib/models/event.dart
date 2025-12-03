@@ -18,7 +18,6 @@ class Event {
     required this.participantes,
     required this.ongId,
   });
-
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
       id: json['id'] ?? 0,
@@ -32,5 +31,15 @@ class Event {
       participantes: json['participantes'] ?? 0,
       ongId: json['ong_id'] ?? 0,
     );
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'nome': nome,
+      'descricao': descricao,
+      'data_inicio': date.toIso8601String(),
+      'local': location,
+      'vagas': totalVagas,
+      'ong_id': ongId,
+    };
   }
 }
