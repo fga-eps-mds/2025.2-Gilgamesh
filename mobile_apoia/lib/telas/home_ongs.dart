@@ -6,14 +6,14 @@ import '../widgets/barra_inferior_e_superior.dart';
 import '../widgets/barra_de_pesquisa.dart';
 import '/telas/criar_evento.dart';
 
-class TelaListaDeEventos extends StatefulWidget {
-  const TelaListaDeEventos({super.key});
+class HomeOngs extends StatefulWidget {
+  const HomeOngs({super.key});
 
   @override
-  State<TelaListaDeEventos> createState() => _TelaListaDeEventosState();
+  State<HomeOngs> createState() => _TelaListaDeEventosState();
 }
 
-class _TelaListaDeEventosState extends State<TelaListaDeEventos> {
+class _TelaListaDeEventosState extends State<HomeOngs> {
   //futura conexão django
   // late Future<List<Event>> futureEventos;
 

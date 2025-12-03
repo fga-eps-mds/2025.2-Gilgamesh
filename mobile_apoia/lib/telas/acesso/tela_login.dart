@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/telas/acesso/pre_cadastro.dart';
+import 'package:mobile_apoia/telas/home_ongs.dart';
 import 'package:mobile_apoia/widgets/logo.dart';
 import 'package:mobile_apoia/widgets/cores.dart';
 import 'package:mobile_apoia/services/auth_service.dart';
@@ -59,7 +60,7 @@ class _TelaLoginState extends State<TelaLogin> {
                 // CAMPO EMAIL (Com o controlador conectado)
                 _buildCustomInput(
                   icon: Icons.mail_outline,
-                  hintText: "EMAIL OU CPF/CNPJ",
+                  hintText: "EMAIL",
                   corFundoIcone: AppColors.cinzaEscuroIcone,
                   corFundoInput: AppColors.cinzaInputFundo,
                   controller: _emailController, // <--- controlador
@@ -111,9 +112,8 @@ class _TelaLoginState extends State<TelaLogin> {
                     print("Email digitado: ${_emailController.text}");
                     print("Senha digitada: ${_senhaController.text}");
 
-                    // Chamando BACKEND
-                    // Mostra um loading rápido ou apenas trava o botão
-                    bool sucesso = await AuthService().login(
+                    // Chamando BACKEND para o tipo de usuário
+                    String? tipoUsuario = await AuthService().login(
                       _emailController.text,
                       _senhaController.text,
                     );
@@ -121,13 +121,28 @@ class _TelaLoginState extends State<TelaLogin> {
                     if (!context.mounted)
                       return; // Segurança do Flutter para não dar erro se a tela fechar
 
-                    if (sucesso) {
-                      print("Login autorizado! Indo para Home...");
-                      // Navega para a próxima tela e remove a tela de login da pilha (para não voltar)
-                      Navigator.pushReplacementNamed(
-                        context,
-                        '/home',
-                      ); // LEMBRAR DE ARRUMAR ESSA ROTA
+                    if (tipoUsuario != null) {
+                      print("Login autorizado! Tipo: $tipoUsuario");
+
+                      // Lógica de Redirecionamento
+                      if (tipoUsuario == 'ong') {
+                        // Redireciona para Home da ONG
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomeOngs(),
+                          ),
+                        );
+                      } else if (tipoUsuario == 'voluntario') {
+                        // Redireciona para Home do Voluntário
+                        Navigator.pushReplacementNamed(
+                          context,
+                          '/home_voluntario', //preencher corretamente depois
+                        );
+                      } else {
+                        // Caso seja 'admin' ou um tipo desconhecido
+                        Navigator.pushReplacementNamed(context, '/home_padrao');
+                      }
                     } else {
                       print("Falha no login.");
                       ScaffoldMessenger.of(context).showSnackBar(

@@ -19,7 +19,7 @@ class AuthService {
       'http://XXX.XXX.XX.X:8000/api/auth'; // Use o SEU IP aqui */
 
   // login
-  Future<bool> login(String email, String senha) async {
+  Future<String?> login(String email, String senha) async {
     final url = Uri.parse('$baseUrl/login/');
 
     try {
@@ -33,19 +33,21 @@ class AuthService {
         final data = jsonDecode(response.body);
         String token = data['token'];
 
+        String tipo = data['usuario']['tipo_usuario'];
+
         // Salvar token no celular para usar depois
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', token);
         await prefs.setString('user_data', jsonEncode(data['usuario']));
 
-        return true; // Login sucesso
+        return tipo; // Login sucesso
       } else {
         print('Erro Login: ${response.body}');
-        return false;
+        return null;
       }
     } catch (e) {
       print('Erro de conexão: $e');
-      return false;
+      return null;
     }
   }
 
