@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/widgets/barra_inferior_e_superior.dart';
 import 'package:mobile_apoia/widgets/logo.dart';
+import '../../models/event.dart';
+import '../../services/event_service.dart';
 
-// Cores
+// Cores tema
 const Color corAzulTexto = Color(0xFF007AFF);
 const Color corCinzaInput = Color(0xFFEFEFEF);
 const Color corLaranjaONG = Color(0xFFFF9900);
 
-//BARRA SUPERIOR
 class BarraSuperiorONG extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onBack;
   const BarraSuperiorONG({super.key, this.onBack});
@@ -39,6 +40,10 @@ class CriarEventoTela extends StatefulWidget {
 
 class _CriarEventoTelaState extends State<CriarEventoTela> {
   int _selectedIndex = 0;
+  
+  // conectar na API
+  final EventService _service = EventService();
+  bool _isLoading = false;
 
   final TextEditingController _tituloController = TextEditingController();
   final TextEditingController _enderecoController = TextEditingController();
@@ -48,34 +53,8 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
 
   String estadoSelecionado = 'UF';
   final List<String> _estados = const [
-    'UF',
-    'AC',
-    'AL',
-    'AP',
-    'AM',
-    'BA',
-    'CE',
-    'DF',
-    'ES',
-    'GO',
-    'MA',
-    'MT',
-    'MS',
-    'MG',
-    'PA',
-    'PB',
-    'PR',
-    'PE',
-    'PI',
-    'RJ',
-    'RN',
-    'RS',
-    'RO',
-    'RR',
-    'SC',
-    'SP',
-    'SE',
-    'TO',
+    'UF', 'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 
+    'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO',
   ];
 
   @override
@@ -158,27 +137,79 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
           items: _estados
               .where((item) => item != 'UF')
               .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  child: Text(value),
-                  value: value,
-                );
-              })
-              .toList(),
+            return DropdownMenuItem<String>(
+              child: Text(value),
+              value: value,
+            );
+          }).toList(),
         ),
       ),
     );
   }
 
-  void _criarEvento(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('✅ EVENTO CRIADO COM SUCESSO! Voltando para listagem...'),
-        duration: Duration(seconds: 2),
-      ),
-    );
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.of(context).popUntil((route) => route.isFirst);
+  // Lógica para enviar o evento para o backend
+  void _criarEvento(BuildContext context) async {
+    print("Tentando criar evento: ${_tituloController.text}");
+
+    // Validação simples
+    if (_tituloController.text.isEmpty) {
+       ScaffoldMessenger.of(context).showSnackBar(
+         const SnackBar(content: Text('O título é obrigatório!'))
+       );
+       return;
+    }
+
+    setState(() {
+      _isLoading = true;
     });
+
+    //  define para amanhã
+    DateTime dataPadrao = DateTime.now().add(const Duration(days: 1));
+
+    final novoEvento = Event(
+      id: 0, 
+      nome: _tituloController.text,
+      descricao: _descricaoController.text,
+      location: "${_enderecoController.text} - $estadoSelecionado",
+      date: dataPadrao, 
+      totalVagas: 50,
+      participantes: 0,
+      ongId: 1, 
+    );
+
+    // Chama API
+    bool sucesso = await _service.createEvent(novoEvento);
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (sucesso) {
+      print("Evento criado com sucesso!");
+      if (!mounted) return;
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('✅ Evento salvo com sucesso!'), 
+          backgroundColor: Colors.green
+        ),
+      );
+      
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted) Navigator.of(context).pop();
+      });
+
+    } else {
+      print("Erro ao criar evento na API");
+      if (!mounted) return;
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('❌ Erro de conexão com o servidor.'), 
+          backgroundColor: Colors.red
+        ),
+      );
+    }
   }
 
   Widget _buildActionButton({
@@ -206,7 +237,6 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: BarraSuperiorONG(onBack: () => Navigator.of(context).pop()),
-
       bottomNavigationBar: BottomNavBar(
         iconSelecionado: _selectedIndex,
         onTap: (index) {
@@ -215,7 +245,6 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
           });
         },
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -233,14 +262,18 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
             ),
             const SizedBox(height: 30.0),
 
+            if (_isLoading) 
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: CircularProgressIndicator(),
+                )
+              ),
+
             _buildGrayInput(
               hintText: 'TITULO DO EVENTO',
               controller: _tituloController,
-              suffixIcon: const Icon(
-                Icons.edit_outlined,
-                color: corAzulTexto,
-                size: 24,
-              ),
+              suffixIcon: const Icon(Icons.edit_outlined, color: corAzulTexto, size: 24),
             ),
             const SizedBox(height: 20.0),
 
@@ -250,11 +283,7 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
                   child: _buildGrayInput(
                     hintText: 'Endereço / Cidade',
                     controller: _enderecoController,
-                    suffixIcon: const Icon(
-                      Icons.edit_outlined,
-                      color: corAzulTexto,
-                      size: 24,
-                    ),
+                    suffixIcon: const Icon(Icons.edit_outlined, color: corAzulTexto, size: 24),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -262,27 +291,20 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
               ],
             ),
             const SizedBox(height: 20.0),
-
             _buildGrayInput(
               hintText: 'HORÁRIO',
               controller: _horarioController,
             ),
             const SizedBox(height: 20.0),
-
             _buildGrayInput(
               hintText: 'FOTO DE DIVULGAÇÃO',
               controller: _fotoController,
               suffixIcon: InkWell(
-                onTap: () => print('Abrir seletor de fotos'),
-                child: const Icon(
-                  Icons.file_download,
-                  color: corAzulTexto,
-                  size: 24,
-                ),
+                onTap: () => print('TODO: Implementar upload de foto'),
+                child: const Icon(Icons.file_download, color: corAzulTexto, size: 24),
               ),
             ),
             const SizedBox(height: 20.0),
-
             _buildGrayInput(
               hintText: 'DESCRIÇÃO',
               controller: _descricaoController,
