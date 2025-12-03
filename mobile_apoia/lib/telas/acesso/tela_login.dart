@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/telas/acesso/pre_cadastro.dart';
+import 'package:mobile_apoia/telas/doador/home_usuario.dart';
 import 'package:mobile_apoia/telas/home_ongs.dart';
 import 'package:mobile_apoia/widgets/logo.dart';
 import 'package:mobile_apoia/widgets/cores.dart';
@@ -135,9 +136,11 @@ class _TelaLoginState extends State<TelaLogin> {
                         );
                       } else if (tipoUsuario == 'voluntario') {
                         // Redireciona para Home do Voluntário
-                        Navigator.pushReplacementNamed(
+                        Navigator.pushReplacement(
                           context,
-                          '/home_voluntario', //preencher corretamente depois
+                          MaterialPageRoute(
+                            builder: (context) => HomeUsuario(),
+                          ),
                         );
                       } else {
                         // Caso seja 'admin' ou um tipo desconhecido

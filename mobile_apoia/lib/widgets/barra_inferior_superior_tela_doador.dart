@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'logo.dart';
 
 // Cores (Tema Doador)
 const Color corAzulPrincipal = Color(0xFF007AFF);
 const Color corLaranjaONG = Color(0xFFFF9900);
 
-//  BARRA SUPERIOR 
+//  BARRA SUPERIOR
 class SuperiorBarDoador extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackButton;
 
@@ -16,31 +17,23 @@ class SuperiorBarDoador extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: corAzulPrincipal, 
+      backgroundColor: corAzulPrincipal,
       elevation: 0,
-      
-      leading: showBackButton 
+
+      leading: showBackButton
           ? IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.of(context).pop(),
             )
           : null,
-      
-      title: const Text(
-        'APOIA+',
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
-        ),
-      ),
+
+      title: const Logo(),
       centerTitle: true,
-      
-      automaticallyImplyLeading: false, 
+
+      automaticallyImplyLeading: false,
     );
   }
 }
-
 
 class BottomNavBarDoador extends StatelessWidget {
   final int iconSelecionado;
@@ -55,35 +48,41 @@ class BottomNavBarDoador extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      backgroundColor: corAzulPrincipal,
 
-      backgroundColor: corAzulPrincipal, 
-      
       currentIndex: iconSelecionado,
       onTap: onTap,
-      
-      items: <BottomNavigationBarItem>[
 
+      items: <BottomNavigationBarItem>[
         BottomNavigationBarItem(
-          icon: Icon(Icons.home, color: iconSelecionado == 0 ? Colors.white : Colors.white70),
+          icon: Icon(
+            Icons.home,
+            color: iconSelecionado == 0 ? Colors.white : Colors.white70,
+          ),
           label: 'Início',
         ),
-    
+
         BottomNavigationBarItem(
-          icon: Icon(Icons.chat_bubble, color: iconSelecionado == 1 ? Colors.white : Colors.white70),
+          icon: Icon(
+            Icons.chat_bubble,
+            color: iconSelecionado == 1 ? Colors.white : Colors.white70,
+          ),
           label: 'Mensagens',
         ),
-        
+
         BottomNavigationBarItem(
-          icon: Icon(Icons.person, color: iconSelecionado == 2 ? Colors.white : Colors.white70),
+          icon: Icon(
+            Icons.person,
+            color: iconSelecionado == 2 ? Colors.white : Colors.white70,
+          ),
           label: 'Perfil',
         ),
       ],
-      
-     
+
       selectedItemColor: Colors.white,
       unselectedItemColor: Colors.white70,
       showUnselectedLabels: true,
-      type: BottomNavigationBarType.fixed, 
+      type: BottomNavigationBarType.fixed,
     );
   }
 }

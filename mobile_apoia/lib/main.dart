@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_apoia/telas/doador/visualizar_evento_doador.dart';
 import 'package:mobile_apoia/models/event.dart';
 import 'package:mobile_apoia/telas/onboarding/splash_screen.dart';
-import 'package:mobile_apoia/telas/home_ongs.dart';
-import 'package:mobile_apoia/telas/doador/visualizar_evento_doador.dart';
 
 void main() {
   runApp(const MeuApp());
