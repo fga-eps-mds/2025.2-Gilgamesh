@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/widgets/logo.dart';
+import '../telas/home_ongs.dart';
 
 //Barra inferior de navegação
 class BottomNavBar extends StatelessWidget {
@@ -27,23 +28,19 @@ class BottomNavBar extends StatelessWidget {
               color: iconSelecionado == 0 ? Colors.white : Colors.white70,
               size: 28,
             ),
-            onPressed: () => onTap(0),
-          ),
-          IconButton(
-            icon: Icon(
-              Icons.chat_bubble_outline,
-              color: iconSelecionado == 1 ? Colors.white : Colors.white70,
-              size: 28,
+            onPressed: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const HomeOngs()),
             ),
-            onPressed: () => onTap(1),
           ),
+
           IconButton(
             icon: Icon(
               Icons.person,
               color: iconSelecionado == 2 ? Colors.white : Colors.white70,
               size: 28,
             ),
-            onPressed: () => onTap(2),
+            onPressed: () => onTap(2), //tela do perfil ong aqui
           ),
         ],
       ),
@@ -61,7 +58,7 @@ class SuperiorBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: const Color(0xFFE2952A),
       elevation: 0,
       centerTitle: true,
-      title: const Logo(height: 50),
+      title: Logo(),
     );
   }
 
