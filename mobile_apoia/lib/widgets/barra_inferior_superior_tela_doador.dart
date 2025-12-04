@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_apoia/telas/doador/home_usuario.dart';
+import 'package:mobile_apoia/telas/doador/tela_perfil_usuario.dart';
 import 'logo.dart';
 
 // Cores (Tema Doador)
@@ -51,23 +53,30 @@ class BottomNavBarDoador extends StatelessWidget {
       backgroundColor: corAzulPrincipal,
 
       currentIndex: iconSelecionado,
-      onTap: onTap,
 
+      onTap: (index) {
+        onTap(index);
+
+        if (index == 0) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomeUsuario()),
+          );
+        } else if (index == 2) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const TelaPerfilUsuario(isOng: false),
+            ),
+          );
+        }
+      },
       items: <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(
             Icons.home,
             color: iconSelecionado == 0 ? Colors.white : Colors.white70,
           ),
-          label: 'Início',
-        ),
-
-        BottomNavigationBarItem(
-          icon: Icon(
-            Icons.chat_bubble,
-            color: iconSelecionado == 1 ? Colors.white : Colors.white70,
-          ),
-          label: 'Mensagens',
         ),
 
         BottomNavigationBarItem(
@@ -75,7 +84,6 @@ class BottomNavBarDoador extends StatelessWidget {
             Icons.person,
             color: iconSelecionado == 2 ? Colors.white : Colors.white70,
           ),
-          label: 'Perfil',
         ),
       ],
 
