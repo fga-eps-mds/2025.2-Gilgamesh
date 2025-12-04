@@ -14,10 +14,12 @@ class HomeOngs extends StatefulWidget {
 }
 
 class _TelaListaDeEventosState extends State<HomeOngs> {
+  final SearchController searchController = SearchController();
+  final ScrollController scrollController =
+      ScrollController(); //necessario para seta do carrossel funcionar
   //futura conexão django
   // late Future<List<Event>> futureEventos;
 
-  // LISTA PARA TESTES
   final List<Event> eventosMock = [
     Event(
       id: 1,
@@ -51,6 +53,22 @@ class _TelaListaDeEventosState extends State<HomeOngs> {
     ),
   ];
 
+  List<Event> eventosFiltrados = [];
+
+  @override
+  void initState() {
+    super.initState();
+    eventosFiltrados = eventosMock;
+  }
+
+  void scrollRight() {
+    scrollController.animateTo(
+      scrollController.offset + 250,
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeOut,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,31 +77,116 @@ class _TelaListaDeEventosState extends State<HomeOngs> {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const BarraDePesquisa(),
+            const Text(
+              "Minhas campanhas ativas",
+              style: TextStyle(
+                fontSize: 22,
+                color: Color(0xFF1E5AA8),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+
             const SizedBox(height: 16),
 
+            //barra de pesquisa (com autocomplete)
+            SearchAnchor(
+              searchController: searchController,
+              builder: (context, controller) {
+                return BarraDePesquisa(
+                  onTap: () => controller.openView(),
+                  onChanged: (value) {
+                    controller.text = value;
+
+                    setState(() {
+                      final txt = value.toLowerCase();
+
+                      eventosFiltrados = eventosMock.where((evento) {
+                        return evento.nome.toLowerCase().contains(txt) ||
+                            evento.descricao.toLowerCase().contains(txt) ||
+                            evento.location.toLowerCase().contains(txt);
+                      }).toList();
+                    });
+                  },
+                );
+              },
+              suggestionsBuilder: (context, controller) {
+                final txt = controller.text.toLowerCase();
+
+                final sugestoes = eventosMock.where((evento) {
+                  return evento.nome.toLowerCase().contains(txt);
+                }).toList();
+
+                if (sugestoes.isEmpty) {
+                  return const [
+                    ListTile(title: Text("Nenhum evento encontrado")),
+                  ];
+                }
+
+                return sugestoes.map((evento) {
+                  return ListTile(
+                    title: Text(evento.nome),
+                    onTap: () {
+                      controller.closeView(evento.nome);
+                      setState(() => eventosFiltrados = [evento]);
+                    },
+                  );
+                }).toList();
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            //carrossel de eventos
             Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: eventosMock
-                      .map(
-                        (e) => EventCard(
-                          event: e,
-                          onTap: () {
-                            print("Clicou no evento: ${e.nome}");
-                          },
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    controller: scrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: eventosFiltrados
+                          .map(
+                            (e) => EventCard(
+                              event: e,
+                              onTap: () {
+                                print("Clicou no evento: ${e.nome}");
+                              },
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
+
+                  // Seta flutuante
+                  Positioned(
+                    right: 0,
+                    top: 90,
+                    child: GestureDetector(
+                      onTap: scrollRight,
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF2DB38A),
+                          shape: BoxShape.circle,
                         ),
-                      )
-                      .toList(),
-                ),
+                        child: const Icon(
+                          Icons.arrow_forward,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
       ),
 
+      //botão criar evento
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -96,7 +199,6 @@ class _TelaListaDeEventosState extends State<HomeOngs> {
                   builder: (context) => const CriarEventoTela(),
                 ),
               );
-              print("Criar novo evento");
             },
             child: const Icon(Icons.add, size: 30),
           ),
@@ -111,12 +213,7 @@ class _TelaListaDeEventosState extends State<HomeOngs> {
         ],
       ),
 
-      bottomNavigationBar: BottomNavBar(
-        iconSelecionado: 0,
-        onTap: (index) {
-          print("Ícone clicado: $index");
-        },
-      ),
+      bottomNavigationBar: BottomNavBar(iconSelecionado: 0, onTap: (index) {}),
     );
   }
 }

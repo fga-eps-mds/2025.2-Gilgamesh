@@ -2,7 +2,14 @@ import 'package:flutter/material.dart';
 
 //Barra de pesquisa
 class BarraDePesquisa extends StatelessWidget {
-  const BarraDePesquisa({super.key});
+  final Function(String) onChanged;
+  final VoidCallback onTap;
+
+  const BarraDePesquisa({
+    super.key,
+    required this.onChanged,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +26,8 @@ class BarraDePesquisa extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: TextField(
+              onTap: onTap,
+              onChanged: onChanged,
               decoration: const InputDecoration(
                 hintText: "Buscar Campanhas, ONGs ou Eventos",
                 border: InputBorder.none,
