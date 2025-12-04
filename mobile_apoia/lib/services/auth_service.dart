@@ -4,21 +4,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 
 class AuthService {
-  // O código decide qual IP usar baseado em onde está rodando
   String get baseUrl {
     if (Platform.isAndroid) {
       return 'http://10.0.2.2:8000/api/auth';
     } else {
-      // Para Linux, Windows, iOS e Web
       return 'http://127.0.0.1:8000/api/auth';
     }
   }
 
-  /*  // auth_service.dart
-  final String baseUrl =
-      'http://XXX.XXX.XX.X:8000/api/auth'; // Use o SEU IP aqui */
-
-  // login
   Future<String?> login(String email, String senha) async {
     final url = Uri.parse('$baseUrl/login/');
 
@@ -30,17 +23,17 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
+        
         String token = data['token'];
+        String tipo = data['usuario']['tipo_usuario'] ?? 'voluntario'; 
 
-        String tipo = data['usuario']['tipo_usuario'];
-
-        // Salvar token no celular para usar depois
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', token);
+        
         await prefs.setString('user_data', jsonEncode(data['usuario']));
 
-        return tipo; // Login sucesso
+        return tipo; 
       } else {
         print('Erro Login: ${response.body}');
         return null;
@@ -50,13 +43,11 @@ class AuthService {
       return null;
     }
   }
-
-  // Cadastro
   Future<bool> cadastrar({
     required String nome,
     required String email,
     required String password,
-    required String tipoUsuario, // 'ong' ou 'voluntario'
+    required String tipoUsuario, 
     String? cpf,
     String? cnpj,
     String? endereco,
@@ -65,19 +56,16 @@ class AuthService {
   }) async {
     final url = Uri.parse('$baseUrl/cadastro/');
 
-    // Json que comunica com o Django
     Map<String, dynamic> body = {
       'nome': nome,
       'email': email,
-      'password':
-          password, // No cadastro o Django espera 'password' (ModelSerializer)
+      'password': password, 
       'tipo_usuario': tipoUsuario,
       'endereco': endereco,
       'telefone': telefone,
       'descricao': descricao,
     };
 
-    // Adiciona CPF ou CNPJ dependendo do tipo
     if (tipoUsuario == 'voluntario' && cpf != null) {
       body['cpf'] = cpf;
     } else if (tipoUsuario == 'ong' && cnpj != null) {
@@ -91,21 +79,26 @@ class AuthService {
         body: jsonEncode(body),
       );
 
-      if (response.statusCode == 201) {
-        return true; // Cadastro sucesso
-      } else {
-        print('Erro Cadastro: ${response.body}');
-        return false;
-      }
+      return response.statusCode == 201;
     } catch (e) {
       print('Erro: $e');
       return false;
     }
   }
 
-  // Função útil para deslogar
+  Future<String?> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+  Future<Map<String, dynamic>?> getUsuarioSalvo() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userJson = prefs.getString('user_data');
+    if (userJson == null) return null;
+    return jsonDecode(userJson);
+  }
+
   Future<void> logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear(); // Apaga o token
+    await prefs.clear();
   }
 }
