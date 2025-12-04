@@ -3,8 +3,8 @@ import 'package:mobile_apoia/widgets/barra_inferior_e_superior.dart';
 import 'package:mobile_apoia/widgets/logo.dart';
 import '../../models/event.dart';
 import '../../services/event_service.dart';
+import '../../services/auth_service.dart'; 
 
-// Cores tema
 const Color corAzulTexto = Color(0xFF007AFF);
 const Color corCinzaInput = Color(0xFFEFEFEF);
 const Color corLaranjaONG = Color(0xFFFF9900);
@@ -41,8 +41,8 @@ class CriarEventoTela extends StatefulWidget {
 class _CriarEventoTelaState extends State<CriarEventoTela> {
   int _selectedIndex = 0;
   
-  // conectar na API
   final EventService _service = EventService();
+  final AuthService _authService = AuthService(); 
   bool _isLoading = false;
 
   final TextEditingController _tituloController = TextEditingController();
@@ -147,11 +147,9 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
     );
   }
 
-  // Lógica para enviar o evento para o backend
   void _criarEvento(BuildContext context) async {
-    print("Tentando criar evento: ${_tituloController.text}");
+    print("Iniciando criação de evento...");
 
-    // Validação simples
     if (_tituloController.text.isEmpty) {
        ScaffoldMessenger.of(context).showSnackBar(
          const SnackBar(content: Text('O título é obrigatório!'))
@@ -159,11 +157,24 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
        return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
-    //  define para amanhã
+    final dadosUsuario = await _authService.getUsuarioSalvo();
+    int idUsuarioLogado = 0;
+
+    if (dadosUsuario != null && dadosUsuario['id'] != null) {
+      idUsuarioLogado = dadosUsuario['id'];
+      print("Usuário identificado: ID $idUsuarioLogado");
+    } else {
+      print("Erro: Usuário não está logado ou token expirou.");
+      setState(() => _isLoading = false);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro de autenticação. Faça login novamente.'), backgroundColor: Colors.red)
+      );
+      return;
+    }
+
     DateTime dataPadrao = DateTime.now().add(const Duration(days: 1));
 
     final novoEvento = Event(
@@ -174,40 +185,25 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
       date: dataPadrao, 
       totalVagas: 50,
       participantes: 0,
-      ongId: 1, 
+      ongId: idUsuarioLogado, 
     );
 
-    // Chama API
     bool sucesso = await _service.createEvent(novoEvento);
 
-    setState(() {
-      _isLoading = false;
-    });
+    setState(() => _isLoading = false);
 
     if (sucesso) {
-      print("Evento criado com sucesso!");
       if (!mounted) return;
-      
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('✅ Evento salvo com sucesso!'), 
-          backgroundColor: Colors.green
-        ),
+        const SnackBar(content: Text('✅ Evento salvo com sucesso!'), backgroundColor: Colors.green),
       );
-      
       Future.delayed(const Duration(seconds: 1), () {
         if (mounted) Navigator.of(context).pop();
       });
-
     } else {
-      print("Erro ao criar evento na API");
       if (!mounted) return;
-      
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('❌ Erro de conexão com o servidor.'), 
-          backgroundColor: Colors.red
-        ),
+        const SnackBar(content: Text('❌ Erro de conexão com o servidor.'), backgroundColor: Colors.red),
       );
     }
   }
@@ -263,12 +259,7 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
             const SizedBox(height: 30.0),
 
             if (_isLoading) 
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(10.0),
-                  child: CircularProgressIndicator(),
-                )
-              ),
+              const Center(child: Padding(padding: EdgeInsets.all(10), child: CircularProgressIndicator())),
 
             _buildGrayInput(
               hintText: 'TITULO DO EVENTO',
@@ -299,10 +290,7 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
             _buildGrayInput(
               hintText: 'FOTO DE DIVULGAÇÃO',
               controller: _fotoController,
-              suffixIcon: InkWell(
-                onTap: () => print('TODO: Implementar upload de foto'),
-                child: const Icon(Icons.file_download, color: corAzulTexto, size: 24),
-              ),
+              suffixIcon: const Icon(Icons.file_download, color: corAzulTexto, size: 24),
             ),
             const SizedBox(height: 20.0),
             _buildGrayInput(
