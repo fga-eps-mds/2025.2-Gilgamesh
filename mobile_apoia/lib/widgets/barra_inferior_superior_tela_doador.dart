@@ -77,6 +77,7 @@ class BottomNavBarDoador extends StatelessWidget {
             Icons.home,
             color: iconSelecionado == 0 ? Colors.white : Colors.white70,
           ),
+          label: 'Inicio',
         ),
 
         BottomNavigationBarItem(
@@ -84,6 +85,7 @@ class BottomNavBarDoador extends StatelessWidget {
             Icons.person,
             color: iconSelecionado == 2 ? Colors.white : Colors.white70,
           ),
+          label: 'Perfil',
         ),
       ],
 
