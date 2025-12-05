@@ -65,9 +65,7 @@ class BottomNavBarDoador extends StatelessWidget {
         } else if (index == 2) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (_) => const TelaPerfilUsuario(isOng: false),
-            ),
+            MaterialPageRoute(builder: (_) => const TelaPerfilUsuario()),
           );
         }
       },

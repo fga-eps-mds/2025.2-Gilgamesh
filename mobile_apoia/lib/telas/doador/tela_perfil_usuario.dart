@@ -1,40 +1,35 @@
 import 'package:flutter/material.dart';
-import '../../widgets/barra_inferior_e_superior.dart';
+import '../../widgets/barra_inferior_superior_tela_doador.dart';
 import '../../widgets/logo.dart';
 import '../../services/auth_service.dart';
-import '../../telas/acesso/tela_login.dart'; 
+import '../../telas/acesso/tela_login.dart';
 
 class TelaPerfilUsuario extends StatefulWidget {
-  final bool isOng; 
-
-  const TelaPerfilUsuario({super.key, required this.isOng});
+  const TelaPerfilUsuario({super.key});
 
   @override
   State<TelaPerfilUsuario> createState() => _TelaPerfilUsuarioState();
 }
 
 class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
-  int _selectedIndex = 2;
-  final AuthService _authService = AuthService(); 
-
+  int _selectedIndex = 1;
+  final AuthService _authService = AuthService();
 
   String _nomeUsuario = "Carregando...";
   String _email = "...";
-  String _tipo = "";
+  //String _tipo = "";
 
-  
-  Color get corPrincipal => widget.isOng ? const Color(0xFFFF9900) : const Color(0xFF007AFF);
+  Color get corPrincipal => const Color(0xFF007AFF);
 
   @override
   void initState() {
     super.initState();
-    _carregarDados(); 
+    _carregarDados();
   }
 
- 
   void _carregarDados() async {
     final dados = await _authService.getUsuarioSalvo();
-    
+
     if (dados != null) {
       setState(() {
         _nomeUsuario = dados['nome'] ?? dados['username'] ?? 'Usuário';
@@ -65,7 +60,7 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: Colors.grey.shade300, 
+        color: Colors.grey.shade300,
         borderRadius: BorderRadius.circular(5),
       ),
       child: ListTile(
@@ -93,7 +88,7 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Logo(), 
+        title: const Logo(),
         centerTitle: true,
       ),
 
@@ -105,11 +100,11 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
             decoration: BoxDecoration(
               color: Colors.white,
               boxShadow: [
-                 BoxShadow(
+                BoxShadow(
                   color: Colors.grey.withOpacity(0.2),
                   spreadRadius: 1,
                   blurRadius: 5,
-                  offset: const Offset(0, 3), 
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
@@ -125,9 +120,9 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
                 Text(
                   _nomeUsuario,
                   style: TextStyle(
-                    color: corPrincipal, 
-                    fontWeight: FontWeight.bold, 
-                    fontSize: 18
+                    color: corPrincipal,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -154,13 +149,13 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
                     icon: Icons.edit_square,
                     text: "Editar Dados",
                     onTap: () {
-                       print("Editar");
+                      print("Editar");
                     },
                   ),
                   _buildMenuItem(
-                    icon: Icons.exit_to_app, 
+                    icon: Icons.exit_to_app,
                     text: "Sair da Conta",
-                    color: Colors.red, 
+                    color: Colors.red,
                     onTap: _sair,
                   ),
                 ],
@@ -170,7 +165,7 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
         ],
       ),
 
-      bottomNavigationBar: BottomNavBar(
+      bottomNavigationBar: BottomNavBarDoador(
         iconSelecionado: _selectedIndex,
         onTap: (index) {
           setState(() => _selectedIndex = index);
