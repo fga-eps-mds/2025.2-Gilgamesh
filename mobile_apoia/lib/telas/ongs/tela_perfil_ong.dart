@@ -3,6 +3,7 @@ import '../../widgets/barra_inferior_e_superior.dart';
 import '../../widgets/logo.dart';
 import '../../services/auth_service.dart';
 import '../../telas/acesso/tela_login.dart';
+import 'package:mobile_apoia/widgets/cores.dart';
 
 class TelaPerfilONG extends StatefulWidget {
   const TelaPerfilONG({super.key});
@@ -19,7 +20,7 @@ class _TelaPerfilONGState extends State<TelaPerfilONG> {
   String _email = "...";
   //String _tipo = "";
 
-  Color get corPrincipal => const Color(0xFFE2952A);
+  Color get corPrincipal => AppColors.laranjaApoia;
 
   @override
   void initState() {

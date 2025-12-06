@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_apoia/widgets/cores.dart';
 import '../../widgets/barra_inferior_superior_tela_doador.dart';
 import '../../widgets/logo.dart';
 import '../../services/auth_service.dart';
@@ -19,7 +20,7 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
   String _email = "...";
   //String _tipo = "";
 
-  Color get corPrincipal => const Color(0xFF007AFF);
+  Color get corPrincipal => AppColors.azulApoia;
 
   @override
   void initState() {

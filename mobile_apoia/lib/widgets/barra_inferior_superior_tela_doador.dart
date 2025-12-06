@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:mobile_apoia/telas/doador/home_usuario.dart';
 import 'package:mobile_apoia/telas/doador/tela_perfil_usuario.dart';
 import 'logo.dart';
-
+import 'package:mobile_apoia/widgets/cores.dart';
 // Cores (Tema Doador)
-const Color corAzulPrincipal = Color(0xFF007AFF);
-const Color corLaranjaONG = Color(0xFFFF9900);
+
 
 //  BARRA SUPERIOR
 class SuperiorBarDoador extends StatelessWidget implements PreferredSizeWidget {
@@ -19,7 +18,7 @@ class SuperiorBarDoador extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: corAzulPrincipal,
+      backgroundColor: AppColors.azulApoia,
       elevation: 0,
 
       leading: showBackButton
@@ -50,7 +49,7 @@ class BottomNavBarDoador extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      backgroundColor: corAzulPrincipal,
+      backgroundColor: AppColors.azulApoia,
 
       currentIndex: iconSelecionado,
 

@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:mobile_apoia/telas/ongs/tela_perfil_ong.dart';
 import 'package:mobile_apoia/widgets/logo.dart';
 import '../telas/home_ongs.dart';
+import 'package:mobile_apoia/widgets/cores.dart';
 
 //Barra inferior de navegação
-// Cores (Tema Doador)
-const Color corAzulPrincipal = Color(0xFF007AFF);
-const Color corLaranjaONG = Color(0xFFFF9900);
 
 //  BARRA SUPERIOR
 class SuperiorBar extends StatelessWidget implements PreferredSizeWidget {
@@ -20,7 +18,7 @@ class SuperiorBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: corLaranjaONG,
+      backgroundColor: AppColors.laranjaApoia,
       elevation: 0,
 
       leading: showBackButton
@@ -51,7 +49,7 @@ class BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      backgroundColor: corLaranjaONG,
+      backgroundColor: AppColors.laranjaApoia,
 
       currentIndex: iconSelecionado,
 
