@@ -1,24 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/widgets/cores.dart';
-import '/models/event.dart'; 
-import '/widgets/barra_inferior_superior_tela_doador.dart'; 
-import 'sucesso_inscricao_tela.dart'; 
-
+import '/models/event.dart';
+import '/widgets/barra_inferior_superior_tela_doador.dart';
+import 'sucesso_inscricao_tela.dart';
 
 class DetalhesDoadorTela extends StatelessWidget {
   final Event event;
 
   const DetalhesDoadorTela({super.key, required this.event});
 
-
   Widget _buildDetailRow(IconData icon, String text) {
-    
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, color: AppColors.azulApoia, size: 28), 
+          Icon(icon, color: AppColors.azulApoia, size: 28),
           const SizedBox(width: 15),
           Expanded(
             child: Text(
@@ -38,23 +35,19 @@ class DetalhesDoadorTela extends StatelessWidget {
   void _confirmarParticipacao(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const SucessoInscricaoTela(),
-      ),
+      MaterialPageRoute(builder: (context) => const SucessoInscricaoTela()),
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
-      appBar: const SuperiorBarDoador(showBackButton: true), 
-      
+      appBar: const SuperiorBarDoador(showBackButton: true),
+
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            
             Container(
               height: 200,
               color: Colors.grey.shade300,
@@ -69,7 +62,6 @@ class DetalhesDoadorTela extends StatelessWidget {
               ),
             ),
 
-            
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
@@ -77,7 +69,7 @@ class DetalhesDoadorTela extends StatelessWidget {
                 children: <Widget>[
                   // Título e ONG Responsável
                   Text(
-                    event.nome.toUpperCase(),
+                    event.titulo.toUpperCase(),
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -86,7 +78,7 @@ class DetalhesDoadorTela extends StatelessWidget {
                   ),
                   const SizedBox(height: 5),
                   const Text(
-                    'ONG RESPONSÁVEL', 
+                    'ONG RESPONSÁVEL',
                     style: TextStyle(
                       fontSize: 16,
                       color: AppColors.laranjaApoia,
@@ -94,7 +86,7 @@ class DetalhesDoadorTela extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 15),
-                  
+
                   Text(
                     event.descricao,
                     style: const TextStyle(fontSize: 16, height: 1.4),
@@ -102,17 +94,13 @@ class DetalhesDoadorTela extends StatelessWidget {
                   const SizedBox(height: 30),
 
                   const Divider(),
-                  
+
                   _buildDetailRow(
                     Icons.location_on,
                     'LOCALIZAÇÃO: ${event.location}',
                   ),
 
-                
-                  _buildDetailRow(
-                    Icons.access_time,
-                    'HORÁRIO: 08:00 HORAS', 
-                  ),
+                  _buildDetailRow(Icons.access_time, 'HORÁRIO: 08:00 HORAS'),
                   const SizedBox(height: 40),
 
                   ElevatedButton(
@@ -120,7 +108,10 @@ class DetalhesDoadorTela extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.azulApoia,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 40,
+                        vertical: 15,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
@@ -128,23 +119,24 @@ class DetalhesDoadorTela extends StatelessWidget {
                     ),
                     child: const Text(
                       'PARTICIPAR DO EVENTO',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 20), 
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
           ],
         ),
       ),
-      
+
       bottomNavigationBar: BottomNavBarDoador(
-        iconSelecionado: 0, 
-        onTap: (index) {
-          
-        },
+        iconSelecionado: 0,
+        onTap: (index) {},
       ),
-    ); 
+    );
   }
 }
