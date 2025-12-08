@@ -8,10 +8,14 @@ from django.contrib.auth import login, logout, authenticate
 from .models import Usuario
 from .serializers import UsuarioSerializer
 from rest_framework.authtoken.models import Token
+from rest_framework.permissions import AllowAny
 
 
 
 class LoginView(APIView):
+    
+    permission_classes = [AllowAny]
+    
     def post(self, request):
         email = request.data.get('email')
         senha = request.data.get('senha')
@@ -52,6 +56,9 @@ class LogoutView(APIView):
                         status=status.HTTP_200_OK)
         
 class CadastroView(APIView):
+    
+    permission_classes = [AllowAny]
+    
     """
     Recebe os dados do formulário, valida via Serializer e cria o usuário.
     """
