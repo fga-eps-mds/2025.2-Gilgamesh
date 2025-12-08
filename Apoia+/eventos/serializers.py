@@ -8,7 +8,7 @@ class EventoSerializer(serializers.ModelSerializer):
         model = Evento
         fields = [
             'id',
-            'nome',
+            'titulo',
             'descricao',
             'data_inicio',
             'data_fim',
