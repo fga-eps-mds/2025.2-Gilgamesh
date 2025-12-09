@@ -4,7 +4,6 @@ import '/models/event.dart';
 import '/widgets/barra_inferior_superior_tela_doador.dart'; 
 import 'sucesso_inscricao_tela.dart'; 
 
-
 class DetalhesDoadorTela extends StatelessWidget {
   final Event event;
 

@@ -5,6 +5,7 @@ import '../../widgets/barra_inferior_superior_tela_doador.dart';
 import '../../widgets/logo.dart';
 import '../../services/auth_service.dart';
 import '../../telas/acesso/tela_login.dart';
+import '../../telas/doador/tela_sobre.dart';
 
 class TelaPerfilUsuario extends StatefulWidget {
   const TelaPerfilUsuario({super.key});
@@ -42,6 +43,12 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
         _nomeUsuario = "Visitante";
       });
     }
+  }
+
+  void _navegarParaSobre() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => const AboutAppScreen()),
+    );
   }
 
   void _sair() async {
@@ -153,6 +160,11 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
                     onTap: () {
                       print("Editar");
                     },
+                  ),
+                  _buildMenuItem(
+                    icon: Icons.info_outline,
+                    text: "Sobre o App",
+                    onTap: _navegarParaSobre,
                   ),
                   _buildMenuItem(
                     icon: Icons.exit_to_app,
