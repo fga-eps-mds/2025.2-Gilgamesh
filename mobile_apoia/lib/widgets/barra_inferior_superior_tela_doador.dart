@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/telas/doador/home_usuario.dart';
 import 'package:mobile_apoia/telas/doador/tela_perfil_usuario.dart';
-import 'logo.dart'; 
+import 'logo.dart';
+import 'package:mobile_apoia/widgets/cores.dart';
+import 'package:mobile_apoia/telas/doador/home_usuario.dart';
+import 'package:mobile_apoia/telas/doador/tela_sobre.dart';
+// Cores (Tema Doador)
 
 
-const Color corAzulPrincipal = Color(0xFF007AFF);
-const Color corLaranjaONG = Color(0xFFFF9900);
-
-// BARRA SUPERIOR 
-
+//  BARRA SUPERIOR
 class SuperiorBarDoador extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackButton;
 
@@ -20,7 +20,7 @@ class SuperiorBarDoador extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: corAzulPrincipal,
+      backgroundColor: AppColors.azulApoia,
       elevation: 0,
 
       leading: showBackButton
@@ -38,11 +38,8 @@ class SuperiorBarDoador extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-// BARRA INFERIOR 
-
 class BottomNavBarDoador extends StatelessWidget {
-
-  final int iconSelecionado; 
+  final int iconSelecionado;
   final ValueChanged<int> onTap;
 
   const BottomNavBarDoador({
@@ -51,62 +48,50 @@ class BottomNavBarDoador extends StatelessWidget {
     required this.onTap,
   });
 
-  
-  void _handleNavigation(BuildContext context, int index) {
-    onTap(index);
-
-    Widget screenToNavigate;
-    if (index == 0) {
-      screenToNavigate = const HomeUsuario();
-    } else if (index == 1) {
-      
-      screenToNavigate = const TelaPerfilUsuario(isOng: false);
-    } else {
-      
-      return; 
-    }
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => screenToNavigate),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-      
-      padding: const EdgeInsets.symmetric(horizontal: 40),
-      height: 75,
-      
-      decoration: const BoxDecoration(color: corAzulPrincipal), 
-      
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-      
-          IconButton(
-            icon: Icon(
-              Icons.home,
-              
-              color: iconSelecionado == 0 ? Colors.white : Colors.white70,
-              size: 28,
-            ),
-            onPressed: () => _handleNavigation(context, 0),
-          ),
+    return BottomNavigationBar(
+      backgroundColor: AppColors.azulApoia,
 
-          
-          IconButton(
-            icon: Icon(
-              Icons.person,
-              
-              color: iconSelecionado == 1 ? Colors.white : Colors.white70,
-              size: 28,
-            ),
-            onPressed: () => _handleNavigation(context, 1), 
+      currentIndex: iconSelecionado,
+
+      onTap: (index) {
+        onTap(index);
+
+        if (index == 0) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomeUsuario()),
+          );
+        } else if (index == 2) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const TelaPerfilUsuario()),
+          );
+        }
+      },
+      items: <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(
+            Icons.home,
+            color: iconSelecionado == 0 ? Colors.white : Colors.white70,
           ),
-        ],
-      ),
+          label: 'Inicio',
+        ),
+
+        BottomNavigationBarItem(
+          icon: Icon(
+            Icons.person,
+            color: iconSelecionado == 2 ? Colors.white : Colors.white70,
+          ),
+          label: 'Perfil',
+        ),
+      ],
+
+      selectedItemColor: Colors.white,
+      unselectedItemColor: Colors.white70,
+      showUnselectedLabels: true,
+      type: BottomNavigationBarType.fixed,
     );
   }
 }

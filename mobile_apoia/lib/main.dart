@@ -1,6 +1,8 @@
+//código main.dart
+
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/models/event.dart';
-import 'package:mobile_apoia/telas/onboarding/splash_screen.dart';
+import 'package:mobile_apoia/telas/doador/tela_sobre.dart';
 
 void main() {
   runApp(const MeuApp());
@@ -28,7 +30,7 @@ class MeuApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Apoia+',
-      home: SplashScreen(),
+      home: AboutAppScreen(),
     );
   }
 }

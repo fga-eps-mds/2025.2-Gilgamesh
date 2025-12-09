@@ -1,19 +1,18 @@
-
 import 'package:flutter/material.dart';
-import 'package:mobile_apoia/widgets/cores.dart';
-import '../../widgets/barra_inferior_superior_tela_doador.dart';
+import '../../widgets/barra_inferior_e_superior.dart';
 import '../../widgets/logo.dart';
 import '../../services/auth_service.dart';
 import '../../telas/acesso/tela_login.dart';
+import 'package:mobile_apoia/widgets/cores.dart';
 
-class TelaPerfilUsuario extends StatefulWidget {
-  const TelaPerfilUsuario({super.key});
+class TelaPerfilONG extends StatefulWidget {
+  const TelaPerfilONG({super.key});
 
   @override
-  State<TelaPerfilUsuario> createState() => _TelaPerfilUsuarioState();
+  State<TelaPerfilONG> createState() => _TelaPerfilONGState();
 }
 
-class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
+class _TelaPerfilONGState extends State<TelaPerfilONG> {
   int _selectedIndex = 1;
   final AuthService _authService = AuthService();
 
@@ -21,7 +20,7 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
   String _email = "...";
   //String _tipo = "";
 
-  Color get corPrincipal => AppColors.azulApoia;
+  Color get corPrincipal => AppColors.laranjaApoia;
 
   @override
   void initState() {
@@ -39,7 +38,7 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
       });
     } else {
       setState(() {
-        _nomeUsuario = "Visitante";
+        _nomeUsuario = "ONG";
       });
     }
   }
@@ -142,7 +141,7 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
                 children: [
                   _buildMenuItem(
                     icon: Icons.check_circle_outline,
-                    text: "Eventos Cadastrados",
+                    text: "Seus Eventos",
                     onTap: () {
                       print("Eventos");
                     },
@@ -167,7 +166,7 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
         ],
       ),
 
-      bottomNavigationBar: BottomNavBarDoador(
+      bottomNavigationBar: BottomNavBar(
         iconSelecionado: _selectedIndex,
         onTap: (index) {
           setState(() => _selectedIndex = index);
