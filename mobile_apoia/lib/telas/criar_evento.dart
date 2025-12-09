@@ -3,7 +3,7 @@ import 'package:mobile_apoia/widgets/barra_inferior_e_superior.dart';
 import 'package:mobile_apoia/widgets/logo.dart';
 import '../../models/event.dart';
 import '../../services/event_service.dart';
-import '../../services/auth_service.dart'; 
+import '../../services/auth_service.dart';
 
 const Color corAzulTexto = Color(0xFF007AFF);
 const Color corCinzaInput = Color(0xFFEFEFEF);
@@ -40,9 +40,9 @@ class CriarEventoTela extends StatefulWidget {
 
 class _CriarEventoTelaState extends State<CriarEventoTela> {
   int _selectedIndex = 0;
-  
+
   final EventService _service = EventService();
-  final AuthService _authService = AuthService(); 
+  final AuthService _authService = AuthService();
   bool _isLoading = false;
 
   final TextEditingController _tituloController = TextEditingController();
@@ -56,8 +56,34 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
 
   String estadoSelecionado = 'UF';
   final List<String> _estados = const [
-    'UF', 'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 
-    'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO',
+    'UF',
+    'AC',
+    'AL',
+    'AP',
+    'AM',
+    'BA',
+    'CE',
+    'DF',
+    'ES',
+    'GO',
+    'MA',
+    'MT',
+    'MS',
+    'MG',
+    'PA',
+    'PB',
+    'PR',
+    'PE',
+    'PI',
+    'RJ',
+    'RN',
+    'RS',
+    'RO',
+    'RR',
+    'SC',
+    'SP',
+    'SE',
+    'TO',
   ];
 
   @override
@@ -165,11 +191,12 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
           items: _estados
               .where((item) => item != 'UF')
               .map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              child: Text(value),
-              value: value,
-            );
-          }).toList(),
+                return DropdownMenuItem<String>(
+                  child: Text(value),
+                  value: value,
+                );
+              })
+              .toList(),
         ),
       ),
     );
@@ -189,8 +216,45 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
        return;
     }
 
+    print("--- [DEBUG] 2. SetState Loading ---");
     setState(() => _isLoading = true);
 
+    try {
+      print("--- [DEBUG] 3. Tentando recuperar o Token... ---");
+      // Se travar aqui, é problema no SharedPreferences
+      final String? token = await _authService.getToken();
+      print("--- [DEBUG] 4. Token recuperado: $token ---");
+
+      if (token == null) {
+        print("--- [DEBUG] ERRO: Token é null ---");
+        setState(() => _isLoading = false);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Sessão expirada. Faça login novamente.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      print("--- [DEBUG] 5. Criando objeto Evento... ---");
+      DateTime dataPadrao = DateTime.now().add(const Duration(days: 1));
+
+      final novoEvento = Event(
+        id: 0,
+        titulo: _tituloController.text,
+        descricao: _descricaoController.text,
+        location: "${_enderecoController.text} - $estadoSelecionado",
+        date: dataPadrao,
+        totalVagas: 50,
+        participantes: 0,
+        ongId: 0,
+      );
+      print("--- [DEBUG] 6. Objeto criado. Enviando para o backend... ---");
+
+      // Se travar aqui, é problema de CONEXÃO (IP errado ou Backend desligado)
+      bool sucesso = await _service.createEvent(novoEvento, token);
     // Busca Usuário Logado
     final dadosUsuario = await _authService.getUsuarioSalvo();
     int idUsuarioLogado = 0;
@@ -239,23 +303,35 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
 
     bool sucesso = await _service.createEvent(novoEvento);
 
-    setState(() => _isLoading = false);
+      print("--- [DEBUG] 7. Resposta recebida: $sucesso ---");
 
-    if (sucesso) {
-      print("-> RESPOSTA DO BANCO: 201 Created (Sucesso!)"); // Log de sucesso
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Evento salvo com sucesso!'), backgroundColor: Colors.green),
-      );
-      Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) Navigator.of(context).pop();
-      });
-    } else {
-      print("-> RESPOSTA DO BANCO: Falha/Erro"); // Log de erro
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro de conexão com o servidor.'), backgroundColor: Colors.red),
-      );
+      setState(() => _isLoading = false);
+
+      if (sucesso) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Evento salvo com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted) Navigator.of(context).pop();
+        });
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('❌ Erro ao criar. Veja o terminal.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e, stacktrace) {
+      // Isso vai pegar qualquer erro escondido
+      print("--- [DEBUG] ERRO CRÍTICO (EXCEPTION): $e ---");
+      print(stacktrace);
+      setState(() => _isLoading = false);
     }
   }
 
@@ -318,14 +394,23 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
             ),
             const SizedBox(height: 30.0),
 
-            if (_isLoading) 
-              const Center(child: Padding(padding: EdgeInsets.all(10), child: CircularProgressIndicator())),
+            if (_isLoading)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(10),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
 
             // TÍTULO
             _buildGrayInput(
               hintText: 'TITULO DO EVENTO',
               controller: _tituloController,
-              suffixIcon: const Icon(Icons.edit_outlined, color: corAzulTexto, size: 24),
+              suffixIcon: const Icon(
+                Icons.edit_outlined,
+                color: corAzulTexto,
+                size: 24,
+              ),
             ),
             const SizedBox(height: 20.0),
 
@@ -336,7 +421,11 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
                   child: _buildGrayInput(
                     hintText: 'Endereço / Cidade',
                     controller: _enderecoController,
-                    suffixIcon: const Icon(Icons.edit_outlined, color: corAzulTexto, size: 24),
+                    suffixIcon: const Icon(
+                      Icons.edit_outlined,
+                      color: corAzulTexto,
+                      size: 24,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),

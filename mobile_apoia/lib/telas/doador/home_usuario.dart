@@ -22,7 +22,7 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
   final List<Event> eventosMock = [
     Event(
       id: 1,
-      nome: "Campanha de Doação",
+      titulo: "Campanha de Doação",
       descricao: "Ajude famílias carentes",
       date: DateTime(2025, 2, 12),
       location: "São Paulo",
@@ -32,7 +32,7 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
     ),
     Event(
       id: 2,
-      nome: "Arrecadação de Roupas",
+      titulo: "Arrecadação de Roupas",
       descricao: "Doe roupas e ajude",
       date: DateTime(2025, 3, 5),
       location: "Rio de Janeiro",
@@ -42,7 +42,7 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
     ),
     Event(
       id: 3,
-      nome: "Mutirão Ambiental",
+      titulo: "Mutirão Ambiental",
       descricao: "Limpeza da praia estadual",
       date: DateTime(2025, 4, 20),
       location: "Florianópolis",
@@ -101,7 +101,7 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
                     setState(() {
                       final txt = value.toLowerCase();
                       eventosFiltrados = eventosMock.where((evento) {
-                        return evento.nome.toLowerCase().contains(txt) ||
+                        return evento.titulo.toLowerCase().contains(txt) ||
                             evento.descricao.toLowerCase().contains(txt) ||
                             evento.location.toLowerCase().contains(txt);
                       }).toList();
@@ -113,7 +113,7 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
                 final txt = controller.text.toLowerCase();
 
                 final sugestoes = eventosMock.where((evento) {
-                  return evento.nome.toLowerCase().contains(txt);
+                  return evento.titulo.toLowerCase().contains(txt);
                 }).toList();
 
                 if (sugestoes.isEmpty) {
@@ -124,9 +124,9 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
 
                 return sugestoes.map((evento) {
                   return ListTile(
-                    title: Text(evento.nome),
+                    title: Text(evento.titulo),
                     onTap: () {
-                      controller.closeView(evento.nome);
+                      controller.closeView(evento.titulo);
                       setState(() => eventosFiltrados = [evento]);
                     },
                   );
@@ -148,7 +148,7 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
                           .map(
                             (e) => EventCard(
                               event: e,
-                              onTap: () => print("Clicou em ${e.nome}"),
+                              onTap: () => print("Clicou em ${e.titulo}"),
                             ),
                           )
                           .toList(),
