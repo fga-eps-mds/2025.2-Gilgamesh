@@ -10,7 +10,8 @@ class AppColors {
   // --- CORES DE BOTÕES E GRADIENTES (Login e Cadastro) ---
   static const Color verdeGradiente1 = Color(0xFF4DB6AC);
   static const Color verdeGradiente2 = Color(0xFF2E8EB6);
-  static const Color laranjaApoia = Color(0xFFFF9800); // O "+" do logo e o "OU"
+  static const Color laranjaApoia = Color(0xFFFF9900); // O "+" do logo e o "OU"
+  static const Color azulApoia = Color(0xFF007AFF); 
   static const Color laranjaBotao = Color(0xFFEAA648); // Botão ONG
   static const Color azulBotao = Color(0xFF2E7DB5); // Botão Doador
 

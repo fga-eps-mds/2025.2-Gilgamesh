@@ -48,7 +48,7 @@ class _TelaLoginState extends State<TelaLogin> {
                 const SizedBox(height: 60),
 
                 const Text(
-                  "LOG IN",
+                  "LOGIN",
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w500,
@@ -200,7 +200,7 @@ class _TelaLoginState extends State<TelaLogin> {
                     TextButton(
                       onPressed: () => print("Entrar sem login"),
                       child: const Text(
-                        "ENTRAR SEM LOG IN",
+                        "ENTRAR SEM LOGIN",
                         style: TextStyle(color: Colors.black87, fontSize: 12),
                       ),
                     ),

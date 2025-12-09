@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_apoia/telas/ongs/tela_perfil_ong.dart';
 //import '../../services/event_service.dart'; --necessita o API primeiro
 import '../models/event.dart';
 import '../widgets/event_card.dart';
@@ -213,7 +214,17 @@ class _TelaListaDeEventosState extends State<HomeOngs> {
         ],
       ),
 
-      bottomNavigationBar: BottomNavBar(iconSelecionado: 0, onTap: (index) {}),
+      bottomNavigationBar: BottomNavBar(
+        iconSelecionado: 0,
+        onTap: (index) {
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => TelaPerfilONG()),
+            );
+          }
+        },
+      ),
     );
   }
 }

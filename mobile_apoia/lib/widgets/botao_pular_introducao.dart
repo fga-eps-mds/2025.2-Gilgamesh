@@ -14,7 +14,7 @@ class BotaoPular extends StatelessWidget {
         );
       },
       child: const Text(
-        "pular explicação",
+        "PULAR",
         style: TextStyle(color: Colors.black54, fontWeight: FontWeight.w400),
       ),
     );

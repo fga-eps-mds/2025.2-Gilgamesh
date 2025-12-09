@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 //import '../../services/event_service.dart'; --necessita o API primeiro
 import 'package:mobile_apoia/models/event.dart';
+import 'package:mobile_apoia/telas/doador/tela_perfil_usuario.dart';
 import 'package:mobile_apoia/widgets/event_card.dart';
 import 'package:mobile_apoia/widgets/barra_inferior_superior_tela_doador.dart';
 import 'package:mobile_apoia/widgets/barra_de_pesquisa.dart';
@@ -182,7 +183,14 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
 
       bottomNavigationBar: BottomNavBarDoador(
         iconSelecionado: 0,
-        onTap: (index) {},
+        onTap: (index) {
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => TelaPerfilUsuario()),
+            );
+          }
+        },
       ),
     );
   }

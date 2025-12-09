@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_apoia/widgets/cores.dart';
 import '/models/event.dart'; 
 import '/widgets/barra_inferior_superior_tela_doador.dart'; 
 import 'sucesso_inscricao_tela.dart'; 
 
-const Color corAzulPrincipal = Color(0xFF007AFF);
-const Color corLaranjaONG = Color(0xFFFF9900); 
 
 class DetalhesDoadorTela extends StatelessWidget {
   final Event event;
@@ -19,7 +18,7 @@ class DetalhesDoadorTela extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, color: corAzulPrincipal, size: 28), 
+          Icon(icon, color: AppColors.azulApoia, size: 28), 
           const SizedBox(width: 15),
           Expanded(
             child: Text(
@@ -82,7 +81,7 @@ class DetalhesDoadorTela extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: corAzulPrincipal,
+                      color: AppColors.azulApoia,
                     ),
                   ),
                   const SizedBox(height: 5),
@@ -90,7 +89,7 @@ class DetalhesDoadorTela extends StatelessWidget {
                     'ONG RESPONSÁVEL', 
                     style: TextStyle(
                       fontSize: 16,
-                      color: corLaranjaONG,
+                      color: AppColors.laranjaApoia,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -119,7 +118,7 @@ class DetalhesDoadorTela extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () => _confirmarParticipacao(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: corAzulPrincipal,
+                      backgroundColor: AppColors.azulApoia,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                       shape: RoundedRectangleBorder(
