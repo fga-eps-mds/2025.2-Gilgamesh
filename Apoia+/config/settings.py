@@ -135,3 +135,14 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'autenticacao.Usuario'  # Formato: 'nome_da_app.NomeDaClasse'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # Isso ensina o Django a ler o Token do cabeçalho
+        'rest_framework.authentication.TokenAuthentication', 
+    ],
+    # Isso define que o padrão é bloquear tudo, exceto se a View liberar
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}

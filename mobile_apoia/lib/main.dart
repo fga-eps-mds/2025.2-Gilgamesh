@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/models/event.dart';
-import 'package:mobile_apoia/telas/doador/tela_sobre.dart';
+import 'package:mobile_apoia/telas/onboarding/splash_screen.dart';
 
 void main() {
   runApp(const MeuApp());
@@ -13,7 +13,7 @@ class MeuApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final Event mockEvent = Event(
       id: 1,
-      nome: 'Campanha de Doação de Agasalhos',
+      titulo: 'Campanha de Doação de Agasalhos',
       descricao:
           'Participe da nossa campanha de inverno! Sua doação aquecerá muitas famílias. Doe roupas em bom estado.',
 
@@ -28,7 +28,7 @@ class MeuApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Apoia+',
-      home: AboutAppScreen(),
+      home: SplashScreen(),
     );
   }
 }
