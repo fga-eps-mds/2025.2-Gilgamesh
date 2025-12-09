@@ -47,9 +47,12 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
 
   final TextEditingController _tituloController = TextEditingController();
   final TextEditingController _enderecoController = TextEditingController();
-  final TextEditingController _horarioController = TextEditingController();
-  final TextEditingController _fotoController = TextEditingController();
   final TextEditingController _descricaoController = TextEditingController();
+  final TextEditingController _vagasController = TextEditingController(); 
+
+  // Variáveis para guardar Data e Hora escolhidas
+  DateTime? _dataSelecionada;
+  TimeOfDay? _horaSelecionada;
 
   String estadoSelecionado = 'UF';
   final List<String> _estados = const [
@@ -87,10 +90,35 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
   void dispose() {
     _tituloController.dispose();
     _enderecoController.dispose();
-    _horarioController.dispose();
-    _fotoController.dispose();
     _descricaoController.dispose();
+    _vagasController.dispose();
     super.dispose();
+  }
+
+  Future<void> _selecionarData() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2030),
+    );
+    if (picked != null) {
+      setState(() {
+        _dataSelecionada = picked;
+      });
+    }
+  }
+
+  Future<void> _selecionarHora() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (picked != null) {
+      setState(() {
+        _horaSelecionada = picked;
+      });
+    }
   }
 
   Widget _buildGrayInput({
@@ -99,6 +127,8 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
     int maxLines = 1,
     Widget? suffixIcon,
     TextEditingController? controller,
+    bool readOnly = false,
+    VoidCallback? onTap,
   }) {
     double height = (maxLines > 1) ? 100 : 48;
 
@@ -114,6 +144,8 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
           controller: controller,
           keyboardType: keyboardType,
           maxLines: maxLines,
+          readOnly: readOnly, 
+          onTap: onTap,
           style: const TextStyle(fontSize: 14, color: Colors.black87),
           decoration: InputDecoration(
             border: InputBorder.none,
@@ -145,12 +177,8 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
         child: DropdownButton<String>(
           value: estadoSelecionado == 'UF' ? null : estadoSelecionado,
           hint: Text(
-            "ESTADO (UF)",
-            style: TextStyle(
-              color: Colors.grey.shade700,
-              fontSize: 14,
-              fontWeight: FontWeight.normal,
-            ),
+            "UF",
+            style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
           ),
           icon: const Icon(Icons.keyboard_arrow_down, color: corAzulTexto),
           isExpanded: true,
@@ -175,13 +203,17 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
   }
 
   void _criarEvento(BuildContext context) async {
-    print("--- [DEBUG] 1. Função iniciada ---");
+    print("--- INICIANDO PROCESSO DE CRIAÇÃO ---");
 
-    if (_tituloController.text.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('O título é obrigatório!')));
-      return;
+    // Validação básica
+    if (_tituloController.text.isEmpty || 
+        _dataSelecionada == null || 
+        _horaSelecionada == null ||
+        _vagasController.text.isEmpty) {
+       ScaffoldMessenger.of(context).showSnackBar(
+         const SnackBar(content: Text('Preencha Título, Data, Hora e Vagas!'))
+       );
+       return;
     }
 
     print("--- [DEBUG] 2. SetState Loading ---");
@@ -223,6 +255,53 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
 
       // Se travar aqui, é problema de CONEXÃO (IP errado ou Backend desligado)
       bool sucesso = await _service.createEvent(novoEvento, token);
+    // Busca Usuário Logado
+    final dadosUsuario = await _authService.getUsuarioSalvo();
+    int idUsuarioLogado = 0;
+
+    if (dadosUsuario != null && dadosUsuario['id'] != null) {
+      idUsuarioLogado = dadosUsuario['id'];
+      print("-> Usuário Identificado: ID $idUsuarioLogado");
+    } else {
+      print("-> ERRO: Token inválido ou usuário deslogado.");
+      setState(() => _isLoading = false);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro: Faça login novamente.'), backgroundColor: Colors.red)
+      );
+      return;
+    }
+
+    // dia + hora)
+    final DateTime dataFinal = DateTime(
+      _dataSelecionada!.year,
+      _dataSelecionada!.month,
+      _dataSelecionada!.day,
+      _horaSelecionada!.hour,
+      _horaSelecionada!.minute,
+    );
+
+    // Cria Objeto
+    final novoEvento = Event(
+      id: 0, 
+      nome: _tituloController.text,
+      descricao: _descricaoController.text,
+      location: "${_enderecoController.text} - $estadoSelecionado",
+      date: dataFinal, 
+      totalVagas: int.tryParse(_vagasController.text) ?? 10, 
+      participantes: 0,
+      ongId: idUsuarioLogado, 
+    );
+
+    // Ver se está mandando certo
+    print("--- ENVIANDO DADOS PARA O BANCO (DJANGO) ---");
+    print("Evento: ${novoEvento.nome}");
+    print("Data/Hora: ${novoEvento.date}");
+    print("Vagas: ${novoEvento.totalVagas}");
+    print("ONG ID: ${novoEvento.ongId}");
+    print("--------------------------------------------");
+
+    bool sucesso = await _service.createEvent(novoEvento);
 
       print("--- [DEBUG] 7. Resposta recebida: $sucesso ---");
 
@@ -279,6 +358,15 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
 
   @override
   Widget build(BuildContext context) {
+    // Formata textos para os campos
+    String textoData = _dataSelecionada == null 
+        ? "DATA DE INÍCIO" 
+        : "${_dataSelecionada!.day}/${_dataSelecionada!.month}/${_dataSelecionada!.year}";
+    
+    String textoHora = _horaSelecionada == null 
+        ? "HORÁRIO" 
+        : "${_horaSelecionada!.hour}:${_horaSelecionada!.minute.toString().padLeft(2, '0')}";
+
     return Scaffold(
       appBar: BarraSuperiorONG(onBack: () => Navigator.of(context).pop()),
       bottomNavigationBar: BottomNavBar(
@@ -314,6 +402,7 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
                 ),
               ),
 
+            // TÍTULO
             _buildGrayInput(
               hintText: 'TITULO DO EVENTO',
               controller: _tituloController,
@@ -325,6 +414,7 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
             ),
             const SizedBox(height: 20.0),
 
+            // ENDEREÇO
             Row(
               children: [
                 Expanded(
@@ -343,21 +433,41 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
               ],
             ),
             const SizedBox(height: 20.0),
-            _buildGrayInput(
-              hintText: 'HORÁRIO',
-              controller: _horarioController,
+
+            // DATA + HORA 
+            Row(
+              children: [
+                Expanded(
+                  child: _buildGrayInput(
+                    hintText: textoData,
+                    readOnly: true,
+                    onTap: _selecionarData, 
+                    suffixIcon: const Icon(Icons.calendar_month, color: corAzulTexto, size: 24),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildGrayInput(
+                    hintText: textoHora,
+                    readOnly: true,
+                    onTap: _selecionarHora, // Abre relógio
+                    suffixIcon: const Icon(Icons.access_time, color: corAzulTexto, size: 24),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 20.0),
+
+            // VAGAS
             _buildGrayInput(
-              hintText: 'FOTO DE DIVULGAÇÃO',
-              controller: _fotoController,
-              suffixIcon: const Icon(
-                Icons.file_download,
-                color: corAzulTexto,
-                size: 24,
-              ),
+              hintText: 'QUANTIDADE DE PARTICIPANTES',
+              controller: _vagasController,
+              keyboardType: TextInputType.number, // Teclado numérico
+              suffixIcon: const Icon(Icons.group, color: corAzulTexto, size: 24),
             ),
             const SizedBox(height: 20.0),
+
+            // DESCRIÇÃO
             _buildGrayInput(
               hintText: 'DESCRIÇÃO',
               controller: _descricaoController,
@@ -365,6 +475,7 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
             ),
             const SizedBox(height: 40.0),
 
+            // BOTÕES
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
