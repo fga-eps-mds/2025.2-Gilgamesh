@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../widgets/barra_inferior_e_superior.dart';
+// Importação da barra de navegação da ONG )
+import '../../widgets/barra_inferior_e_superior.dart'; 
+// Importação da barra de navegação do Doador 
+import '../../widgets/barra_inferior_superior_tela_doador.dart'; 
 import '../../widgets/logo.dart';
 import '../../services/auth_service.dart';
 import '../../telas/acesso/tela_login.dart'; 
@@ -14,13 +17,14 @@ class TelaPerfilUsuario extends StatefulWidget {
 }
 
 class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
-  int _selectedIndex = 2;
+  
+  int _selectedIndex = 1; 
   final AuthService _authService = AuthService(); 
 
 
   String _nomeUsuario = "Carregando...";
   String _email = "...";
-  String _tipo = "";
+  // String _tipo = ""; 
 
   
   Color get corPrincipal => widget.isOng ? const Color(0xFFFF9900) : const Color(0xFF007AFF);
@@ -28,10 +32,16 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
   @override
   void initState() {
     super.initState();
+    
+    if (widget.isOng) {
+       _selectedIndex = 2; 
+    } else {
+       _selectedIndex = 1; 
+    }
     _carregarDados(); 
   }
 
- 
+  
   void _carregarDados() async {
     final dados = await _authService.getUsuarioSalvo();
     
@@ -85,6 +95,21 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
 
   @override
   Widget build(BuildContext context) {
+    // Define qual Widget de Barra de Navegação será usado
+    final Widget navBar = widget.isOng 
+      ? BottomNavBar( 
+          iconSelecionado: _selectedIndex,
+          onTap: (index) {
+            setState(() => _selectedIndex = index);
+          },
+        )
+      : BottomNavBarDoador( 
+          iconSelecionado: _selectedIndex,
+          onTap: (index) {
+            setState(() => _selectedIndex = index);
+          },
+        );
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: corPrincipal,
@@ -145,7 +170,7 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
                 children: [
                   _buildMenuItem(
                     icon: Icons.check_circle_outline,
-                    text: "Eventos Cadastrados",
+                    text: widget.isOng ? "Eventos Cadastrados" : "Eventos Confirmados",
                     onTap: () {
                       print("Eventos");
                     },
@@ -154,7 +179,7 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
                     icon: Icons.edit_square,
                     text: "Editar Dados",
                     onTap: () {
-                       print("Editar");
+                        print("Editar");
                     },
                   ),
                   _buildMenuItem(
@@ -170,12 +195,7 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
         ],
       ),
 
-      bottomNavigationBar: BottomNavBar(
-        iconSelecionado: _selectedIndex,
-        onTap: (index) {
-          setState(() => _selectedIndex = index);
-        },
-      ),
+      bottomNavigationBar: navBar, 
     );
   }
 }
