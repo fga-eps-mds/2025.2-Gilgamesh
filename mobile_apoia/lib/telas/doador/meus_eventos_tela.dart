@@ -75,14 +75,6 @@ final List<Event> mockTodosEventos = [
 class MeusEventosTela extends StatelessWidget {
   const MeusEventosTela({super.key});
 
-  // Função para navegar de volta aos detalhes do evento
-  void _navegarParaDetalhes(BuildContext context, Event event) {
-    //Navigator.push(context, MaterialPageRoute(builder: (c) => DetalhesDoadorTela(event: event)));
-
-    // Simulação de navegação
-    Navigator.pop(context, event);
-  }
-
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
