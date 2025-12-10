@@ -3,12 +3,19 @@ import 'package:mobile_apoia/widgets/cores.dart';
 import '/models/event.dart'; 
 import '/widgets/barra_inferior_superior_tela_doador.dart'; 
 import 'sucesso_inscricao_tela.dart';
-import '/widgets/cores.dart'; 
+//import '/widgets/cores.dart'; 
 
-class DetalhesDoadorTela extends StatelessWidget {
+class DetalhesDoadorTela extends StatefulWidget {
   final Event event;
 
-  const DetalhesDoadorTela({super.key, required this.event});
+   const DetalhesDoadorTela({super.key, required this.event});
+
+  @override
+  State<DetalhesDoadorTela> createState() => _DetalhesDoadorTelaState();
+}
+
+class _DetalhesDoadorTelaState extends State<DetalhesDoadorTela> {
+ bool _estaParticipando = false; 
 
   Widget _buildDetailRow(IconData icon, String text) {
     return Padding(
@@ -33,15 +40,35 @@ class DetalhesDoadorTela extends StatelessWidget {
     );
   }
 
-  void _confirmarParticipacao(BuildContext context) {
+  void _lidarComParticipacao() {
+
+    setState(() {
+      _estaParticipando = !_estaParticipando;
+    });
+
+    if (_estaParticipando) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const SucessoInscricaoTela()),
     );
-  }
+  } else {
 
+    print('Participação cancelada para o evento: ${widget.event.titulo}');
+  }
+}
   @override
   Widget build(BuildContext context) {
+
+     final String buttonText = _estaParticipando
+        ? 'CANCELAR PARTICIPAÇÃO'
+        : 'PARTICIPAR DO EVENTO';
+    
+    final Color buttonColor = _estaParticipando
+        ? AppColors.laranjaApoia  
+        : AppColors.azulApoia; 
+
+
+
     return Scaffold(
       appBar: const SuperiorBarDoador(showBackButton: true),
 
@@ -70,7 +97,7 @@ class DetalhesDoadorTela extends StatelessWidget {
                 children: <Widget>[
                   // Título e ONG Responsável
                   Text(
-                    event.titulo.toUpperCase(),
+                    widget.event.titulo.toUpperCase(),
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -89,7 +116,7 @@ class DetalhesDoadorTela extends StatelessWidget {
                   const SizedBox(height: 15),
 
                   Text(
-                    event.descricao,
+                    widget.event.descricao,
                     style: const TextStyle(fontSize: 16, height: 1.4),
                   ),
                   const SizedBox(height: 30),
@@ -98,14 +125,14 @@ class DetalhesDoadorTela extends StatelessWidget {
 
                   _buildDetailRow(
                     Icons.location_on,
-                    'LOCALIZAÇÃO: ${event.location}',
+                    'LOCALIZAÇÃO: ${widget.event.location}',
                   ),
 
                   _buildDetailRow(Icons.access_time, 'HORÁRIO: 08:00 HORAS'),
                   const SizedBox(height: 40),
 
                   ElevatedButton(
-                    onPressed: () => _confirmarParticipacao(context),
+                    onPressed: _lidarComParticipacao,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.azulApoia,
                       foregroundColor: Colors.white,
