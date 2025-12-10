@@ -188,10 +188,6 @@ class _CadastroUsuariosState extends State<CadastroUsuarios> {
                         return;
                       }
                       print("Enviando dados para o Django...");
-                      // Dica: Juntamos Endereço + UF para salvar completo no banco
-                      String enderecoCompleto =
-                          "${_enderecoController.text} - $estadoSelecionado";
-
                       print("Enviando cadastro de: ${_nomeController.text}");
 
                       // chama o backend django
@@ -202,8 +198,8 @@ class _CadastroUsuariosState extends State<CadastroUsuarios> {
                         tipoUsuario: 'voluntario',
                         cpf: _cpfController.text,
                         telefone: _telefoneController.text,
-                        // ADICIONADO: Passando endereço formatado com UF
-                        endereco: enderecoCompleto,
+                        endereco: _enderecoController.text,
+                        uf: estadoSelecionado,
                       );
                       print("RESPOSTA DO SERVIÇO (Sucesso?): $sucesso");
                       // resposta visual

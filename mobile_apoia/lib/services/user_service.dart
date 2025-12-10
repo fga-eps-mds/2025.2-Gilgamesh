@@ -12,7 +12,6 @@ class UserService {
     }
   }
 
-  /// Busca os dados do usuário logado do servidor
   Future<Map<String, dynamic>?> buscarDadosUsuario() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -43,7 +42,6 @@ class UserService {
     }
   }
 
-  /// Atualiza os dados do usuário no servidor
   Future<bool> atualizarUsuario({
     required String nome,
     String? endereco,
@@ -60,7 +58,6 @@ class UserService {
         return false;
       }
 
-      // Monta o body apenas com os campos preenchidos
       Map<String, dynamic> body = {
         'nome': nome,
       };
@@ -93,7 +90,6 @@ class UserService {
       );
 
       if (response.statusCode == 200) {
-        // Atualiza os dados salvos localmente
         final dadosAtualizados = jsonDecode(utf8.decode(response.bodyBytes));
         await prefs.setString(
           'user_data', 
