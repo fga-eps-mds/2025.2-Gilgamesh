@@ -4,6 +4,7 @@ import 'package:mobile_apoia/models/ong.dart';
 import 'package:mobile_apoia/services/event_service.dart';
 import 'package:mobile_apoia/services/auth_service.dart';
 import 'package:mobile_apoia/telas/doador/tela_perfil_usuario.dart';
+import 'package:mobile_apoia/telas/doador/visualizar_evento_doador.dart';
 import 'package:mobile_apoia/widgets/event_card.dart';
 import 'package:mobile_apoia/widgets/barra_inferior_superior_tela_doador.dart';
 import 'package:mobile_apoia/widgets/barra_de_pesquisa.dart';
@@ -209,9 +210,15 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
                               width: 280,
                               child: EventCard(
                                 event: evento,
-                                onTap: () => print(
-                                  "Clicou no evento real: ${evento.titulo}",
-                                ),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          DetalhesDoadorTela(event: evento),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           );
