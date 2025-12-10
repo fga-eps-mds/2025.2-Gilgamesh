@@ -1,3 +1,5 @@
+//código main.dart
+
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/telas/doador/visualizar_evento_doador.dart';
 import 'package:mobile_apoia/models/event.dart';
@@ -32,4 +34,6 @@ class MeuApp extends StatelessWidget {
       home: SplashScreen(),
     );
   }
-} //main para ver visualizar evento
+}
+
+//main para ver visualizar evento

@@ -3,10 +3,8 @@ import 'package:mobile_apoia/telas/doador/home_usuario.dart';
 import 'package:mobile_apoia/telas/doador/tela_perfil_usuario.dart';
 import 'logo.dart';
 import 'package:mobile_apoia/widgets/cores.dart';
-import 'package:mobile_apoia/telas/doador/home_usuario.dart';
 import 'package:mobile_apoia/telas/doador/tela_sobre.dart';
 // Cores (Tema Doador)
-
 
 //  BARRA SUPERIOR
 class SuperiorBarDoador extends StatelessWidget implements PreferredSizeWidget {
@@ -82,7 +80,7 @@ class BottomNavBarDoador extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(
             Icons.person,
-            color: iconSelecionado == 2 ? Colors.white : Colors.white70,
+            color: iconSelecionado == 1 ? Colors.white : Colors.white70,
           ),
           label: 'Perfil',
         ),
