@@ -6,6 +6,7 @@ import '../../widgets/logo.dart';
 import '../../services/auth_service.dart';
 import '../../telas/acesso/tela_login.dart';
 import '../../telas/doador/tela_sobre.dart';
+import '../../telas/doador/meus_eventos_tela.dart';
 
 class TelaPerfilUsuario extends StatefulWidget {
   const TelaPerfilUsuario({super.key});
@@ -43,6 +44,12 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
         _nomeUsuario = "Visitante";
       });
     }
+  }
+
+  void _navegarParaMeusEventos() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => const MeusEventosTela()),
+    );
   }
 
   void _navegarParaSobre() {
@@ -150,10 +157,9 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
                   _buildMenuItem(
                     icon: Icons.check_circle_outline,
                     text: "Eventos Cadastrados",
-                    onTap: () {
-                      print("Eventos");
-                    },
-                  ),
+                    onTap: _navegarParaMeusEventos,
+                      ),
+               
                   _buildMenuItem(
                     icon: Icons.edit_square,
                     text: "Editar Dados",

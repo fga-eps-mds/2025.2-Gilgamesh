@@ -82,7 +82,7 @@ class BottomNavBarDoador extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(
             Icons.person,
-            color: iconSelecionado == 2 ? Colors.white : Colors.white70,
+            color: iconSelecionado == 1 ? Colors.white : Colors.white70,
           ),
           label: 'Perfil',
         ),
