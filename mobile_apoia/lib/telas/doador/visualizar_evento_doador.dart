@@ -40,19 +40,32 @@ class _DetalhesDoadorTelaState extends State<DetalhesDoadorTela> {
     );
   }
 
-  void _lidarComParticipacao() {
+  void _lidarComParticipacao() async {
+    if (!_estaParticipando) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const SucessoInscricaoTela()),
+          );
 
+    if (!mounted) return;
+
+      setState(() {
+        _estaParticipando = true;
+      });
+  } else {
     setState(() {
-      _estaParticipando = !_estaParticipando;
+      _estaParticipando = false;
     });
 
-    if (_estaParticipando) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const SucessoInscricaoTela()),
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Sua participação foi cancelada com sucesso.',
+            style: TextStyle(color: Colors.white)),
+        backgroundColor: AppColors.laranjaApoia,
+        duration: Duration(seconds: 2),
+      ),
     );
-  } else {
-
     print('Participação cancelada para o evento: ${widget.event.titulo}');
   }
 }
@@ -134,7 +147,7 @@ class _DetalhesDoadorTelaState extends State<DetalhesDoadorTela> {
                   ElevatedButton(
                     onPressed: _lidarComParticipacao,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.azulApoia,
+                      backgroundColor:buttonColor,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 40,
@@ -145,9 +158,9 @@ class _DetalhesDoadorTelaState extends State<DetalhesDoadorTela> {
                       ),
                       elevation: 5,
                     ),
-                    child: const Text(
-                      'PARTICIPAR DO EVENTO',
-                      style: TextStyle(
+                    child:  Text(
+                      buttonText,
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),

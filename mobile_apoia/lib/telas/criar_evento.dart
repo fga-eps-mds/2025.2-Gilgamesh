@@ -238,23 +238,23 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
         return;
       }
 
-      print("--- [DEBUG] 5. Criando objeto Evento... ---");
-      DateTime dataPadrao = DateTime.now().add(const Duration(days: 1));
+      //print("--- [DEBUG] 5. Criando objeto Evento... ---");
+      //DateTime dataPadrao = DateTime.now().add(const Duration(days: 1));
 
-      final novoEvento = Event(
-        id: 0,
-        titulo: _tituloController.text,
-        descricao: _descricaoController.text,
-        location: "${_enderecoController.text} - $estadoSelecionado",
-        date: dataPadrao,
-        totalVagas: 50,
-        participantes: 0,
-        ongId: 0,
-      );
-      print("--- [DEBUG] 6. Objeto criado. Enviando para o backend... ---");
+      //final novoEvento = Event(
+        //id: 0,
+        //titulo: _tituloController.text,
+        //descricao: _descricaoController.text,
+        //location: "${_enderecoController.text} - $estadoSelecionado",
+        //date: dataPadrao,
+        //totalVagas: 50,
+        //participantes: 0,
+        //ongId: 0,
+      //);
+      //print("--- [DEBUG] 6. Objeto criado. Enviando para o backend... ---");
 
       // Se travar aqui, é problema de CONEXÃO (IP errado ou Backend desligado)
-      bool sucesso = await _service.createEvent(novoEvento, token);
+      //bool sucesso = await _service.createEvent(novoEvento, token);
     // Busca Usuário Logado
     final dadosUsuario = await _authService.getUsuarioSalvo();
     int idUsuarioLogado = 0;
@@ -284,7 +284,7 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
     // Cria Objeto
     final novoEvento = Event(
       id: 0, 
-      nome: _tituloController.text,
+      titulo: _tituloController.text,
       descricao: _descricaoController.text,
       location: "${_enderecoController.text} - $estadoSelecionado",
       date: dataFinal, 
@@ -295,13 +295,13 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
 
     // Ver se está mandando certo
     print("--- ENVIANDO DADOS PARA O BANCO (DJANGO) ---");
-    print("Evento: ${novoEvento.nome}");
+    print("Evento: ${novoEvento.titulo}");
     print("Data/Hora: ${novoEvento.date}");
     print("Vagas: ${novoEvento.totalVagas}");
     print("ONG ID: ${novoEvento.ongId}");
     print("--------------------------------------------");
 
-    bool sucesso = await _service.createEvent(novoEvento);
+    bool sucesso = await _service.createEvent(novoEvento, token);
 
       print("--- [DEBUG] 7. Resposta recebida: $sucesso ---");
 
