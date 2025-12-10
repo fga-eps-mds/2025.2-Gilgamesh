@@ -1,5 +1,3 @@
-//código main.dart
-
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/models/event.dart';
 import 'package:mobile_apoia/telas/onboarding/splash_screen.dart';
