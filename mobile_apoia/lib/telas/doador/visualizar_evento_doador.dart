@@ -89,19 +89,19 @@ class _DetalhesDoadorTelaState extends State<DetalhesDoadorTela> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Container(
-              height: 200,
-              color: Colors.grey.shade300,
-              alignment: Alignment.center,
-              child: const Text(
-                'FOTO DE DIVULGAÇÃO DA CAMPANHA',
-                style: TextStyle(
-                  color: Colors.black54,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ),
+            //Container(
+              //height: 200,
+              //color: Colors.grey.shade300,
+              //alignment: Alignment.center,
+              //child: const Text(
+                //'FOTO DE DIVULGAÇÃO DA CAMPANHA',
+                //style: TextStyle(
+                 //color: Colors.black54,
+                 // fontWeight: FontWeight.bold,
+                 // fontSize: 16,
+                //),
+              //),
+            //),
 
             Padding(
               padding: const EdgeInsets.all(20.0),
