@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_apoia/telas/doador/tela_perfil_usuario.dart';
 import 'package:mobile_apoia/widgets/cores.dart';
 import '../../models/event.dart';
 import '../../widgets/barra_inferior_superior_tela_doador.dart';
@@ -229,7 +230,14 @@ class _DetalhesDoadorTelaState extends State<DetalhesDoadorTela> {
 
       bottomNavigationBar: BottomNavBarDoador(
         iconSelecionado: 0,
-        onTap: (index) {},
+        onTap: (index) {
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => TelaPerfilUsuario()),
+            );
+          }
+        },
       ),
     );
   }
