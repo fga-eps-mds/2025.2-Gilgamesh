@@ -51,6 +51,7 @@ class AuthService {
     String? cpf,
     String? cnpj,
     String? endereco,
+    String? uf,
     String? telefone,
     String? descricao,
   }) async {
@@ -62,6 +63,7 @@ class AuthService {
       'password': password, 
       'tipo_usuario': tipoUsuario,
       'endereco': endereco,
+      'uf': uf,
       'telefone': telefone,
       'descricao': descricao,
     };
