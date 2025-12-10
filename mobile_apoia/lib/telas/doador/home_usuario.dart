@@ -29,6 +29,19 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
 
   bool _carregando = true;
 
+  // Filtros
+  String filtroCidade = "";
+  String filtroEstado = "";
+
+  final List<String> cidades = [
+    "São Paulo",
+    "Rio de Janeiro",
+    "Florianópolis",
+    "Brasília",
+  ];
+
+  final List<String> estados = ["SP", "RJ", "SC", "DF"];
+
   @override
   void initState() {
     super.initState();
@@ -43,7 +56,10 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
     try {
       print(">>> [DEBUG] 2. Chamando API de Eventos...");
       final resultados = await Future.wait([
-        _eventService.getEvents(), // índice 0
+        _eventService.getEvents(
+          cidade: filtroCidade,
+          estado: filtroEstado,
+        ), // índice 0
         _authService.getOngs(), // índice 1
       ]);
 
@@ -59,6 +75,17 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
       print("Erro ao carregar dados: $e");
       setState(() => _carregando = false);
     }
+  }
+
+  void aplicarBusca(String valor) {
+    valor = valor.toLowerCase();
+
+    setState(() {
+      _eventosFiltrados = _todosEventos.where((evento) {
+        return evento.titulo.toLowerCase().contains(valor) ||
+            evento.location.toLowerCase().contains(valor);
+      }).toList();
+    });
   }
 
   Widget _buildSecaoTitulo(String titulo) {
@@ -108,24 +135,58 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
                   builder: (context, controller) {
                     return BarraDePesquisa(
                       onTap: () => controller.openView(),
-                      onChanged: (value) {
-                        final txt = value.toLowerCase();
-                        setState(() {
-                          _eventosFiltrados = _todosEventos.where((evento) {
-                            return evento.titulo.toLowerCase().contains(txt) ||
-                                evento.location.toLowerCase().contains(txt);
-                          }).toList();
-                        });
-                      },
+                      onChanged: aplicarBusca,
                     );
                   },
-                  suggestionsBuilder: (context, controller) {
-                    return [];
-                  },
+                  suggestionsBuilder: (context, controller) => [],
                 ),
               ),
 
               const SizedBox(height: 10),
+
+              // FILTROS (Cidade + Estado)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(labelText: "Cidade"),
+                        initialValue: filtroCidade.isEmpty
+                            ? null
+                            : filtroCidade,
+                        items: cidades
+                            .map(
+                              (c) => DropdownMenuItem(value: c, child: Text(c)),
+                            )
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() => filtroCidade = value ?? "");
+                          _buscarDadosDoBanco();
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(labelText: "Estado"),
+                        initialValue: filtroEstado.isEmpty
+                            ? null
+                            : filtroEstado,
+                        items: estados
+                            .map(
+                              (e) => DropdownMenuItem(value: e, child: Text(e)),
+                            )
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() => filtroEstado = value ?? "");
+                          _buscarDadosDoBanco();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
               // Carrosel de ongs
               _buildSecaoTitulo("ONGs Parceiras"),
