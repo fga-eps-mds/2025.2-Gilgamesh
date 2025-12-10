@@ -89,7 +89,7 @@ class _EditarDadosUsuarioState extends State<EditarDadosUsuario> {
     setState(() => _isSaving = true);
 
     String enderecoCompleto = estadoSelecionado != 'UF'
-        ? "${_enderecoController.text} - $estadoSelecionado"
+        ? "${_enderecoController.text}"
         : _enderecoController.text;
 
     bool sucesso = await _userService.atualizarUsuario(
