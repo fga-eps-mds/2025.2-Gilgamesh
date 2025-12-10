@@ -1,0 +1,112 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
+
+class UserService {
+  String get baseUrl {
+    if (Platform.isAndroid) {
+      return 'http://10.0.2.2:8000/api/auth';
+    } else {
+      return 'http://127.0.0.1:8000/api/auth';
+    }
+  }
+
+  /// Busca os dados do usuário logado do servidor
+  Future<Map<String, dynamic>?> buscarDadosUsuario() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+
+      if (token == null) {
+        print('Token não encontrado');
+        return null;
+      }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/usuario/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Token $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(utf8.decode(response.bodyBytes));
+      } else {
+        print('Erro ao buscar dados: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Erro de conexão ao buscar dados: $e');
+      return null;
+    }
+  }
+
+  /// Atualiza os dados do usuário no servidor
+  Future<bool> atualizarUsuario({
+    required String nome,
+    String? endereco,
+    String? uf,
+    String? telefone,
+    String? descricao,
+  }) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+
+      if (token == null) {
+        print('Token não encontrado');
+        return false;
+      }
+
+      // Monta o body apenas com os campos preenchidos
+      Map<String, dynamic> body = {
+        'nome': nome,
+      };
+
+      if (endereco != null && endereco.isNotEmpty) {
+        body['endereco'] = endereco;
+      }
+      
+      if (uf != null && uf.isNotEmpty && uf != 'UF') {
+        body['uf'] = uf;
+      }
+
+      if (telefone != null && telefone.isNotEmpty) {
+        body['telefone'] = telefone;
+      }
+
+      if (descricao != null && descricao.isNotEmpty) {
+        body['descricao'] = descricao;
+      }
+
+      print('Enviando atualização: $body');
+
+      final response = await http.put(
+        Uri.parse('$baseUrl/usuario/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Token $token',
+        },
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        // Atualiza os dados salvos localmente
+        final dadosAtualizados = jsonDecode(utf8.decode(response.bodyBytes));
+        await prefs.setString(
+          'user_data', 
+          jsonEncode(dadosAtualizados['usuario'])
+        );
+        return true;
+      } else {
+        print('Erro na atualização: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Erro de conexão: $e');
+      return false;
+    }
+  }
+}

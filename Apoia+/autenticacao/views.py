@@ -8,6 +8,8 @@ from django.contrib.auth import login, logout, authenticate
 from .models import Usuario
 from .serializers import UsuarioSerializer
 from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 
 
 
@@ -75,4 +77,41 @@ class CadastroView(APIView):
             }, status=status.HTTP_201_CREATED)
             
         # Se houver erro (ex: senha curta, email repetido), retorna o erro detalhado
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+
+
+class AtualizarUsuarioView(APIView):
+
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        serializer = UsuarioSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def put(self, request):
+        usuario = request.user        
+        campos_bloqueados = ['email', 'tipo_usuario', 'cpf', 'cnpj', 'password']
+        
+        dados_permitidos = {
+            k: v for k, v in request.data.items() 
+            if k not in campos_bloqueados
+        }
+        
+        serializer = UsuarioSerializer(
+            usuario, 
+            data=dados_permitidos, 
+            partial=True
+        )
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'mensagem': 'Dados atualizados com sucesso!',
+                'usuario': serializer.data
+            }, status=status.HTTP_200_OK)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

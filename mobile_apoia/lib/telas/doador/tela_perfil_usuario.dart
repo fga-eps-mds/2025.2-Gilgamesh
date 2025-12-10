@@ -4,6 +4,7 @@ import '../../widgets/barra_inferior_superior_tela_doador.dart';
 import '../../widgets/logo.dart';
 import '../../services/auth_service.dart';
 import '../../telas/acesso/tela_login.dart';
+import 'editar_dados_usuario.dart';
 
 class TelaPerfilUsuario extends StatefulWidget {
   const TelaPerfilUsuario({super.key});
@@ -18,7 +19,6 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
 
   String _nomeUsuario = "Carregando...";
   String _email = "...";
-  //String _tipo = "";
 
   Color get corPrincipal => AppColors.azulApoia;
 
@@ -132,7 +132,6 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
             ),
           ),
 
-          // MENU
           Expanded(
             child: Container(
               color: Colors.grey.shade50,
@@ -150,7 +149,9 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
                     icon: Icons.edit_square,
                     text: "Editar Dados",
                     onTap: () {
-                      print("Editar");
+                      Navigator.pushReplacement(
+                        context,
+                       MaterialPageRoute(builder:   (_) => const EditarDadosUsuario()));
                     },
                   ),
                   _buildMenuItem(
