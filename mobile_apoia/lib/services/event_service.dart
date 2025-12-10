@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/event.dart';
 import 'dart:io';
+import 'api_config.dart';
 
 class EventService {
   String get baseUrl {
