@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/event.dart';
 import 'dart:io';
+import '../services/api_config.dart';
 
 class EventService {
   String get baseUrl {
@@ -12,19 +13,29 @@ class EventService {
     }
   }
 
-  Future<List<Event>> getEvents() async {
+  Future<List<Event>> getEvents({String? cidade, String? estado}) async {
     try {
-      final response = await http.get(Uri.parse(baseUrl));
-      if (response.statusCode == 200) {
-        String jsonString = utf8.decode(response.bodyBytes);
-        List<dynamic> body = jsonDecode(jsonString);
+      // Monta os parâmetros usando interpolação -- suporte para os filtros
+      final queryParams = {
+        if (cidade != null && cidade.isNotEmpty) 'cidade': cidade,
+        if (estado != null && estado.isNotEmpty) 'estado': estado,
+      };
 
-        return body.map((dynamic item) => Event.fromJson(item)).toList();
+      // Constrói a URL usando interpolação
+      final String url = queryParams.isEmpty
+          ? baseUrl
+          : '$baseUrl?${Uri(queryParameters: queryParams).query}';
+
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        List<dynamic> body = jsonDecode(utf8.decode(response.bodyBytes));
+        return body.map((item) => Event.fromJson(item)).toList();
       } else {
         throw Exception('Falha ao carregar eventos: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Erro de conexão: $e');
+      throw Exception('Erro: $e');
     }
   }
 
@@ -34,17 +45,12 @@ class EventService {
         Uri.parse(baseUrl),
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Token $token", // O token entra aqui
+          "Authorization": "Token $token", // o token entra aqui
         },
         body: jsonEncode(event.toJson()),
       );
 
-      if (response.statusCode == 201) {
-        return true;
-      } else {
-        print("Erro Back: ${response.statusCode} ${response.body}");
-        return false;
-      }
+      return response.statusCode == 201;
     } catch (e) {
       print("Erro: $e");
       return false;

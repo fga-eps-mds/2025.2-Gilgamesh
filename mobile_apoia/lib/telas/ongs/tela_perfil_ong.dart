@@ -4,6 +4,8 @@ import '../../widgets/logo.dart';
 import '../../services/auth_service.dart';
 import '../../telas/acesso/tela_login.dart';
 import 'package:mobile_apoia/widgets/cores.dart';
+import 'package:mobile_apoia/telas/ongs/tela_sobre_ong.dart';
+
 
 class TelaPerfilONG extends StatefulWidget {
   const TelaPerfilONG({super.key});
@@ -41,6 +43,13 @@ class _TelaPerfilONGState extends State<TelaPerfilONG> {
         _nomeUsuario = "ONG";
       });
     }
+  }
+
+
+  void _navegarParaSobre() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => const AboutAppScreenOng()),
+    );
   }
 
   void _sair() async {
@@ -153,6 +162,12 @@ class _TelaPerfilONGState extends State<TelaPerfilONG> {
                       print("Editar");
                     },
                   ),
+
+                  _buildMenuItem(
+                    icon: Icons.info_outline,
+                    text: "Sobre o App",
+                    onTap: _navegarParaSobre,
+                  ),
                   _buildMenuItem(
                     icon: Icons.exit_to_app,
                     text: "Sair da Conta",
@@ -175,3 +190,5 @@ class _TelaPerfilONGState extends State<TelaPerfilONG> {
     );
   }
 }
+
+
