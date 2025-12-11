@@ -47,6 +47,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     # CAMPOS ESPECÍFICOS (null=True, blank=True)
     cpf = models.CharField(max_length=14, null=True, blank=True)
     cnpj = models.CharField(max_length=18, null=True, blank=True)
+    telefone = models.CharField(max_length=30, null=True, blank=True)
     endereco = models.TextField(null=True, blank=True) # campo comum
     uf = models.CharField(max_length=2)
     descricao = models.TextField(null=True, blank=True)
