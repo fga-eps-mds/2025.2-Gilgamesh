@@ -3,7 +3,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import check_password
-# (REMOVIDO): make_password não é necessário aqui, pois não vamos salvar senha nova
 from django.contrib.auth import login, logout, authenticate
 from .models import Usuario
 from .serializers import UsuarioSerializer
@@ -115,3 +114,53 @@ class AtualizarUsuarioView(APIView):
             }, status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class AlterarSenhaView(APIView):
+
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        usuario = request.user
+        
+        senha_atual = request.data.get('senha_atual')
+        nova_senha = request.data.get('nova_senha')
+        confirma_senha = request.data.get('confirma_senha')
+        
+        if not senha_atual or not nova_senha or not confirma_senha:
+            return Response(
+                {'erro': 'Todos os campos são obrigatórios'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if not check_password(senha_atual, usuario.password):
+            return Response(
+                {'erro': 'Senha atual incorreta'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if nova_senha != confirma_senha:
+            return Response(
+                {'erro': 'As novas senhas não coincidem'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if senha_atual == nova_senha:
+            return Response(
+                {'erro': 'A nova senha deve ser diferente da atual'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if len(nova_senha) < 6:
+            return Response(
+                {'erro': 'A senha deve ter no mínimo 6 caracteres'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        usuario.set_password(nova_senha)
+        usuario.save()
+        
+        return Response(
+            {'mensagem': 'Senha alterada com sucesso!'}, 
+            status=status.HTTP_200_OK
+        )

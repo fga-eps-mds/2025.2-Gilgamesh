@@ -105,4 +105,55 @@ class UserService {
       return false;
     }
   }
+
+
+  Future<Map<String, dynamic>> alterarSenha({
+    required String senhaAtual,
+    required String novaSenha,
+    required String confirmaSenha,
+  }) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+
+      if (token == null) {
+        return {
+          'sucesso': false,
+          'mensagem': 'Usuário não autenticado. Faça login novamente.',
+        };
+      }
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/alterar-senha/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Token $token',
+        },
+        body: jsonEncode({
+          'senha_atual': senhaAtual,
+          'nova_senha': novaSenha,
+          'confirma_senha': confirmaSenha,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return {
+          'sucesso': true,
+          'mensagem': 'Senha alterada com sucesso!',
+        };
+      } else {
+        final erro = jsonDecode(utf8.decode(response.bodyBytes));
+        return {
+          'sucesso': false,
+          'mensagem': erro['erro'] ?? 'Erro ao alterar senha',
+        };
+      }
+    } catch (e) {
+      print('Erro de conexão: $e');
+      return {
+        'sucesso': false,
+        'mensagem': 'Erro de conexão com o servidor',
+      };
+    }
+  }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_apoia/widgets/cores.dart';
 import 'package:mobile_apoia/widgets/logo.dart';
 import '../../services/user_service.dart';
+import 'alterar_senha_popup.dart';
 
 class EditarDadosUsuario extends StatefulWidget {
   const EditarDadosUsuario({super.key});
@@ -36,6 +37,13 @@ class _EditarDadosUsuarioState extends State<EditarDadosUsuario> {
     super.initState();
     _carregarDados();
   }
+
+  void _abrirPopupSenha() {
+  showDialog(
+    context: context,
+    builder: (context) => const AlterarSenhaPopup(),
+  );
+}
 
   void _carregarDados() async {
     final dados = await _userService.buscarDadosUsuario();
@@ -283,6 +291,29 @@ class _EditarDadosUsuarioState extends State<EditarDadosUsuario> {
                           const SizedBox(height: 15),
                         ],
                       ),
+
+                    const SizedBox(height: 40),
+
+                    OutlinedButton.icon(
+                      onPressed: _abrirPopupSenha,
+                      icon: const Icon(Icons.lock_outline),
+                      label: const Text('ALTERAR SENHA'),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 50),
+                        side: BorderSide(
+                          color: tipoUsuario == 'ong'
+                              ? AppColors.laranjaApoia
+                              : AppColors.azulApoia,
+                          width: 2,
+                        ),
+                        foregroundColor: tipoUsuario == 'ong'
+                            ? AppColors.laranjaApoia
+                            : AppColors.azulApoia,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
 
                     const SizedBox(height: 40),
 
