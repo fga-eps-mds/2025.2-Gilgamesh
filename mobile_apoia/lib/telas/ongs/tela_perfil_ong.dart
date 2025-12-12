@@ -7,8 +7,6 @@ import 'package:mobile_apoia/widgets/cores.dart';
 import 'package:mobile_apoia/telas/ongs/tela_sobre_ong.dart';
 import '../doador/editar_dados_usuario.dart';
 
-
-
 class TelaPerfilONG extends StatefulWidget {
   const TelaPerfilONG({super.key});
 
@@ -47,11 +45,10 @@ class _TelaPerfilONGState extends State<TelaPerfilONG> {
     }
   }
 
-
   void _navegarParaSobre() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => const AboutAppScreenOng()),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const AboutAppScreenOng()));
   }
 
   void _sair() async {
@@ -163,7 +160,10 @@ class _TelaPerfilONGState extends State<TelaPerfilONG> {
                     onTap: () {
                       Navigator.pushReplacement(
                         context,
-                       MaterialPageRoute(builder:   (_) => const EditarDadosUsuario()));
+                        MaterialPageRoute(
+                          builder: (_) => const EditarDadosUsuario(),
+                        ),
+                      );
                     },
                   ),
 
@@ -173,11 +173,6 @@ class _TelaPerfilONGState extends State<TelaPerfilONG> {
                     onTap: _navegarParaSobre,
                   ),
 
-                  _buildMenuItem(
-                    icon: Icons.info_outline,
-                    text: "Sobre o App",
-                    onTap: _navegarParaSobre,
-                  ),
                   _buildMenuItem(
                     icon: Icons.exit_to_app,
                     text: "Sair da Conta",
@@ -200,5 +195,3 @@ class _TelaPerfilONGState extends State<TelaPerfilONG> {
     );
   }
 }
-
-
