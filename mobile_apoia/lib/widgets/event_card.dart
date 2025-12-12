@@ -67,7 +67,11 @@ class EventCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
+<<<<<<< HEAD
                     event.nome.toUpperCase(),
+=======
+                    event.titulo,
+>>>>>>> 10c1dffe4a5e9eacc0106f5ef63a612a11ecc65a
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(

@@ -203,10 +203,6 @@ class _CadastroOngsState extends State<CadastroOngs> {
                         return;
                       }
                       print("Enviando dados para o Django...");
-                      //Junta a UF com o endereço para salvar no BD
-                      String enderecoCompleto =
-                          "${_enderecoController.text} - $estadoSelecionado";
-
                       print("Enviando cadastro de: $_nomeOngController ");
                       // impimindo dados para teste
                       /* print("--- DADOS DA ONG ---");
@@ -227,7 +223,8 @@ class _CadastroOngsState extends State<CadastroOngs> {
                         cnpj: _cnpjController.text,
                         telefone: _telefoneController.text,
                         // Passando endereço formatado com UF
-                        endereco: enderecoCompleto,
+                        endereco: _enderecoController.text,
+                        uf: estadoSelecionado,
                         descricao: _descricaoController.text,
                       );
                       print("RESPOSTA DO SERVIÇO (Sucesso?): $sucesso");

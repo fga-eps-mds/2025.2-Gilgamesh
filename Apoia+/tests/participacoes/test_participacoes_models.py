@@ -8,7 +8,8 @@ class TestParticipacaoModel:
         participacao = ParticipacaoFactory()
         assert participacao.id is not None
         assert participacao.usuario.email is not None
-        assert participacao.evento.nome is not None
+        # CORREÇÃO: .titulo
+        assert participacao.evento.titulo is not None
         assert participacao.status_confirmacao == 'pendente'
 
     def test_representacao_string(self):
@@ -18,7 +19,7 @@ class TestParticipacaoModel:
         """
         participacao = ParticipacaoFactory(
             usuario__nome="Maria",
-            evento__nome="Python Workshop",
+            evento__titulo="Python Workshop", # CORREÇÃO: evento__titulo
             status_confirmacao="confirmado"
         )
         expected = "Maria - Python Workshop (confirmado)"

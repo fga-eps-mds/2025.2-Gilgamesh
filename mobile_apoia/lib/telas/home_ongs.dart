@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/telas/ongs/tela_perfil_ong.dart';
-//import '../../services/event_service.dart'; --necessita o API primeiro
 import '../models/event.dart';
 import '../widgets/event_card.dart';
 import '../widgets/barra_inferior_e_superior.dart';
 import '../widgets/barra_de_pesquisa.dart';
 import '/telas/criar_evento.dart';
+import '../services/event_service.dart';
 
 class HomeOngs extends StatefulWidget {
   const HomeOngs({super.key});
@@ -16,50 +16,53 @@ class HomeOngs extends StatefulWidget {
 
 class _TelaListaDeEventosState extends State<HomeOngs> {
   final SearchController searchController = SearchController();
-  final ScrollController scrollController =
-      ScrollController(); //necessario para seta do carrossel funcionar
-  //futura conexão django
-  // late Future<List<Event>> futureEventos;
+  final ScrollController scrollController = ScrollController();
 
-  final List<Event> eventosMock = [
-    Event(
-      id: 1,
-      nome: "Campanha de Doação",
-      descricao: "Ajude famílias carentes",
-      date: DateTime(2025, 2, 12),
-      location: "São Paulo",
-      totalVagas: 50,
-      participantes: 18,
-      ongId: 101,
-    ),
-    Event(
-      id: 2,
-      nome: "Arrecadação de Roupas",
-      descricao: "Doe roupas e ajude",
-      date: DateTime(2025, 3, 5),
-      location: "Rio de Janeiro",
-      totalVagas: 80,
-      participantes: 32,
-      ongId: 102,
-    ),
-    Event(
-      id: 3,
-      nome: "Mutirão Ambiental",
-      descricao: "Limpeza da praia estadual",
-      date: DateTime(2025, 4, 20),
-      location: "Florianópolis",
-      totalVagas: 120,
-      participantes: 67,
-      ongId: 103,
-    ),
+  //Lista Real
+  List<Event> _eventosFiltrados = [];
+  List<Event> _todosEventos = [];
+
+  // Filtros
+  String filtroCidade = "";
+  String filtroEstado = "";
+
+  final List<String> cidades = [
+    "São Paulo",
+    "Rio de Janeiro",
+    "Florianópolis",
+    "Brasília",
   ];
 
-  List<Event> eventosFiltrados = [];
+  final List<String> estados = ["SP", "RJ", "SC", "DF"];
 
   @override
   void initState() {
     super.initState();
-    eventosFiltrados = eventosMock;
+    carregarEventos();
+  }
+
+  Future<void> carregarEventos() async {
+    final service = EventService();
+    final eventos = await service.getEvents(
+      cidade: filtroCidade,
+      estado: filtroEstado,
+    );
+
+    setState(() {
+      _todosEventos = eventos;
+      _eventosFiltrados = eventos;
+    });
+  }
+
+  void filtrarBusca(String value) {
+    value = value.toLowerCase();
+    setState(() {
+      _eventosFiltrados = _todosEventos.where((evento) {
+        return evento.titulo.toLowerCase().contains(value) ||
+            evento.descricao.toLowerCase().contains(value) ||
+            evento.location.toLowerCase().contains(value);
+      }).toList();
+    });
   }
 
   void scrollRight() {
@@ -91,32 +94,20 @@ class _TelaListaDeEventosState extends State<HomeOngs> {
 
             const SizedBox(height: 16),
 
-            //barra de pesquisa (com autocomplete)
+            // BARRA DE PESQUISA
             SearchAnchor(
               searchController: searchController,
               builder: (context, controller) {
                 return BarraDePesquisa(
                   onTap: () => controller.openView(),
-                  onChanged: (value) {
-                    controller.text = value;
-
-                    setState(() {
-                      final txt = value.toLowerCase();
-
-                      eventosFiltrados = eventosMock.where((evento) {
-                        return evento.nome.toLowerCase().contains(txt) ||
-                            evento.descricao.toLowerCase().contains(txt) ||
-                            evento.location.toLowerCase().contains(txt);
-                      }).toList();
-                    });
-                  },
+                  onChanged: filtrarBusca,
                 );
               },
               suggestionsBuilder: (context, controller) {
                 final txt = controller.text.toLowerCase();
 
-                final sugestoes = eventosMock.where((evento) {
-                  return evento.nome.toLowerCase().contains(txt);
+                final sugestoes = _todosEventos.where((evento) {
+                  return evento.titulo.toLowerCase().contains(txt);
                 }).toList();
 
                 if (sugestoes.isEmpty) {
@@ -127,10 +118,10 @@ class _TelaListaDeEventosState extends State<HomeOngs> {
 
                 return sugestoes.map((evento) {
                   return ListTile(
-                    title: Text(evento.nome),
+                    title: Text(evento.titulo),
                     onTap: () {
-                      controller.closeView(evento.nome);
-                      setState(() => eventosFiltrados = [evento]);
+                      controller.closeView(evento.titulo);
+                      setState(() => _eventosFiltrados = [evento]);
                     },
                   );
                 }).toList();
@@ -139,7 +130,46 @@ class _TelaListaDeEventosState extends State<HomeOngs> {
 
             const SizedBox(height: 16),
 
-            //carrossel de eventos
+            // Filtros por Cidade e Estado
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    initialValue: filtroCidade.isEmpty ? null : filtroCidade,
+                    decoration: const InputDecoration(
+                      labelText: "Filtrar por Cidade",
+                    ),
+                    items: cidades.map((city) {
+                      return DropdownMenuItem(value: city, child: Text(city));
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() => filtroCidade = value ?? "");
+                      carregarEventos();
+                    },
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    initialValue: filtroEstado.isEmpty ? null : filtroEstado,
+                    decoration: const InputDecoration(labelText: "Estado"),
+                    items: estados.map((e) {
+                      return DropdownMenuItem(value: e, child: Text(e));
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() => filtroEstado = value ?? "");
+                      carregarEventos();
+                    },
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // CARROSSEL eventos
             Expanded(
               child: Stack(
                 children: [
@@ -147,20 +177,13 @@ class _TelaListaDeEventosState extends State<HomeOngs> {
                     controller: scrollController,
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: eventosFiltrados
-                          .map(
-                            (e) => EventCard(
-                              event: e,
-                              onTap: () {
-                                print("Clicou no evento: ${e.nome}");
-                              },
-                            ),
-                          )
-                          .toList(),
+                      children: _eventosFiltrados.map((e) {
+                        return EventCard(event: e, onTap: () {});
+                      }).toList(),
                     ),
                   ),
 
-                  // Seta flutuante
+                  //seta flutuante
                   Positioned(
                     right: 0,
                     top: 90,
@@ -187,7 +210,7 @@ class _TelaListaDeEventosState extends State<HomeOngs> {
         ),
       ),
 
-      //botão criar evento
+      //Botão criar evento
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [

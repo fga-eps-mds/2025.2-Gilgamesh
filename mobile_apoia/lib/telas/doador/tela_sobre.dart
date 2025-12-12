@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import '../widgets/logo.dart'; 
-import '../widgets/cores.dart'; 
+import '../../widgets/logo.dart';
+//import '../../widgets/cores.dart';
+import '/widgets/barra_inferior_superior_tela_doador.dart';
+import 'package:mobile_apoia/telas/doador/tela_perfil_usuario.dart';
 
 class AboutAppScreen extends StatelessWidget {
   const AboutAppScreen({super.key});
@@ -17,38 +19,33 @@ class AboutAppScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color primaryColor = AppColors.primary; 
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: primaryColor, 
-        toolbarHeight: 80.0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+      appBar: const SuperiorBarDoador(
+        showBackButton: true,
+        //title: 'SOBRE O APP',
         ),
-      ),
       
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'SOBRE O APP',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF0079A6),
-              ),
-            ),
+            //const Text(
+             //'SOBRE O APP',
+              //style: TextStyle(
+                //fontSize: 18,
+                //fontWeight: FontWeight.bold,
+                //color: Color(0xFF0079A6),
+             // ),
+            //),
             const SizedBox(height: 20),
             
             const Logo(height: 100), 
             
             const SizedBox(height: 10),
             const Text(
-              'apola+',
+              'apoia+',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -134,28 +131,15 @@ class AboutAppScreen extends StatelessWidget {
         ),
       ),
       
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: primaryColor, 
-        selectedItemColor: Colors.white, 
-        unselectedItemColor: Colors.white70,
-        currentIndex: 0,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home', 
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.location_on),
-            label: 'Mapa',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Perfil',
-          ),
-        ],
-        type: BottomNavigationBarType.fixed,
+      bottomNavigationBar: BottomNavBarDoador(
+        iconSelecionado: 0,
         onTap: (index) {
-          // Lógica de navegação
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => TelaPerfilUsuario()),
+            );
+          }
         },
       ),
     );

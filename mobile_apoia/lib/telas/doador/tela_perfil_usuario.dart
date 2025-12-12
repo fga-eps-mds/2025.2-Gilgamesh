@@ -1,9 +1,14 @@
+
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/widgets/cores.dart';
 import '../../widgets/barra_inferior_superior_tela_doador.dart';
 import '../../widgets/logo.dart';
 import '../../services/auth_service.dart';
 import '../../telas/acesso/tela_login.dart';
+import '../../telas/doador/tela_sobre.dart';
+import '../../telas/doador/meus_eventos_tela.dart';
+import 'editar_dados_usuario.dart';
+
 
 class TelaPerfilUsuario extends StatefulWidget {
   const TelaPerfilUsuario({super.key});
@@ -18,7 +23,6 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
 
   String _nomeUsuario = "Carregando...";
   String _email = "...";
-  //String _tipo = "";
 
   Color get corPrincipal => AppColors.azulApoia;
 
@@ -41,6 +45,18 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
         _nomeUsuario = "Visitante";
       });
     }
+  }
+
+  void _navegarParaMeusEventos() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => const MeusEventosTela()),
+    );
+  }
+
+  void _navegarParaSobre() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => const AboutAppScreen()),
+    );
   }
 
   void _sair() async {
@@ -132,7 +148,6 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
             ),
           ),
 
-          // MENU
           Expanded(
             child: Container(
               color: Colors.grey.shade50,
@@ -142,16 +157,22 @@ class _TelaPerfilUsuarioState extends State<TelaPerfilUsuario> {
                   _buildMenuItem(
                     icon: Icons.check_circle_outline,
                     text: "Eventos Cadastrados",
-                    onTap: () {
-                      print("Eventos");
-                    },
-                  ),
+                    onTap: _navegarParaMeusEventos,
+                      ),
+               
                   _buildMenuItem(
                     icon: Icons.edit_square,
                     text: "Editar Dados",
                     onTap: () {
-                      print("Editar");
+                      Navigator.pushReplacement(
+                        context,
+                       MaterialPageRoute(builder:   (_) => const EditarDadosUsuario()));
                     },
+                  ),
+                  _buildMenuItem(
+                    icon: Icons.info_outline,
+                    text: "Sobre o App",
+                    onTap: _navegarParaSobre,
                   ),
                   _buildMenuItem(
                     icon: Icons.exit_to_app,

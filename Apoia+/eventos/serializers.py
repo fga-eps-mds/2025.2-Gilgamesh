@@ -8,7 +8,7 @@ class EventoSerializer(serializers.ModelSerializer):
         model = Evento
         fields = [
             'id',
-            'nome',
+            'titulo',
             'descricao',
             'data_inicio',
             'data_fim',
@@ -16,5 +16,6 @@ class EventoSerializer(serializers.ModelSerializer):
             'criado_por',
             'criado_em',
             'atualizado_em',
+            'vagas',
         ]
         read_only_fields = ['criado_por', 'criado_em', 'atualizado_em']

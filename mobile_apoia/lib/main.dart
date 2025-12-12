@@ -13,7 +13,7 @@ class MeuApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final Event mockEvent = Event(
       id: 1,
-      nome: 'Campanha de Doação de Agasalhos',
+      titulo: 'Campanha de Doação de Agasalhos',
       descricao:
           'Participe da nossa campanha de inverno! Sua doação aquecerá muitas famílias. Doe roupas em bom estado.',
 

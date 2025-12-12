@@ -3,7 +3,7 @@ import 'package:mobile_apoia/widgets/barra_inferior_e_superior.dart';
 import 'package:mobile_apoia/widgets/logo.dart';
 import '../../models/event.dart';
 import '../../services/event_service.dart';
-import '../../services/auth_service.dart'; 
+import '../../services/auth_service.dart';
 
 const Color corAzulTexto = Color(0xFF007AFF);
 const Color corCinzaInput = Color(0xFFEFEFEF);
@@ -40,15 +40,15 @@ class CriarEventoTela extends StatefulWidget {
 
 class _CriarEventoTelaState extends State<CriarEventoTela> {
   int _selectedIndex = 0;
-  
+
   final EventService _service = EventService();
-  final AuthService _authService = AuthService(); 
+  final AuthService _authService = AuthService();
   bool _isLoading = false;
 
   final TextEditingController _tituloController = TextEditingController();
   final TextEditingController _enderecoController = TextEditingController();
   final TextEditingController _descricaoController = TextEditingController();
-  final TextEditingController _vagasController = TextEditingController(); 
+  final TextEditingController _vagasController = TextEditingController();
 
   // Variáveis para guardar Data e Hora escolhidas
   DateTime? _dataSelecionada;
@@ -56,8 +56,34 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
 
   String estadoSelecionado = 'UF';
   final List<String> _estados = const [
-    'UF', 'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 
-    'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO',
+    'UF',
+    'AC',
+    'AL',
+    'AP',
+    'AM',
+    'BA',
+    'CE',
+    'DF',
+    'ES',
+    'GO',
+    'MA',
+    'MT',
+    'MS',
+    'MG',
+    'PA',
+    'PB',
+    'PR',
+    'PE',
+    'PI',
+    'RJ',
+    'RN',
+    'RS',
+    'RO',
+    'RR',
+    'SC',
+    'SP',
+    'SE',
+    'TO',
   ];
 
   @override
@@ -118,7 +144,7 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
           controller: controller,
           keyboardType: keyboardType,
           maxLines: maxLines,
-          readOnly: readOnly, 
+          readOnly: readOnly,
           onTap: onTap,
           style: const TextStyle(fontSize: 14, color: Colors.black87),
           decoration: InputDecoration(
@@ -165,11 +191,12 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
           items: _estados
               .where((item) => item != 'UF')
               .map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              child: Text(value),
-              value: value,
-            );
-          }).toList(),
+                return DropdownMenuItem<String>(
+                  child: Text(value),
+                  value: value,
+                );
+              })
+              .toList(),
         ),
       ),
     );
@@ -179,83 +206,147 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
     print("--- INICIANDO PROCESSO DE CRIAÇÃO ---");
 
     // Validação básica
-    if (_tituloController.text.isEmpty || 
-        _dataSelecionada == null || 
+    if (_tituloController.text.isEmpty ||
+        _dataSelecionada == null ||
         _horaSelecionada == null ||
         _vagasController.text.isEmpty) {
-       ScaffoldMessenger.of(context).showSnackBar(
-         const SnackBar(content: Text('Preencha Título, Data, Hora e Vagas!'))
-       );
-       return;
-    }
-
-    setState(() => _isLoading = true);
-
-    // Busca Usuário Logado
-    final dadosUsuario = await _authService.getUsuarioSalvo();
-    int idUsuarioLogado = 0;
-
-    if (dadosUsuario != null && dadosUsuario['id'] != null) {
-      idUsuarioLogado = dadosUsuario['id'];
-      print("-> Usuário Identificado: ID $idUsuarioLogado");
-    } else {
-      print("-> ERRO: Token inválido ou usuário deslogado.");
-      setState(() => _isLoading = false);
-      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro: Faça login novamente.'), backgroundColor: Colors.red)
+        const SnackBar(content: Text('Preencha Título, Data, Hora e Vagas!')),
       );
       return;
     }
 
-    // dia + hora)
-    final DateTime dataFinal = DateTime(
-      _dataSelecionada!.year,
-      _dataSelecionada!.month,
-      _dataSelecionada!.day,
-      _horaSelecionada!.hour,
-      _horaSelecionada!.minute,
-    );
+    int vagasInput = int.tryParse(_vagasController.text) ?? 0;
 
-    // Cria Objeto
-    final novoEvento = Event(
-      id: 0, 
-      nome: _tituloController.text,
-      descricao: _descricaoController.text,
-      location: "${_enderecoController.text} - $estadoSelecionado",
-      date: dataFinal, 
-      totalVagas: int.tryParse(_vagasController.text) ?? 10, 
-      participantes: 0,
-      ongId: idUsuarioLogado, 
-    );
-
-    // Ver se está mandando certo
-    print("--- ENVIANDO DADOS PARA O BANCO (DJANGO) ---");
-    print("Evento: ${novoEvento.nome}");
-    print("Data/Hora: ${novoEvento.date}");
-    print("Vagas: ${novoEvento.totalVagas}");
-    print("ONG ID: ${novoEvento.ongId}");
-    print("--------------------------------------------");
-
-    bool sucesso = await _service.createEvent(novoEvento);
-
-    setState(() => _isLoading = false);
-
-    if (sucesso) {
-      print("-> RESPOSTA DO BANCO: 201 Created (Sucesso!)"); // Log de sucesso
-      if (!mounted) return;
+    if (vagasInput < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Evento salvo com sucesso!'), backgroundColor: Colors.green),
+        const SnackBar(
+          content: Text('❌ O número de vagas não pode ser negativo!'),
+          backgroundColor: Colors.red,
+        ),
       );
-      Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) Navigator.of(context).pop();
-      });
-    } else {
-      print("-> RESPOSTA DO BANCO: Falha/Erro"); // Log de erro
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro de conexão com o servidor.'), backgroundColor: Colors.red),
+      return;
+    }
+
+    print("--- [DEBUG] 2. SetState Loading ---");
+    setState(() => _isLoading = true);
+
+    try {
+      print("--- [DEBUG] 3. Tentando recuperar o Token... ---");
+      // Se travar aqui, é problema no SharedPreferences
+      final String? token = await _authService.getToken();
+      print("--- [DEBUG] 4. Token recuperado: $token ---");
+
+      if (token == null) {
+        print("--- [DEBUG] ERRO: Token é null ---");
+        setState(() => _isLoading = false);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Sessão expirada. Faça login novamente.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      //print("--- [DEBUG] 5. Criando objeto Evento... ---");
+      //DateTime dataPadrao = DateTime.now().add(const Duration(days: 1));
+
+      //final novoEvento = Event(
+      //id: 0,
+      //titulo: _tituloController.text,
+      //descricao: _descricaoController.text,
+      //location: "${_enderecoController.text} - $estadoSelecionado",
+      //date: dataPadrao,
+      //totalVagas: 50,
+      //participantes: 0,
+      //ongId: 0,
+      //);
+      //print("--- [DEBUG] 6. Objeto criado. Enviando para o backend... ---");
+
+      // Se travar aqui, é problema de CONEXÃO (IP errado ou Backend desligado)
+      //bool sucesso = await _service.createEvent(novoEvento, token);
+      // Busca Usuário Logado
+      final dadosUsuario = await _authService.getUsuarioSalvo();
+      int idUsuarioLogado = 0;
+
+      if (dadosUsuario != null && dadosUsuario['id'] != null) {
+        idUsuarioLogado = dadosUsuario['id'];
+        print("-> Usuário Identificado: ID $idUsuarioLogado");
+      } else {
+        print("-> ERRO: Token inválido ou usuário deslogado.");
+        setState(() => _isLoading = false);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro: Faça login novamente.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      // dia + hora)
+      final DateTime dataFinal = DateTime(
+        _dataSelecionada!.year,
+        _dataSelecionada!.month,
+        _dataSelecionada!.day,
+        _horaSelecionada!.hour,
+        _horaSelecionada!.minute,
       );
+
+      // Cria Objeto
+      final novoEvento = Event(
+        id: 0,
+        titulo: _tituloController.text,
+        descricao: _descricaoController.text,
+        location: "${_enderecoController.text} - $estadoSelecionado",
+        date: dataFinal,
+        totalVagas: int.tryParse(_vagasController.text) ?? 10,
+        participantes: 0,
+        ongId: idUsuarioLogado,
+      );
+
+      // Ver se está mandando certo
+      print("--- ENVIANDO DADOS PARA O BANCO (DJANGO) ---");
+      print("Evento: ${novoEvento.titulo}");
+      print("Data/Hora: ${novoEvento.date}");
+      print("Vagas: ${novoEvento.totalVagas}");
+      print("ONG ID: ${novoEvento.ongId}");
+      print("--------------------------------------------");
+
+      bool sucesso = await _service.createEvent(novoEvento, token);
+
+      print("--- [DEBUG] 7. Resposta recebida: $sucesso ---");
+
+      setState(() => _isLoading = false);
+
+      if (sucesso) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Evento salvo com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted) Navigator.of(context).pop();
+        });
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('❌ Erro ao criar. Veja o terminal.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e, stacktrace) {
+      // Isso vai pegar qualquer erro escondido
+      print("--- [DEBUG] ERRO CRÍTICO (EXCEPTION): $e ---");
+      print(stacktrace);
+      setState(() => _isLoading = false);
     }
   }
 
@@ -283,12 +374,12 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
   @override
   Widget build(BuildContext context) {
     // Formata textos para os campos
-    String textoData = _dataSelecionada == null 
-        ? "DATA DE INÍCIO" 
+    String textoData = _dataSelecionada == null
+        ? "DATA DE INÍCIO"
         : "${_dataSelecionada!.day}/${_dataSelecionada!.month}/${_dataSelecionada!.year}";
-    
-    String textoHora = _horaSelecionada == null 
-        ? "HORÁRIO" 
+
+    String textoHora = _horaSelecionada == null
+        ? "HORÁRIO"
         : "${_horaSelecionada!.hour}:${_horaSelecionada!.minute.toString().padLeft(2, '0')}";
 
     return Scaffold(
@@ -318,14 +409,23 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
             ),
             const SizedBox(height: 30.0),
 
-            if (_isLoading) 
-              const Center(child: Padding(padding: EdgeInsets.all(10), child: CircularProgressIndicator())),
+            if (_isLoading)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(10),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
 
             // TÍTULO
             _buildGrayInput(
               hintText: 'TITULO DO EVENTO',
               controller: _tituloController,
-              suffixIcon: const Icon(Icons.edit_outlined, color: corAzulTexto, size: 24),
+              suffixIcon: const Icon(
+                Icons.edit_outlined,
+                color: corAzulTexto,
+                size: 24,
+              ),
             ),
             const SizedBox(height: 20.0),
 
@@ -336,7 +436,11 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
                   child: _buildGrayInput(
                     hintText: 'Endereço / Cidade',
                     controller: _enderecoController,
-                    suffixIcon: const Icon(Icons.edit_outlined, color: corAzulTexto, size: 24),
+                    suffixIcon: const Icon(
+                      Icons.edit_outlined,
+                      color: corAzulTexto,
+                      size: 24,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -345,15 +449,19 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
             ),
             const SizedBox(height: 20.0),
 
-            // DATA + HORA 
+            // DATA + HORA
             Row(
               children: [
                 Expanded(
                   child: _buildGrayInput(
                     hintText: textoData,
                     readOnly: true,
-                    onTap: _selecionarData, 
-                    suffixIcon: const Icon(Icons.calendar_month, color: corAzulTexto, size: 24),
+                    onTap: _selecionarData,
+                    suffixIcon: const Icon(
+                      Icons.calendar_month,
+                      color: corAzulTexto,
+                      size: 24,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -362,7 +470,11 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
                     hintText: textoHora,
                     readOnly: true,
                     onTap: _selecionarHora, // Abre relógio
-                    suffixIcon: const Icon(Icons.access_time, color: corAzulTexto, size: 24),
+                    suffixIcon: const Icon(
+                      Icons.access_time,
+                      color: corAzulTexto,
+                      size: 24,
+                    ),
                   ),
                 ),
               ],
@@ -374,7 +486,11 @@ class _CriarEventoTelaState extends State<CriarEventoTela> {
               hintText: 'QUANTIDADE DE PARTICIPANTES',
               controller: _vagasController,
               keyboardType: TextInputType.number, // Teclado numérico
-              suffixIcon: const Icon(Icons.group, color: corAzulTexto, size: 24),
+              suffixIcon: const Icon(
+                Icons.group,
+                color: corAzulTexto,
+                size: 24,
+              ),
             ),
             const SizedBox(height: 20.0),
 
