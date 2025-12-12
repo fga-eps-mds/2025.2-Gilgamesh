@@ -1,71 +1,64 @@
 import 'package:flutter/material.dart';
-//import '../../services/event_service.dart'; --necessita o API primeiro
-import 'package:mobile_apoia/models/event.dart';
-import 'package:mobile_apoia/telas/doador/tela_perfil_usuario.dart';
-import 'package:mobile_apoia/widgets/event_card.dart';
-import 'package:mobile_apoia/widgets/barra_inferior_superior_tela_doador.dart';
-import 'package:mobile_apoia/widgets/barra_de_pesquisa.dart';
+import '../../services/event_service.dart'; // <--- AGORA USA O SERVIÇO REAL
+import '../../models/event.dart';
+import '../../telas/doador/tela_perfil_usuario.dart';
+import '../../widgets/event_card.dart';
+import '../../widgets/barra_inferior_superior_tela_doador.dart';
+import '../../widgets/barra_de_pesquisa.dart';
 
 class HomeUsuario extends StatefulWidget {
   const HomeUsuario({super.key});
 
   @override
-  State<HomeUsuario> createState() => _TelaListaDeEventosState();
+  State<HomeUsuario> createState() => _HomeUsuarioState();
 }
 
-class _TelaListaDeEventosState extends State<HomeUsuario> {
+class _HomeUsuarioState extends State<HomeUsuario> {
   final SearchController searchController = SearchController();
   final ScrollController scrollController = ScrollController();
-  //futura conexão django
-  // late Future<List<Event>> futureEventos;
-
-  final List<Event> eventosMock = [
-    Event(
-      id: 1,
-      nome: "Campanha de Doação",
-      descricao: "Ajude famílias carentes",
-      date: DateTime(2025, 2, 12),
-      location: "São Paulo",
-      totalVagas: 50,
-      participantes: 18,
-      ongId: 101,
-    ),
-    Event(
-      id: 2,
-      nome: "Arrecadação de Roupas",
-      descricao: "Doe roupas e ajude",
-      date: DateTime(2025, 3, 5),
-      location: "Rio de Janeiro",
-      totalVagas: 80,
-      participantes: 32,
-      ongId: 102,
-    ),
-    Event(
-      id: 3,
-      nome: "Mutirão Ambiental",
-      descricao: "Limpeza da praia estadual",
-      date: DateTime(2025, 4, 20),
-      location: "Florianópolis",
-      totalVagas: 120,
-      participantes: 67,
-      ongId: 103,
-    ),
-  ];
-
-  List<Event> eventosFiltrados = [];
+  
+  // Serviço para buscar dados
+  final EventService _eventService = EventService();
+  
+  List<Event> _eventosReais = []; // Lista que vem do banco
+  List<Event> _eventosFiltrados = [];
+  bool _isLoading = true; // Para controlar o carregamento
 
   @override
   void initState() {
     super.initState();
-    eventosFiltrados = eventosMock;
+    _carregarEventosDoBanco();
+  }
+
+  // --- BUSCA DADOS NA API ---
+  void _carregarEventosDoBanco() async {
+    try {
+      // Tenta buscar todos os eventos
+      // (Supondo que seu service tenha um método getEvents ou getAllEvents)
+      List<Event> eventos = await _eventService.getEvents(); 
+      
+      setState(() {
+        _eventosReais = eventos;
+        _eventosFiltrados = eventos;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print("Erro ao carregar eventos: $e");
+      // Se der erro, para de carregar e deixa a lista vazia (ou mostra erro)
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void scrollRight() {
-    scrollController.animateTo(
-      scrollController.offset + 250,
-      duration: const Duration(milliseconds: 350),
-      curve: Curves.easeOut,
-    );
+    if (scrollController.hasClients) {
+      scrollController.animateTo(
+        scrollController.offset + 250,
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   @override
@@ -89,7 +82,7 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
 
             const SizedBox(height: 16),
 
-            //barra de pesquisa
+            // BARRA DE PESQUISA
             SearchAnchor(
               searchController: searchController,
               builder: (context, controller) {
@@ -97,10 +90,9 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
                   onTap: () => controller.openView(),
                   onChanged: (value) {
                     controller.text = value;
-
                     setState(() {
                       final txt = value.toLowerCase();
-                      eventosFiltrados = eventosMock.where((evento) {
+                      _eventosFiltrados = _eventosReais.where((evento) {
                         return evento.nome.toLowerCase().contains(txt) ||
                             evento.descricao.toLowerCase().contains(txt) ||
                             evento.location.toLowerCase().contains(txt);
@@ -111,15 +103,12 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
               },
               suggestionsBuilder: (context, controller) {
                 final txt = controller.text.toLowerCase();
-
-                final sugestoes = eventosMock.where((evento) {
+                final sugestoes = _eventosReais.where((evento) {
                   return evento.nome.toLowerCase().contains(txt);
                 }).toList();
 
                 if (sugestoes.isEmpty) {
-                  return const [
-                    ListTile(title: Text("Nenhum evento encontrado")),
-                  ];
+                  return const [ListTile(title: Text("Nenhum evento encontrado"))];
                 }
 
                 return sugestoes.map((evento) {
@@ -127,7 +116,7 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
                     title: Text(evento.nome),
                     onTap: () {
                       controller.closeView(evento.nome);
-                      setState(() => eventosFiltrados = [evento]);
+                      setState(() => _eventosFiltrados = [evento]);
                     },
                   );
                 }).toList();
@@ -136,46 +125,55 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
 
             const SizedBox(height: 16),
 
-            //carrossel de eventos
+            // --- CARROSSEL DE EVENTOS (COM LOADING) ---
             Expanded(
-              child: Stack(
-                children: [
-                  SingleChildScrollView(
-                    controller: scrollController,
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: eventosFiltrados
-                          .map(
-                            (e) => EventCard(
-                              event: e,
-                              onTap: () => print("Clicou em ${e.nome}"),
+              child: _isLoading 
+                ? const Center(child: CircularProgressIndicator()) // Mostra loading se estiver carregando
+                : _eventosFiltrados.isEmpty 
+                    ? const Center(child: Text("Nenhuma campanha encontrada."))
+                    : Stack(
+                        children: [
+                          SingleChildScrollView(
+                            controller: scrollController,
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: _eventosFiltrados
+                                  .map(
+                                    (e) => Padding(
+                                      padding: const EdgeInsets.only(right: 10),
+                                      child: EventCard(
+                                        event: e,
+                                        onTap: () => print("Clicou em ${e.nome}"),
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
                             ),
-                          )
-                          .toList(),
-                    ),
-                  ),
+                          ),
 
-                  Positioned(
-                    right: 0,
-                    top: 90,
-                    child: GestureDetector(
-                      onTap: scrollRight,
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF2DB38A),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.arrow_forward,
-                          color: Colors.white,
-                          size: 28,
-                        ),
+                          // Seta para direita (só mostra se tiver muitos eventos)
+                          if (_eventosFiltrados.length > 1)
+                            Positioned(
+                              right: 0,
+                              top: 90,
+                              child: GestureDetector(
+                                onTap: scrollRight,
+                                child: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF2DB38A),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.arrow_forward,
+                                    color: Colors.white,
+                                    size: 28,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                    ),
-                  ),
-                ],
-              ),
             ),
           ],
         ),
@@ -187,11 +185,16 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
           if (index == 1) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => TelaPerfilUsuario()),
+              materialPageRoute(builder: (context) => const TelaPerfilUsuario(isOng: false)), // Assumindo doador
             );
           }
         },
       ),
     );
+  }
+  
+  // Helper para rota (caso precise)
+  MaterialPageRoute materialPageRoute({required Widget Function(BuildContext) builder}) {
+    return MaterialPageRoute(builder: builder);
   }
 }
