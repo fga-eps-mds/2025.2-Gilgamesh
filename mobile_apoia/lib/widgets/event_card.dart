@@ -11,17 +11,17 @@ class EventCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 170,
-      height: 220, 
+      height: 220,
       margin: const EdgeInsets.only(right: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Colors.white, 
+        color: Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.3),
             spreadRadius: 1,
             blurRadius: 5,
-            offset: const Offset(0, 3), 
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -32,7 +32,9 @@ class EventCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
               child: Image.network(
                 // URL de uma imagem genérica de voluntariado/doação
                 // O número 'random=${event.id}' faz cada evento ter uma foto diferente!
@@ -67,11 +69,7 @@ class EventCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-<<<<<<< HEAD
-                    event.nome.toUpperCase(),
-=======
                     event.titulo,
->>>>>>> 10c1dffe4a5e9eacc0106f5ef63a612a11ecc65a
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -100,9 +98,8 @@ class EventCard extends StatelessWidget {
             ),
 
             const Spacer(), // Empurra o botão para baixo
-
             // BOTÃO VER MAIS
-             Padding(
+            Padding(
               padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
               child: SizedBox(
                 width: double.infinity,
@@ -118,7 +115,11 @@ class EventCard extends StatelessWidget {
                   onPressed: onTap,
                   child: const Text(
                     "VER DETALHES",
-                    style: TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),

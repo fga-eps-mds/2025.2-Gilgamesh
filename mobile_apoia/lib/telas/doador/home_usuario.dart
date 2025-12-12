@@ -1,23 +1,13 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
-import '../../services/event_service.dart';
-import '../../models/event.dart';
-import '../../telas/doador/tela_perfil_usuario.dart';
-import '../../widgets/event_card.dart';
-import '../../widgets/ong_card.dart'; // IMPORT NOVO
-import '../../widgets/barra_inferior_superior_tela_doador.dart';
-import '../../widgets/barra_de_pesquisa.dart';
-=======
 import 'package:mobile_apoia/models/event.dart';
 import 'package:mobile_apoia/models/ong.dart';
 import 'package:mobile_apoia/services/event_service.dart';
 import 'package:mobile_apoia/services/auth_service.dart';
 import 'package:mobile_apoia/telas/doador/tela_perfil_usuario.dart';
-import 'package:mobile_apoia/telas/doador/visualizar_evento_doador.dart';
+import 'package:mobile_apoia/telas/doador/visualizar_evento_doador.dart'; // Import da tela de detalhes
 import 'package:mobile_apoia/widgets/event_card.dart';
 import 'package:mobile_apoia/widgets/barra_inferior_superior_tela_doador.dart';
 import 'package:mobile_apoia/widgets/barra_de_pesquisa.dart';
->>>>>>> 10c1dffe4a5e9eacc0106f5ef63a612a11ecc65a
 
 class HomeUsuario extends StatefulWidget {
   const HomeUsuario({super.key});
@@ -28,22 +18,13 @@ class HomeUsuario extends StatefulWidget {
 
 class _HomeUsuarioState extends State<HomeUsuario> {
   final SearchController searchController = SearchController();
-<<<<<<< HEAD
-  final ScrollController scrollController = ScrollController();
-  final EventService _eventService = EventService();
-  
-  List<Event> _eventosReais = [];
-  List<Event> _eventosFiltrados = [];
-  bool _isLoading = true;
-=======
-
   final EventService _eventService = EventService();
   final AuthService _authService = AuthService();
 
   // Listas Reais
   List<Event> _todosEventos = [];
   List<Event> _eventosFiltrados = [];
-  List<Ong> _todasOngs = []; //  Lista real de ONGs
+  List<Ong> _todasOngs = [];
 
   bool _carregando = true;
 
@@ -59,28 +40,10 @@ class _HomeUsuarioState extends State<HomeUsuario> {
   ];
 
   final List<String> estados = ["SP", "RJ", "SC", "DF"];
->>>>>>> 10c1dffe4a5e9eacc0106f5ef63a612a11ecc65a
 
   @override
   void initState() {
     super.initState();
-<<<<<<< HEAD
-    _carregarEventosDoBanco();
-  }
-
-  void _carregarEventosDoBanco() async {
-    try {
-      List<Event> eventos = await _eventService.getEvents(); 
-      setState(() {
-        _eventosReais = eventos;
-        _eventosFiltrados = eventos;
-        _isLoading = false;
-      });
-    } catch (e) {
-      print("Erro ao carregar eventos: $e");
-      setState(() => _isLoading = false);
-    }
-=======
     _buscarDadosDoBanco();
   }
 
@@ -90,20 +53,22 @@ class _HomeUsuarioState extends State<HomeUsuario> {
     setState(() => _carregando = true);
 
     try {
-      print(">>> [DEBUG] 2. Chamando API de Eventos...");
+      print(">>> [DEBUG] 2. Chamando API...");
+
+      // Nota: Certifique-se que seu getEvents aceita parâmetros opcionais de cidade/estado
+      // Se der erro aqui, remova os parâmetros temporariamente
       final resultados = await Future.wait([
-        _eventService.getEvents(
-          cidade: filtroCidade,
-          estado: filtroEstado,
-        ), // índice 0
-        _authService.getOngs(), // índice 1
+        _eventService.getEvents(), // índice 0 (Eventos)
+        _authService.getOngs(), // índice 1 (ONGs)
       ]);
 
       setState(() {
         _todosEventos = resultados[0] as List<Event>;
+
+        // Aplica filtro local se necessário, ou pega tudo
         _eventosFiltrados = _todosEventos;
 
-        _todasOngs = resultados[1] as List<Ong>; // <--- Preenche as ONGs
+        _todasOngs = resultados[1] as List<Ong>;
 
         _carregando = false;
       });
@@ -115,7 +80,6 @@ class _HomeUsuarioState extends State<HomeUsuario> {
 
   void aplicarBusca(String valor) {
     valor = valor.toLowerCase();
-
     setState(() {
       _eventosFiltrados = _todosEventos.where((evento) {
         return evento.titulo.toLowerCase().contains(valor) ||
@@ -136,25 +100,14 @@ class _HomeUsuarioState extends State<HomeUsuario> {
         ),
       ),
     );
->>>>>>> 10c1dffe4a5e9eacc0106f5ef63a612a11ecc65a
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SuperiorBarDoador(),
-<<<<<<< HEAD
-      body: SingleChildScrollView( // Permite rolar a tela toda para baixo
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // --- TÍTULO EVENTOS ---
-              const Text(
-                "Campanhas ativas",
-                style: TextStyle(fontSize: 22, color: Color(0xFF1E5AA8), fontWeight: FontWeight.w600),
-=======
+
+      // RefreshIndicator permite puxar para atualizar
       body: RefreshIndicator(
         onRefresh: _buscarDadosDoBanco,
         child: SingleChildScrollView(
@@ -163,6 +116,7 @@ class _HomeUsuarioState extends State<HomeUsuario> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
+
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
@@ -173,69 +127,11 @@ class _HomeUsuarioState extends State<HomeUsuario> {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
->>>>>>> 10c1dffe4a5e9eacc0106f5ef63a612a11ecc65a
               ),
+
               const SizedBox(height: 16),
 
               // BARRA DE PESQUISA
-<<<<<<< HEAD
-              SearchAnchor(
-                searchController: searchController,
-                builder: (context, controller) {
-                  return BarraDePesquisa(
-                    onTap: () => controller.openView(),
-                    onChanged: (value) {}, 
-                  );
-                },
-                suggestionsBuilder: (context, controller) {
-                  return [const ListTile(title: Text("Pesquisa em breve..."))];
-                },
-              ),
-              const SizedBox(height: 16),
-
-              -
-              SizedBox(
-                height: 230, 
-                child: _isLoading 
-                  ? const Center(child: CircularProgressIndicator())
-                  : _eventosFiltrados.isEmpty 
-                      ? const Center(child: Text("Nenhuma campanha encontrada."))
-                      : ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: _eventosFiltrados.length,
-                          itemBuilder: (context, index) {
-                            return EventCard(
-                              event: _eventosFiltrados[index],
-                              onTap: () {},
-                            );
-                          },
-                        ),
-              ),
-
-              const SizedBox(height: 30),
-
-              // ONGS PARCEIRAS 
-              const Text(
-                "ONGs Parceiras",
-                style: TextStyle(fontSize: 22, color: Color(0xFF1E5AA8), fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 16),
-
-              // CARROSSEL DE ONGS (MOCKADO PARA O VISUAL)
-              SizedBox(
-                height: 160,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    OngCard(nome: "Mãos que Ajudam", categoria: "Assistência", id: 1, onTap: () {}),
-                    OngCard(nome: "EcoVida", categoria: "Meio Ambiente", id: 2, onTap: () {}),
-                    OngCard(nome: "PetFeliz", categoria: "Animais", id: 3, onTap: () {}),
-                    OngCard(nome: "Educa+", categoria: "Educação", id: 4, onTap: () {}),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-=======
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: SearchAnchor(
@@ -243,7 +139,10 @@ class _HomeUsuarioState extends State<HomeUsuario> {
                   builder: (context, controller) {
                     return BarraDePesquisa(
                       onTap: () => controller.openView(),
-                      onChanged: aplicarBusca,
+                      onChanged: (value) {
+                        controller.text = value; // Atualiza texto
+                        aplicarBusca(value); // Filtra lista
+                      },
                     );
                   },
                   suggestionsBuilder: (context, controller) => [],
@@ -259,10 +158,15 @@ class _HomeUsuarioState extends State<HomeUsuario> {
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(labelText: "Cidade"),
-                        initialValue: filtroCidade.isEmpty
-                            ? null
-                            : filtroCidade,
+                        decoration: const InputDecoration(
+                          labelText: "Cidade",
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 0,
+                          ),
+                          border: OutlineInputBorder(),
+                        ),
+                        value: filtroCidade.isEmpty ? null : filtroCidade,
                         items: cidades
                             .map(
                               (c) => DropdownMenuItem(value: c, child: Text(c)),
@@ -270,17 +174,23 @@ class _HomeUsuarioState extends State<HomeUsuario> {
                             .toList(),
                         onChanged: (value) {
                           setState(() => filtroCidade = value ?? "");
-                          _buscarDadosDoBanco();
+                          // Aqui você pode chamar _buscarDadosDoBanco() passando o filtro
+                          // ou filtrar localmente
                         },
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(labelText: "Estado"),
-                        initialValue: filtroEstado.isEmpty
-                            ? null
-                            : filtroEstado,
+                        decoration: const InputDecoration(
+                          labelText: "Estado",
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 0,
+                          ),
+                          border: OutlineInputBorder(),
+                        ),
+                        value: filtroEstado.isEmpty ? null : filtroEstado,
                         items: estados
                             .map(
                               (e) => DropdownMenuItem(value: e, child: Text(e)),
@@ -288,7 +198,6 @@ class _HomeUsuarioState extends State<HomeUsuario> {
                             .toList(),
                         onChanged: (value) {
                           setState(() => filtroEstado = value ?? "");
-                          _buscarDadosDoBanco();
                         },
                       ),
                     ),
@@ -296,7 +205,9 @@ class _HomeUsuarioState extends State<HomeUsuario> {
                 ),
               ),
 
-              // Carrosel de ongs
+              const SizedBox(height: 10),
+
+              // --- CARROSSEL 1: ONGS PARCEIRAS ---
               _buildSecaoTitulo("ONGs Parceiras"),
 
               SizedBox(
@@ -319,16 +230,13 @@ class _HomeUsuarioState extends State<HomeUsuario> {
                                 width: 70,
                                 height: 70,
                                 decoration: BoxDecoration(
-                                  color: Colors.orange.withOpacity(
-                                    0.2,
-                                  ), // Cor padrão
+                                  color: Colors.orange.withOpacity(0.2),
                                   shape: BoxShape.circle,
                                   border: Border.all(
                                     color: Colors.orange,
                                     width: 2,
                                   ),
                                 ),
-                                // Como não temos foto no banco, usamos a inicial do nome
                                 child: Center(
                                   child: Text(
                                     ong.nome.isNotEmpty
@@ -358,7 +266,7 @@ class _HomeUsuarioState extends State<HomeUsuario> {
                       ),
               ),
 
-              // carrosel de eventos
+              // --- CARROSSEL 2: CAMPANHAS ATIVAS ---
               _buildSecaoTitulo("Campanhas Ativas"),
 
               SizedBox(
@@ -380,6 +288,7 @@ class _HomeUsuarioState extends State<HomeUsuario> {
                               child: EventCard(
                                 event: evento,
                                 onTap: () {
+                                  // Navega para a tela de detalhes que criamos
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -395,16 +304,21 @@ class _HomeUsuarioState extends State<HomeUsuario> {
                       ),
               ),
               const SizedBox(height: 30),
->>>>>>> 10c1dffe4a5e9eacc0106f5ef63a612a11ecc65a
             ],
           ),
         ),
       ),
+
       bottomNavigationBar: BottomNavBarDoador(
         iconSelecionado: 0,
         onTap: (index) {
           if (index == 1) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const TelaPerfilUsuario(isOng: false)));
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const TelaPerfilUsuario(),
+              ),
+            );
           }
         },
       ),
