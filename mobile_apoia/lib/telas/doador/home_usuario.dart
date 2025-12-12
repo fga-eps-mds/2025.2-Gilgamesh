@@ -4,7 +4,7 @@ import 'package:mobile_apoia/models/ong.dart';
 import 'package:mobile_apoia/services/event_service.dart';
 import 'package:mobile_apoia/services/auth_service.dart';
 import 'package:mobile_apoia/telas/doador/tela_perfil_usuario.dart';
-import 'package:mobile_apoia/telas/doador/visualizar_evento_doador.dart'; // Import da tela de detalhes
+import 'package:mobile_apoia/telas/doador/visualizar_evento_doador.dart';
 import 'package:mobile_apoia/widgets/event_card.dart';
 import 'package:mobile_apoia/widgets/barra_inferior_superior_tela_doador.dart';
 import 'package:mobile_apoia/widgets/barra_de_pesquisa.dart';
@@ -26,6 +26,7 @@ class _HomeUsuarioState extends State<HomeUsuario> {
   List<Event> _todosEventos = [];
   List<Event> _eventosFiltrados = [];
   List<Ong> _todasOngs = [];
+  List<Ong> _ongsFiltradas = [];
 
   bool _carregando = true;
 
@@ -33,43 +34,211 @@ class _HomeUsuarioState extends State<HomeUsuario> {
   String filtroCidade = "";
   String filtroEstado = "";
 
-  final List<String> cidades = [
-    "São Paulo",
-    "Rio de Janeiro",
-    "Florianópolis",
-    "Brasília",
+  final Map<String, List<String>> cidadesPorEstado = {
+    "AC": ["Rio Branco", "Cruzeiro do Sul"],
+    "AL": ["Maceió", "Arapiraca"],
+    "AP": ["Macapá", "Santana"],
+    "AM": ["Manaus", "Parintins"],
+    "BA": ["Salvador", "Feira de Santana"],
+    "CE": ["Fortaleza", "Juazeiro do Norte"],
+    "DF": ["Brasília", "Ceilândia"],
+    "ES": ["Vitória", "Vila Velha"],
+    "GO": ["Goiânia", "Anápolis"],
+    "MA": ["São Luís", "Imperatriz"],
+    "MT": ["Cuiabá", "Várzea Grande"],
+    "MS": ["Campo Grande", "Dourados"],
+    "MG": ["Belo Horizonte", "Uberlândia"],
+    "PA": ["Belém", "Ananindeua"],
+    "PB": ["João Pessoa", "Campina Grande"],
+    "PR": ["Curitiba", "Londrina"],
+    "PE": ["Recife", "Olinda"],
+    "PI": ["Teresina", "Parnaíba"],
+    "RJ": ["Rio de Janeiro", "Niterói"],
+    "RN": ["Natal", "Mossoró"],
+    "RS": ["Porto Alegre", "Caxias do Sul"],
+    "RO": ["Porto Velho", "Ji-Paraná"],
+    "RR": ["Boa Vista", "Rorainópolis"],
+    "SC": ["Florianópolis", "Joinville"],
+    "SP": ["São Paulo", "Campinas"],
+    "SE": ["Aracaju", "Nossa Senhora do Socorro"],
+    "TO": ["Palmas", "Araguaína"],
+  };
+
+  List<String> estadosDisponiveis = [
+    "AC",
+    "AL",
+    "AP",
+    "AM",
+    "BA",
+    "CE",
+    "DF",
+    "ES",
+    "GO",
+    "MA",
+    "MT",
+    "MS",
+    "MG",
+    "PA",
+    "PB",
+    "PR",
+    "PE",
+    "PI",
+    "RJ",
+    "RN",
+    "RS",
+    "RO",
+    "RR",
+    "SC",
+    "SP",
+    "SE",
+    "TO",
   ];
 
-  final List<String> estados = ["SP", "RJ", "SC", "DF"];
+  List<String> cidadesDisponiveis = [
+    "Rio Branco",
+    "Cruzeiro do Sul",
+    "Maceió",
+    "Arapiraca",
+    "Macapá",
+    "Santana",
+    "Manaus",
+    "Parintins",
+    "Salvador",
+    "Feira de Santana",
+    "Fortaleza",
+    "Juazeiro do Norte",
+    "Brasília",
+    "Ceilândia",
+    "Vitória",
+    "Vila Velha",
+    "Goiânia",
+    "Anápolis",
+    "São Luís",
+    "Imperatriz",
+    "Cuiabá",
+    "Várzea Grande",
+    "Campo Grande",
+    "Dourados",
+    "Belo Horizonte",
+    "Uberlândia",
+    "Belém",
+    "Ananindeua",
+    "João Pessoa",
+    "Campina Grande",
+    "Curitiba",
+    "Londrina",
+    "Recife",
+    "Olinda",
+    "Teresina",
+    "Parnaíba",
+    "Rio de Janeiro",
+    "Niterói",
+    "Natal",
+    "Mossoró",
+    "Porto Alegre",
+    "Caxias do Sul",
+    "Porto Velho",
+    "Ji-Paraná",
+    "Boa Vista",
+    "Rorainópolis",
+    "Florianópolis",
+    "Joinville",
+    "São Paulo",
+    "Campinas",
+    "Aracaju",
+    "Nossa Senhora do Socorro",
+    "Palmas",
+    "Araguaína",
+  ];
 
   @override
   void initState() {
     super.initState();
+    searchController.addListener(_onSearchChanged);
     _buscarDadosDoBanco();
+  }
+
+  @override
+  void dispose() {
+    searchController.removeListener(_onSearchChanged);
+    searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    aplicarFiltros();
+  }
+
+  //atualiza cidades com base no estado selecionado
+  void _atualizarCidadesDisponiveis() {
+    if (filtroEstado.isNotEmpty && cidadesPorEstado.containsKey(filtroEstado)) {
+      setState(() {
+        cidadesDisponiveis = cidadesPorEstado[filtroEstado]!;
+
+        // Se a cidade atual não está na lista do estado selecionado, limpa a cidade
+        if (!cidadesDisponiveis.contains(filtroCidade)) {
+          filtroCidade = "";
+        }
+      });
+    } else {
+      //nenhum estado selecionado = mostra todas as cidades
+      setState(() {
+        cidadesDisponiveis = [];
+        cidadesPorEstado.forEach((estado, cidades) {
+          cidadesDisponiveis.addAll(cidades);
+        });
+        cidadesDisponiveis = cidadesDisponiveis.toSet().toList();
+      });
+    }
+  }
+
+  //atualiza estados com base na cidade selecionada
+  void _atualizarEstadosDisponiveis() {
+    if (filtroCidade.isNotEmpty) {
+      List<String> estadosComEstaCidade = [];
+      cidadesPorEstado.forEach((estado, cidades) {
+        if (cidades.contains(filtroCidade)) {
+          estadosComEstaCidade.add(estado);
+        }
+      });
+
+      setState(() {
+        estadosDisponiveis = estadosComEstaCidade;
+
+        // Se o estado atual não está na lista de estados com esta cidade, limpa o estado
+        if (!estadosDisponiveis.contains(filtroEstado)) {
+          filtroEstado = estadosComEstaCidade.isNotEmpty
+              ? estadosComEstaCidade.first
+              : "";
+        }
+      });
+    } else {
+      //nenhuma cidade selecionada = mostrar todos os estados
+      setState(() {
+        estadosDisponiveis = cidadesPorEstado.keys.toList();
+      });
+    }
   }
 
   // Busca Eventos E ONGs ao mesmo tempo
   Future<void> _buscarDadosDoBanco() async {
-    print(">>> [DEBUG] 1. Iniciando carregamento...");
+    print(">>> [DEBUG] Iniciando carregamento...");
     setState(() => _carregando = true);
 
     try {
-      print(">>> [DEBUG] 2. Chamando API...");
-
-      // Nota: Certifique-se que seu getEvents aceita parâmetros opcionais de cidade/estado
-      // Se der erro aqui, remova os parâmetros temporariamente
       final resultados = await Future.wait([
-        _eventService.getEvents(), // índice 0 (Eventos)
-        _authService.getOngs(), // índice 1 (ONGs)
+        _eventService.getEvents(
+          cidade: filtroCidade.isEmpty ? null : filtroCidade,
+          estado: filtroEstado.isEmpty ? null : filtroEstado,
+        ),
+        _authService.getOngs(),
       ]);
 
       setState(() {
         _todosEventos = resultados[0] as List<Event>;
-
-        // Aplica filtro local se necessário, ou pega tudo
-        _eventosFiltrados = _todosEventos;
-
         _todasOngs = resultados[1] as List<Ong>;
+
+        aplicarFiltros();
 
         _carregando = false;
       });
@@ -79,14 +248,54 @@ class _HomeUsuarioState extends State<HomeUsuario> {
     }
   }
 
-  void aplicarBusca(String valor) {
-    valor = valor.toLowerCase();
-    setState(() {
-      _eventosFiltrados = _todosEventos.where((evento) {
-        return evento.titulo.toLowerCase().contains(valor) ||
-            evento.location.toLowerCase().contains(valor);
+  void aplicarFiltros() {
+    String busca = searchController.text.toLowerCase();
+
+    // Filtra eventos
+    List<Event> eventosTemp = _todosEventos;
+
+    // Aplica filtro de busca local
+    if (busca.isNotEmpty) {
+      eventosTemp = eventosTemp.where((evento) {
+        return evento.titulo.toLowerCase().contains(busca) ||
+            evento.location.toLowerCase().contains(busca);
       }).toList();
+    }
+
+    // Filtra ONGs
+    List<Ong> ongsTemp = _todasOngs;
+    if (busca.isNotEmpty) {
+      ongsTemp = ongsTemp.where((ong) {
+        return ong.nome.toLowerCase().contains(busca);
+      }).toList();
+    }
+
+    setState(() {
+      _eventosFiltrados = eventosTemp;
+      _ongsFiltradas = ongsTemp;
     });
+  }
+
+  void _aplicarFiltroLocalizacao() {
+    _buscarDadosDoBanco();
+  }
+
+  //estado selecionado no dropdown
+  void _onEstadoChanged(String? novoEstado) {
+    setState(() {
+      filtroEstado = novoEstado ?? "";
+    });
+    _atualizarCidadesDisponiveis();
+    _aplicarFiltroLocalizacao();
+  }
+
+  //cidade selecionado no dropdown
+  void _onCidadeChanged(String? novaCidade) {
+    setState(() {
+      filtroCidade = novaCidade ?? "";
+    });
+    _atualizarEstadosDisponiveis();
+    _aplicarFiltroLocalizacao();
   }
 
   Widget _buildSecaoTitulo(String titulo) {
@@ -103,12 +312,38 @@ class _HomeUsuarioState extends State<HomeUsuario> {
     );
   }
 
+  List<String> _gerarSugestoes(String query) {
+    if (query.isEmpty) return [];
+
+    final queryLower = query.toLowerCase();
+    final sugestoes = <String>{};
+
+    for (var evento in _todosEventos) {
+      if (evento.titulo.toLowerCase().contains(queryLower)) {
+        sugestoes.add(evento.titulo);
+      }
+    }
+
+    for (var ong in _todasOngs) {
+      if (ong.nome.toLowerCase().contains(queryLower)) {
+        sugestoes.add(ong.nome);
+      }
+    }
+
+    for (var evento in _todosEventos) {
+      if (evento.location.toLowerCase().contains(queryLower)) {
+        sugestoes.add(evento.location);
+      }
+    }
+
+    return sugestoes.toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SuperiorBarDoador(),
 
-      // RefreshIndicator permite puxar para atualizar
       body: RefreshIndicator(
         onRefresh: _buscarDadosDoBanco,
         child: SingleChildScrollView(
@@ -132,7 +367,7 @@ class _HomeUsuarioState extends State<HomeUsuario> {
 
               const SizedBox(height: 16),
 
-              // BARRA DE PESQUISA
+              // BARRA DE PESQUISA COM SUGESTÕES
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: SearchAnchor(
@@ -140,47 +375,43 @@ class _HomeUsuarioState extends State<HomeUsuario> {
                   builder: (context, controller) {
                     return BarraDePesquisa(
                       onTap: () => controller.openView(),
-                      onChanged: (value) {
-                        controller.text = value; // Atualiza texto
-                        aplicarBusca(value); // Filtra lista
-                      },
+                      onChanged: (value) {},
                     );
                   },
-                  suggestionsBuilder: (context, controller) => [],
+                  suggestionsBuilder: (context, controller) {
+                    final query = controller.text;
+                    final sugestoes = _gerarSugestoes(query);
+
+                    if (sugestoes.isEmpty) {
+                      return [
+                        const ListTile(
+                          title: Text("Nenhuma sugestão encontrada"),
+                        ),
+                      ];
+                    }
+
+                    return sugestoes.map((sugestao) {
+                      return ListTile(
+                        title: Text(sugestao),
+                        onTap: () {
+                          controller.text = sugestao;
+                          controller.closeView(sugestao);
+                          aplicarFiltros();
+                        },
+                      );
+                    }).toList();
+                  },
                 ),
               ),
 
               const SizedBox(height: 10),
 
-              // FILTROS (Cidade + Estado)
+              // Filtros Linkados
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
-                    Expanded(
-                      child: DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(
-                          labelText: "Cidade",
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 0,
-                          ),
-                          border: OutlineInputBorder(),
-                        ),
-                        value: filtroCidade.isEmpty ? null : filtroCidade,
-                        items: cidades
-                            .map(
-                              (c) => DropdownMenuItem(value: c, child: Text(c)),
-                            )
-                            .toList(),
-                        onChanged: (value) {
-                          setState(() => filtroCidade = value ?? "");
-                          // Aqui você pode chamar _buscarDadosDoBanco() passando o filtro
-                          // ou filtrar localmente
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 12),
+                    // DROPDOWN DE ESTADO
                     Expanded(
                       child: DropdownButtonFormField<String>(
                         decoration: const InputDecoration(
@@ -191,15 +422,47 @@ class _HomeUsuarioState extends State<HomeUsuario> {
                           ),
                           border: OutlineInputBorder(),
                         ),
-                        value: filtroEstado.isEmpty ? null : filtroEstado,
-                        items: estados
-                            .map(
-                              (e) => DropdownMenuItem(value: e, child: Text(e)),
-                            )
-                            .toList(),
-                        onChanged: (value) {
-                          setState(() => filtroEstado = value ?? "");
-                        },
+                        initialValue: filtroEstado.isEmpty
+                            ? null
+                            : filtroEstado,
+                        items: [
+                          const DropdownMenuItem(
+                            value: "",
+                            child: Text("Todos os estados"),
+                          ),
+                          ...estadosDisponiveis.map(
+                            (e) => DropdownMenuItem(value: e, child: Text(e)),
+                          ),
+                        ],
+                        onChanged: _onEstadoChanged,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+
+                    // DROPDOWN DE CIDADE
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(
+                          labelText: "Cidade",
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 0,
+                          ),
+                          border: OutlineInputBorder(),
+                        ),
+                        initialValue: filtroCidade.isEmpty
+                            ? null
+                            : filtroCidade,
+                        items: [
+                          const DropdownMenuItem(
+                            value: "",
+                            child: Text("Todas as cidades"),
+                          ),
+                          ...cidadesDisponiveis.map(
+                            (c) => DropdownMenuItem(value: c, child: Text(c)),
+                          ),
+                        ],
+                        onChanged: _onCidadeChanged,
                       ),
                     ),
                   ],
@@ -208,6 +471,29 @@ class _HomeUsuarioState extends State<HomeUsuario> {
 
               const SizedBox(height: 10),
 
+              // Botão para limpar filtros
+              if (filtroCidade.isNotEmpty || filtroEstado.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      icon: const Icon(Icons.clear, size: 16),
+                      label: const Text("Limpar filtros"),
+                      onPressed: () {
+                        setState(() {
+                          filtroCidade = "";
+                          filtroEstado = "";
+                          searchController.clear();
+                        });
+                        _atualizarCidadesDisponiveis();
+                        _atualizarEstadosDisponiveis();
+                        _aplicarFiltroLocalizacao();
+                      },
+                    ),
+                  ),
+                ),
+
               // Carrosel de ongs
               _buildSecaoTitulo("ONGs Parceiras"),
 
@@ -215,19 +501,17 @@ class _HomeUsuarioState extends State<HomeUsuario> {
                 height: 110,
                 child: _carregando
                     ? const Center(child: CircularProgressIndicator())
-                    : _todasOngs.isEmpty
+                    : _ongsFiltradas.isEmpty
                     ? const Center(child: Text("Nenhuma ONG encontrada."))
                     : ListView.separated(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         scrollDirection: Axis.horizontal,
-                        itemCount: _todasOngs.length,
+                        itemCount: _ongsFiltradas.length,
                         separatorBuilder: (_, __) => const SizedBox(width: 16),
                         itemBuilder: (context, index) {
-                          final ong = _todasOngs[index];
-
+                          final ong = _ongsFiltradas[index];
                           return InkWell(
                             onTap: () {
-                              // Navega para o perfil público da ONG
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -235,12 +519,9 @@ class _HomeUsuarioState extends State<HomeUsuario> {
                                 ),
                               );
                             },
-                            borderRadius: BorderRadius.circular(
-                              50,
-                            ), // Efeito visual redondo
+                            borderRadius: BorderRadius.circular(50),
                             child: Column(
                               children: [
-                                // Avatar da ONG
                                 Container(
                                   width: 70,
                                   height: 70,
@@ -281,7 +562,8 @@ class _HomeUsuarioState extends State<HomeUsuario> {
                         },
                       ),
               ),
-              // Carrosel de campanhas/eventos
+
+              // Carrosel eventos
               _buildSecaoTitulo("Campanhas Ativas"),
 
               SizedBox(
@@ -303,7 +585,6 @@ class _HomeUsuarioState extends State<HomeUsuario> {
                               child: EventCard(
                                 event: evento,
                                 onTap: () {
-                                  // Navega para a tela de detalhes
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
