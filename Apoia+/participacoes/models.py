@@ -3,20 +3,13 @@ from autenticacao.models import Usuario
 from eventos.models import Evento
 
 class Participacao(models.Model):
-    STATUS_CHOICES = [
-        ('pendente', 'Pendente'),
-        ('confirmado', 'Confirmado'),
-        ('cancelado', 'Cancelado'),
-    ]
-
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='participacoes')
-    evento = models.ForeignKey(Evento, on_delete=models.CASCADE, related_name='participacoes')
-    status_confirmacao = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default='pendente'
-    )
+    voluntario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    evento = models.ForeignKey(Evento, on_delete=models.CASCADE)
     data_inscricao = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        # Garante que o usuário não se inscreva 2vezes no mesmo evento
+        unique_together = ('voluntario', 'evento') 
+
     def __str__(self):
-        return f"{self.usuario.nome} - {self.evento.titulo} ({self.status_confirmacao})"
+        return f"{self.voluntario.nome} em {self.evento.titulo}"
