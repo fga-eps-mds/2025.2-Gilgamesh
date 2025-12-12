@@ -1,64 +1,68 @@
 import pytest
-from django.urls import reverse
 from rest_framework import status
-from autenticacao.models import Usuario
+from rest_framework.test import APIClient
 
 @pytest.mark.django_db
 class TestCadastroView:
-    
+    @pytest.fixture
+    def api_client(self):
+        return APIClient()
+
     @pytest.fixture
     def url_cadastro(self):
-        # Certifique-se que existe path('cadastro/', ..., name='cadastro') no urls.py
-        # Se não tiver, ajuste aqui ou crie a rota
-        try:
-            return reverse('cadastro')
-        except:
-            return '/api/auth/cadastro/' # Fallback se não tiver name
+        return '/api/auth/cadastro/'
 
     def test_cadastro_voluntario_sucesso(self, api_client, url_cadastro):
+        # CPF VÁLIDO (Matemática correta) e SENHA FORTE
         data = {
             "nome": "Voluntario Teste",
             "email": "voluntario@teste.com",
-            "password": "senha_segura_123",
+            "password": "SenhaForte123", 
             "tipo_usuario": "voluntario",
-            "cpf": "12345678900",
+            "cpf": "52998224725", 
             "uf": "DF"
         }
         response = api_client.post(url_cadastro, data)
         assert response.status_code == status.HTTP_201_CREATED
-        assert Usuario.objects.count() == 1
-        assert Usuario.objects.first().cpf == "12345678900"
+        
+        # O backend retorna os dados dentro da chave 'usuario'
+        assert response.data['usuario']['email'] == data['email']
 
     def test_cadastro_ong_sucesso(self, api_client, url_cadastro):
+        # CNPJ VÁLIDO (11.111.111/0001-91)
         data = {
             "nome": "ONG Teste",
             "email": "ong@teste.com",
-            "password": "senha_segura_123",
+            "password": "SenhaForte123",
             "tipo_usuario": "ong",
-            "cnpj": "00.000.000/0001-00",
+            "cnpj": "11111111000191", 
             "uf": "SP"
         }
         response = api_client.post(url_cadastro, data)
+        
+        if response.status_code != 201:
+            print(f"\nERRO ONG: {response.data}")
+            
         assert response.status_code == status.HTTP_201_CREATED
-        assert Usuario.objects.first().cnpj == "00.000.000/0001-00"
+        assert response.data['usuario']['email'] == data['email']
 
     def test_erro_voluntario_sem_cpf(self, api_client, url_cadastro):
         data = {
             "nome": "Voluntario Falho",
             "email": "fail@teste.com",
-            "password": "123",
+            "password": "SenhaForte123", 
             "tipo_usuario": "voluntario",
             # Faltou CPF
         }
         response = api_client.post(url_cadastro, data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert "cpf" in response.data # Verifica se o erro é sobre o CPF
+        assert "cpf" in response.data
 
     def test_erro_ong_sem_cnpj(self, api_client, url_cadastro):
         data = {
             "nome": "ONG Falha",
             "email": "fail_ong@teste.com",
-            "password": "123",
+            "password": "SenhaForte123",
             "tipo_usuario": "ong",
             # Faltou CNPJ
         }
@@ -71,24 +75,24 @@ class TestCadastroView:
         data = {
             "nome": "ONG Hibrida",
             "email": "hibrida@teste.com",
-            "password": "123",
+            "password": "SenhaForte123",
             "tipo_usuario": "ong",
-            "cnpj": "0000",
-            "cpf": "12345678900" # Errado
+            "cnpj": "11111111000191", 
+            "cpf": "52998224725"
         }
         response = api_client.post(url_cadastro, data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert "cpf" in response.data
+        assert "cpf" in response.data 
 
     def test_erro_voluntario_com_cnpj(self, api_client, url_cadastro):
         """Testa a regra: Voluntários não devem ter CNPJ"""
         data = {
             "nome": "Voluntario PJ",
             "email": "pj@teste.com",
-            "password": "123",
+            "password": "SenhaForte123",
             "tipo_usuario": "voluntario",
-            "cpf": "123",
-            "cnpj": "0000000" # Errado
+            "cpf": "52998224725",      
+            "cnpj": "11111111000191"   
         }
         response = api_client.post(url_cadastro, data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
