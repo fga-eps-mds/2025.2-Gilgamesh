@@ -105,9 +105,20 @@ class AuthService {
         body: jsonEncode(body),
       );
 
-      return response.statusCode == 201;
+      // --- AQUI ESTÁ A MUDANÇA CRUCIAL ---
+      if (response.statusCode == 201) {
+        return true;
+      } else {
+        // Decodifica a mensagem de erro do Django (UTF8 para acentos)
+        String erroMessage = utf8.decode(response.bodyBytes);
+        print("------------------------------------------------");
+        print("🛑 ERRO NO CADASTRO (Status ${response.statusCode}):");
+        print(erroMessage); // <--- O MOTIVO APARECERÁ AQUI
+        print("------------------------------------------------");
+        return false;
+      }
     } catch (e) {
-      print('Erro: $e');
+      print('Erro de conexão: $e');
       return false;
     }
   }
