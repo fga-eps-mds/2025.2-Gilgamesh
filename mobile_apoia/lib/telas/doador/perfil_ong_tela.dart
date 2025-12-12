@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_apoia/telas/doador/sucesso_inscricao_tela.dart';
 import '../../models/ong.dart';
+import 'package:mobile_apoia/widgets/barra_inferior_superior_tela_doador.dart';
+import 'package:mobile_apoia/telas/doador/tela_perfil_usuario.dart';
 
 const Color corAzulTexto = Color(0xFF007AFF);
 const Color corLaranjaONG = Color(0xFFFF9900);
@@ -12,8 +15,22 @@ class PerfilOngTela extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: BottomNavBarDoador(
+        iconSelecionado: 0,
+        onTap: (index) {
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const TelaPerfilUsuario(),
+              ),
+            );
+          }
+        },
+      ),
+
       appBar: AppBar(
-        backgroundColor: corLaranjaONG,
+        backgroundColor: corAzulTexto,
         title: Text(
           ong.nome.toUpperCase(),
           style: const TextStyle(color: Colors.white, fontSize: 16),
@@ -45,7 +62,7 @@ class PerfilOngTela extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 50,
                       fontWeight: FontWeight.bold,
-                      color: corLaranjaONG,
+                      color: corAzulPrincipal,
                     ),
                   ),
                 ),
