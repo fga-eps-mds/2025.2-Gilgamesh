@@ -5,6 +5,8 @@ import '../../services/auth_service.dart';
 import '../../telas/acesso/tela_login.dart';
 import 'package:mobile_apoia/widgets/cores.dart';
 import 'package:mobile_apoia/telas/ongs/tela_sobre_ong.dart';
+import '../doador/editar_dados_usuario.dart';
+
 
 
 class TelaPerfilONG extends StatefulWidget {
@@ -159,8 +161,16 @@ class _TelaPerfilONGState extends State<TelaPerfilONG> {
                     icon: Icons.edit_square,
                     text: "Editar Dados",
                     onTap: () {
-                      print("Editar");
+                      Navigator.pushReplacement(
+                        context,
+                       MaterialPageRoute(builder:   (_) => const EditarDadosUsuario()));
                     },
+                  ),
+
+                  _buildMenuItem(
+                    icon: Icons.info_outline,
+                    text: "Sobre o App",
+                    onTap: _navegarParaSobre,
                   ),
 
                   _buildMenuItem(
