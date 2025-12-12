@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_apoia/telas/ongs/meus_eventos_ongs.dart';
 import '../../widgets/barra_inferior_e_superior.dart';
 import '../../widgets/logo.dart';
 import '../../services/auth_service.dart';
@@ -151,7 +152,11 @@ class _TelaPerfilONGState extends State<TelaPerfilONG> {
                     icon: Icons.check_circle_outline,
                     text: "Seus Eventos",
                     onTap: () {
-                      print("Eventos");
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const MeusEventosTelaONG(),
+                        ),
+                      );
                     },
                   ),
                   _buildMenuItem(
