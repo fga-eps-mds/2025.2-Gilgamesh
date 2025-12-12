@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-//import '../../services/event_service.dart'; --necessita o API primeiro
 import 'package:mobile_apoia/models/event.dart';
+import 'package:mobile_apoia/models/ong.dart';
+import 'package:mobile_apoia/services/event_service.dart';
+import 'package:mobile_apoia/services/auth_service.dart';
 import 'package:mobile_apoia/telas/doador/tela_perfil_usuario.dart';
+import 'package:mobile_apoia/telas/doador/visualizar_evento_doador.dart';
 import 'package:mobile_apoia/widgets/event_card.dart';
 import 'package:mobile_apoia/widgets/barra_inferior_superior_tela_doador.dart';
 import 'package:mobile_apoia/widgets/barra_de_pesquisa.dart';
@@ -15,56 +18,87 @@ class HomeUsuario extends StatefulWidget {
 
 class _TelaListaDeEventosState extends State<HomeUsuario> {
   final SearchController searchController = SearchController();
-  final ScrollController scrollController = ScrollController();
-  //futura conexão django
-  // late Future<List<Event>> futureEventos;
 
-  final List<Event> eventosMock = [
-    Event(
-      id: 1,
-      nome: "Campanha de Doação",
-      descricao: "Ajude famílias carentes",
-      date: DateTime(2025, 2, 12),
-      location: "São Paulo",
-      totalVagas: 50,
-      participantes: 18,
-      ongId: 101,
-    ),
-    Event(
-      id: 2,
-      nome: "Arrecadação de Roupas",
-      descricao: "Doe roupas e ajude",
-      date: DateTime(2025, 3, 5),
-      location: "Rio de Janeiro",
-      totalVagas: 80,
-      participantes: 32,
-      ongId: 102,
-    ),
-    Event(
-      id: 3,
-      nome: "Mutirão Ambiental",
-      descricao: "Limpeza da praia estadual",
-      date: DateTime(2025, 4, 20),
-      location: "Florianópolis",
-      totalVagas: 120,
-      participantes: 67,
-      ongId: 103,
-    ),
+  final EventService _eventService = EventService();
+  final AuthService _authService = AuthService();
+
+  // Listas Reais
+  List<Event> _todosEventos = [];
+  List<Event> _eventosFiltrados = [];
+  List<Ong> _todasOngs = []; //  Lista real de ONGs
+
+  bool _carregando = true;
+
+  // Filtros
+  String filtroCidade = "";
+  String filtroEstado = "";
+
+  final List<String> cidades = [
+    "São Paulo",
+    "Rio de Janeiro",
+    "Florianópolis",
+    "Brasília",
   ];
 
-  List<Event> eventosFiltrados = [];
+  final List<String> estados = ["SP", "RJ", "SC", "DF"];
 
   @override
   void initState() {
     super.initState();
-    eventosFiltrados = eventosMock;
+    _buscarDadosDoBanco();
   }
 
-  void scrollRight() {
-    scrollController.animateTo(
-      scrollController.offset + 250,
-      duration: const Duration(milliseconds: 350),
-      curve: Curves.easeOut,
+  // Busca Eventos E ONGs ao mesmo tempo
+  Future<void> _buscarDadosDoBanco() async {
+    print(">>> [DEBUG] 1. Iniciando carregamento...");
+    setState(() => _carregando = true);
+
+    try {
+      print(">>> [DEBUG] 2. Chamando API de Eventos...");
+      final resultados = await Future.wait([
+        _eventService.getEvents(
+          cidade: filtroCidade,
+          estado: filtroEstado,
+        ), // índice 0
+        _authService.getOngs(), // índice 1
+      ]);
+
+      setState(() {
+        _todosEventos = resultados[0] as List<Event>;
+        _eventosFiltrados = _todosEventos;
+
+        _todasOngs = resultados[1] as List<Ong>; // <--- Preenche as ONGs
+
+        _carregando = false;
+      });
+    } catch (e) {
+      print("Erro ao carregar dados: $e");
+      setState(() => _carregando = false);
+    }
+  }
+
+  void aplicarBusca(String valor) {
+    valor = valor.toLowerCase();
+
+    setState(() {
+      _eventosFiltrados = _todosEventos.where((evento) {
+        return evento.titulo.toLowerCase().contains(valor) ||
+            evento.location.toLowerCase().contains(valor);
+      }).toList();
+    });
+  }
+
+  Widget _buildSecaoTitulo(String titulo) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Text(
+        titulo,
+        style: const TextStyle(
+          fontSize: 20,
+          color: Color(0xFF1E5AA8),
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 
@@ -72,115 +106,191 @@ class _TelaListaDeEventosState extends State<HomeUsuario> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SuperiorBarDoador(),
-
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Campanhas ativas",
-              style: TextStyle(
-                fontSize: 22,
-                color: Color(0xFF1E5AA8),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            //barra de pesquisa
-            SearchAnchor(
-              searchController: searchController,
-              builder: (context, controller) {
-                return BarraDePesquisa(
-                  onTap: () => controller.openView(),
-                  onChanged: (value) {
-                    controller.text = value;
-
-                    setState(() {
-                      final txt = value.toLowerCase();
-                      eventosFiltrados = eventosMock.where((evento) {
-                        return evento.nome.toLowerCase().contains(txt) ||
-                            evento.descricao.toLowerCase().contains(txt) ||
-                            evento.location.toLowerCase().contains(txt);
-                      }).toList();
-                    });
-                  },
-                );
-              },
-              suggestionsBuilder: (context, controller) {
-                final txt = controller.text.toLowerCase();
-
-                final sugestoes = eventosMock.where((evento) {
-                  return evento.nome.toLowerCase().contains(txt);
-                }).toList();
-
-                if (sugestoes.isEmpty) {
-                  return const [
-                    ListTile(title: Text("Nenhum evento encontrado")),
-                  ];
-                }
-
-                return sugestoes.map((evento) {
-                  return ListTile(
-                    title: Text(evento.nome),
-                    onTap: () {
-                      controller.closeView(evento.nome);
-                      setState(() => eventosFiltrados = [evento]);
-                    },
-                  );
-                }).toList();
-              },
-            ),
-
-            const SizedBox(height: 16),
-
-            //carrossel de eventos
-            Expanded(
-              child: Stack(
-                children: [
-                  SingleChildScrollView(
-                    controller: scrollController,
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: eventosFiltrados
-                          .map(
-                            (e) => EventCard(
-                              event: e,
-                              onTap: () => print("Clicou em ${e.nome}"),
-                            ),
-                          )
-                          .toList(),
-                    ),
+      body: RefreshIndicator(
+        onRefresh: _buscarDadosDoBanco,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  "Explorar",
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: Color(0xFF1E5AA8),
+                    fontWeight: FontWeight.w800,
                   ),
+                ),
+              ),
+              const SizedBox(height: 16),
 
-                  Positioned(
-                    right: 0,
-                    top: 90,
-                    child: GestureDetector(
-                      onTap: scrollRight,
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF2DB38A),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.arrow_forward,
-                          color: Colors.white,
-                          size: 28,
-                        ),
+              // BARRA DE PESQUISA
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: SearchAnchor(
+                  searchController: searchController,
+                  builder: (context, controller) {
+                    return BarraDePesquisa(
+                      onTap: () => controller.openView(),
+                      onChanged: aplicarBusca,
+                    );
+                  },
+                  suggestionsBuilder: (context, controller) => [],
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // FILTROS (Cidade + Estado)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(labelText: "Cidade"),
+                        initialValue: filtroCidade.isEmpty
+                            ? null
+                            : filtroCidade,
+                        items: cidades
+                            .map(
+                              (c) => DropdownMenuItem(value: c, child: Text(c)),
+                            )
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() => filtroCidade = value ?? "");
+                          _buscarDadosDoBanco();
+                        },
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(labelText: "Estado"),
+                        initialValue: filtroEstado.isEmpty
+                            ? null
+                            : filtroEstado,
+                        items: estados
+                            .map(
+                              (e) => DropdownMenuItem(value: e, child: Text(e)),
+                            )
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() => filtroEstado = value ?? "");
+                          _buscarDadosDoBanco();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+
+              // Carrosel de ongs
+              _buildSecaoTitulo("ONGs Parceiras"),
+
+              SizedBox(
+                height: 110,
+                child: _carregando
+                    ? const Center(child: CircularProgressIndicator())
+                    : _todasOngs.isEmpty
+                    ? const Center(child: Text("Nenhuma ONG encontrada."))
+                    : ListView.separated(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _todasOngs.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 16),
+                        itemBuilder: (context, index) {
+                          final ong = _todasOngs[index];
+                          return Column(
+                            children: [
+                              // Avatar da ONG
+                              Container(
+                                width: 70,
+                                height: 70,
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.withOpacity(
+                                    0.2,
+                                  ), // Cor padrão
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.orange,
+                                    width: 2,
+                                  ),
+                                ),
+                                // Como não temos foto no banco, usamos a inicial do nome
+                                child: Center(
+                                  child: Text(
+                                    ong.nome.isNotEmpty
+                                        ? ong.nome[0].toUpperCase()
+                                        : "?",
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              SizedBox(
+                                width: 70,
+                                child: Text(
+                                  ong.nome,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 12),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+              ),
+
+              // carrosel de eventos
+              _buildSecaoTitulo("Campanhas Ativas"),
+
+              SizedBox(
+                height: 280,
+                child: _carregando
+                    ? const Center(child: CircularProgressIndicator())
+                    : _eventosFiltrados.isEmpty
+                    ? const Center(child: Text("Nenhum evento disponível."))
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _eventosFiltrados.length,
+                        itemBuilder: (context, index) {
+                          final evento = _eventosFiltrados[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 16),
+                            child: SizedBox(
+                              width: 280,
+                              child: EventCard(
+                                event: evento,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          DetalhesDoadorTela(event: evento),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+              const SizedBox(height: 30),
+            ],
+          ),
         ),
       ),
-
       bottomNavigationBar: BottomNavBarDoador(
         iconSelecionado: 0,
         onTap: (index) {

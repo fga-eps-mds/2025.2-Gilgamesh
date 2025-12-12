@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
+import 'package:mobile_apoia/models/ong.dart';
+import 'api_config.dart';
 
 class AuthService {
   String get baseUrl {
@@ -9,6 +11,27 @@ class AuthService {
       return 'http://10.0.2.2:8000/api/auth';
     } else {
       return 'http://127.0.0.1:8000/api/auth';
+    }
+  }
+
+  Future<List<Ong>> getOngs() async {
+    final url = Uri.parse('${APIConfig.baseURL}/api/auth/ongs/');
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/ongs/'));
+
+      if (response.statusCode == 200) {
+        // Decodifica o JSON
+        String jsonString = utf8.decode(response.bodyBytes);
+        List<dynamic> body = jsonDecode(jsonString);
+
+        // Transforma a lista de JSON em lista de objetos Ong
+        return body.map((item) => Ong.fromJson(item)).toList();
+      } else {
+        throw Exception('Falha ao carregar ONGs: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Erro ao buscar ONGs: $e');
+      return []; // Retorna lista vazia em caso de erro para não quebrar a tela
     }
   }
 
@@ -24,16 +47,16 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
-        
+
         String token = data['token'];
-        String tipo = data['usuario']['tipo_usuario'] ?? 'voluntario'; 
+        String tipo = data['usuario']['tipo_usuario'] ?? 'voluntario';
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', token);
-        
+
         await prefs.setString('user_data', jsonEncode(data['usuario']));
 
-        return tipo; 
+        return tipo;
       } else {
         print('Erro Login: ${response.body}');
         return null;
@@ -43,11 +66,12 @@ class AuthService {
       return null;
     }
   }
+
   Future<bool> cadastrar({
     required String nome,
     required String email,
     required String password,
-    required String tipoUsuario, 
+    required String tipoUsuario,
     String? cpf,
     String? cnpj,
     String? endereco,
@@ -60,7 +84,7 @@ class AuthService {
     Map<String, dynamic> body = {
       'nome': nome,
       'email': email,
-      'password': password, 
+      'password': password,
       'tipo_usuario': tipoUsuario,
       'endereco': endereco,
       'uf': uf,
@@ -92,6 +116,7 @@ class AuthService {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
+
   Future<Map<String, dynamic>?> getUsuarioSalvo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userJson = prefs.getString('user_data');

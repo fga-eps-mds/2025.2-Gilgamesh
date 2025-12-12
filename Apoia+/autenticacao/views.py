@@ -1,18 +1,23 @@
 from django.shortcuts import get_object_or_404
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth import login, logout, authenticate
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status, generics
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+
 from .models import Usuario
 from .serializers import UsuarioSerializer
-from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import TokenAuthentication
 
 
 
 class LoginView(APIView):
+    
+    permission_classes = [AllowAny]
+    
     def post(self, request):
         email = request.data.get('email')
         senha = request.data.get('senha')
@@ -53,6 +58,9 @@ class LogoutView(APIView):
                         status=status.HTTP_200_OK)
         
 class CadastroView(APIView):
+    
+    permission_classes = [AllowAny]
+    
     """
     Recebe os dados do formulário, valida via Serializer e cria o usuário.
     """
@@ -78,9 +86,14 @@ class CadastroView(APIView):
         # Se houver erro (ex: senha curta, email repetido), retorna o erro detalhado
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-
-
-
+class ListaOngsView(generics.ListAPIView):
+    """
+    Retorna uma lista de todos os usuários que são do tipo 'ong'.
+    Acesso público (AllowAny).
+    """
+    queryset = Usuario.objects.filter(tipo_usuario='ong')
+    serializer_class = UsuarioSerializer
+    permission_classes = [AllowAny]    
 
 class AtualizarUsuarioView(APIView):
 

@@ -1,6 +1,6 @@
 class Event {
   final int id;
-  final String nome;
+  final String titulo;
   final String descricao;
   final DateTime date;
   final String location;
@@ -10,7 +10,7 @@ class Event {
 
   Event({
     required this.id,
-    required this.nome,
+    required this.titulo,
     required this.descricao,
     required this.date,
     required this.location,
@@ -21,10 +21,10 @@ class Event {
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
       id: json['id'] ?? 0,
-      nome: json['nome'] ?? 'Sem Nome',
+      titulo: json['titulo'] ?? 'Sem Nome',
       descricao: json['descricao'] ?? '',
-      date: json['data_inicio'] != null 
-          ? DateTime.parse(json['data_inicio']) 
+      date: json['data_inicio'] != null
+          ? DateTime.parse(json['data_inicio'])
           : DateTime.now(),
       location: json['local'] ?? 'Local a definir',
       totalVagas: json['vagas'] ?? 0,
@@ -34,7 +34,7 @@ class Event {
   }
   Map<String, dynamic> toJson() {
     return {
-      'nome': nome,
+      'titulo': titulo,
       'descricao': descricao,
       'data_inicio': date.toIso8601String(),
       'local': location,
