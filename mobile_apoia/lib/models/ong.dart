@@ -3,12 +3,16 @@ class Ong {
   final String nome;
   final String email;
   final String endereco;
+  final String telefone;
+  final String descricao;
 
   Ong({
     required this.id,
     required this.nome,
     required this.email,
     required this.endereco,
+    required this.telefone,
+    required this.descricao,
   });
 
   // Converte o JSON do Django para Objeto Dart
@@ -19,6 +23,8 @@ class Ong {
       email: json['email'] ?? '',
       // Se o campo endereço vier nulo, fica vazio
       endereco: json['endereco'] ?? '',
+      telefone: json['telefone'] ?? '',
+      descricao: json['descricao'] ?? '',
     );
   }
 }

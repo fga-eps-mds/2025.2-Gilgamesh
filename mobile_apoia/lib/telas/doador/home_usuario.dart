@@ -8,6 +8,7 @@ import 'package:mobile_apoia/telas/doador/visualizar_evento_doador.dart'; // Imp
 import 'package:mobile_apoia/widgets/event_card.dart';
 import 'package:mobile_apoia/widgets/barra_inferior_superior_tela_doador.dart';
 import 'package:mobile_apoia/widgets/barra_de_pesquisa.dart';
+import 'package:mobile_apoia/telas/doador/perfil_ong_tela.dart';
 
 class HomeUsuario extends StatefulWidget {
   const HomeUsuario({super.key});
@@ -207,7 +208,7 @@ class _HomeUsuarioState extends State<HomeUsuario> {
 
               const SizedBox(height: 10),
 
-              // --- CARROSSEL 1: ONGS PARCEIRAS ---
+              // Carrosel de ongs
               _buildSecaoTitulo("ONGs Parceiras"),
 
               SizedBox(
@@ -223,50 +224,64 @@ class _HomeUsuarioState extends State<HomeUsuario> {
                         separatorBuilder: (_, __) => const SizedBox(width: 16),
                         itemBuilder: (context, index) {
                           final ong = _todasOngs[index];
-                          return Column(
-                            children: [
-                              // Avatar da ONG
-                              Container(
-                                width: 70,
-                                height: 70,
-                                decoration: BoxDecoration(
-                                  color: Colors.orange.withOpacity(0.2),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.orange,
-                                    width: 2,
-                                  ),
+
+                          return InkWell(
+                            onTap: () {
+                              // Navega para o perfil público da ONG
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PerfilOngTela(ong: ong),
                                 ),
-                                child: Center(
-                                  child: Text(
-                                    ong.nome.isNotEmpty
-                                        ? ong.nome[0].toUpperCase()
-                                        : "?",
-                                    style: const TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(
+                              50,
+                            ), // Efeito visual redondo
+                            child: Column(
+                              children: [
+                                // Avatar da ONG
+                                Container(
+                                  width: 70,
+                                  height: 70,
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange.withOpacity(0.2),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
                                       color: Colors.orange,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      ong.nome.isNotEmpty
+                                          ? ong.nome[0].toUpperCase()
+                                          : "?",
+                                      style: const TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.orange,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: 5),
-                              SizedBox(
-                                width: 70,
-                                child: Text(
-                                  ong.nome,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(fontSize: 12),
-                                  overflow: TextOverflow.ellipsis,
+                                const SizedBox(height: 5),
+                                SizedBox(
+                                  width: 70,
+                                  child: Text(
+                                    ong.nome,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(fontSize: 12),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           );
                         },
                       ),
               ),
-
-              // --- CARROSSEL 2: CAMPANHAS ATIVAS ---
+              // Carrosel de campanhas/eventos
               _buildSecaoTitulo("Campanhas Ativas"),
 
               SizedBox(
@@ -288,7 +303,7 @@ class _HomeUsuarioState extends State<HomeUsuario> {
                               child: EventCard(
                                 event: evento,
                                 onTap: () {
-                                  // Navega para a tela de detalhes que criamos
+                                  // Navega para a tela de detalhes
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
