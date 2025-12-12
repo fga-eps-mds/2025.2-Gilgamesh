@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_apoia/telas/doador/home_usuario.dart';
 
-const Color corAzulPrincipal = Color(0xFF007AFF); 
-const Color corLaranjaSecundaria = Color(0xFFFF9900); 
+const Color corAzulPrincipal = Color(0xFF007AFF);
+const Color corLaranjaSecundaria = Color(0xFFFF9900);
 
 class SucessoInscricaoTela extends StatelessWidget {
   const SucessoInscricaoTela({super.key});
 
-  void _voltarParaHome(BuildContext context) {
-    
-    Navigator.of(context).popUntil((route) => route.isFirst); 
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
-      backgroundColor: corAzulPrincipal, 
+      backgroundColor: corAzulPrincipal,
       body: Center(
         child: Container(
           width: 300,
@@ -34,7 +29,6 @@ class SucessoInscricaoTela extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              
               const Text(
                 'SUA PRESENÇA NO EVENTO FOI CONFIRMADA',
                 textAlign: TextAlign.center,
@@ -45,8 +39,7 @@ class SucessoInscricaoTela extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 15),
-              
-              
+
               Icon(
                 Icons.check_circle,
                 color: Colors.lightGreen.shade600,
@@ -57,27 +50,20 @@ class SucessoInscricaoTela extends StatelessWidget {
               const Text(
                 'Apoia+ agradece sua participação! Juntos, fazemos a diferença.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.black87,
-                ),
+                style: TextStyle(fontSize: 15, color: Colors.black87),
               ),
               const SizedBox(height: 40),
 
               ElevatedButton(
-                onPressed: () => _voltarParaHome(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: corAzulPrincipal,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'VOLTAR ',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
+                onPressed: () {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) => const HomeUsuario(),
+                    ),
+                    (Route<dynamic> route) => false,
+                  );
+                },
+                child: const Text('VOLTAR PARA O INÍCIO'),
               ),
             ],
           ),
