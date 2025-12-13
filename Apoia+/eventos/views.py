@@ -1,34 +1,65 @@
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework import status
 from .models import Evento
 from .serializers import EventoSerializer
-from autenticacao.permissions import IsONG 
+from autenticacao.permissions import IsONG
+from participacoes.models import Participacao
+from participacoes.serializers import ParticipacaoDetalhadaSerializer
 
 class EventoViewSet(ModelViewSet):
-    #Define o que será buscado no banco
     queryset = Evento.objects.all().order_by('-data_inicio')
-    
-    # Define como transformar em JSON
     serializer_class = EventoSerializer
-    
-    # segurança
-    # Lê-se: "Todo mundo pode ler (ReadOnly), mas para mexer tem que ser Autenticado E ser ONG"
     permission_classes = [IsAuthenticatedOrReadOnly, IsONG]
 
-    #necessário para filtros de cidade/estado serem reconhecidos e funcionarem
     def get_queryset(self):
         queryset = super().get_queryset()
-
         cidade = self.request.query_params.get('cidade')
         estado = self.request.query_params.get('estado')
 
         if cidade:
             queryset = queryset.filter(local__icontains=cidade)
-
         if estado:
             queryset = queryset.filter(local__icontains=estado)
+        
+        meus_eventos = self.request.query_params.get('meus_eventos')
+        if meus_eventos and self.request.user.is_authenticated:
+            queryset = queryset.filter(criado_por=self.request.user)
+        
         return queryset
 
-    # função para saber quem é o usuário logado
     def perform_create(self, serializer):
         serializer.save(criado_por=self.request.user)
+
+    def perform_update(self, serializer):
+        evento = self.get_object()
+        if evento.criado_por != self.request.user:
+            return Response(
+                {"erro": "Você não tem permissão para editar este evento."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        serializer.save()
+
+    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    def participantes(self, request, pk=None):
+
+        evento = self.get_object()
+        
+        if evento.criado_por != request.user:
+            return Response(
+                {"erro": "Você não tem permissão para visualizar os participantes deste evento."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        participacoes = Participacao.objects.filter(evento=evento).select_related('voluntario')
+        serializer = ParticipacaoDetalhadaSerializer(participacoes, many=True)
+        
+        return Response({
+            "evento_id": evento.id,
+            "evento_titulo": evento.titulo,
+            "total_participantes": participacoes.count(),
+            "vagas_disponiveis": evento.vagas - participacoes.count(),
+            "participantes": serializer.data
+        })
