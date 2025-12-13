@@ -1,0 +1,3 @@
+[submodule "docs"]
+	path = docs
+	url = https://github.com/fga-eps-mds/2025.2-Gilgamesh-Docs.git
