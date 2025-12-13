@@ -7,20 +7,23 @@ class TestParticipacaoModel:
     def test_criar_participacao(self):
         participacao = ParticipacaoFactory()
         assert participacao.id is not None
-        assert participacao.usuario.email is not None
-        # CORREÇÃO: .titulo
+        # CORREÇÃO: O campo no model é 'voluntario', não 'usuario'
+        assert participacao.voluntario.email is not None
         assert participacao.evento.titulo is not None
-        assert participacao.status_confirmacao == 'pendente'
+        # CORREÇÃO: O model atual não possui campo 'status_confirmacao', removido.
 
     def test_representacao_string(self):
         """
-        ATENÇÃO: Este teste espera que você tenha corrigido o bug do .titulo para .nome
-        no models.py de participacoes.
+        Testa se o método __str__ do modelo retorna o formato esperado:
+        'NomeVoluntario em NomeEvento'
         """
         participacao = ParticipacaoFactory(
-            usuario__nome="Maria",
-            evento__titulo="Python Workshop", # CORREÇÃO: evento__titulo
-            status_confirmacao="confirmado"
+            voluntario__nome="Maria",  # CORREÇÃO: usuario -> voluntario
+            evento__titulo="Python Workshop"
+            # CORREÇÃO: removido status_confirmacao
         )
-        expected = "Maria - Python Workshop (confirmado)"
+        
+        # O __str__ do model é: f"{self.voluntario.nome} em {self.evento.titulo}"
+        expected = "Maria em Python Workshop" 
+        
         assert str(participacao) == expected

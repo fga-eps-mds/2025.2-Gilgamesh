@@ -16,6 +16,7 @@ class Evento(models.Model):
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
     vagas = models.PositiveIntegerField(default=0)
+    participantes = models.IntegerField(default=0)
 
     def __str__(self):
         return self.titulo
