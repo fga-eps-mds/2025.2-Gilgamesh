@@ -12,7 +12,6 @@ class CadastroUsuarios extends StatefulWidget {
 }
 
 class _CadastroUsuariosState extends State<CadastroUsuarios> {
-  // CONTROLADORES (Para capturar o texto digitado)
   final _nomeController = TextEditingController();
   final _cpfController = TextEditingController();
   final _emailController = TextEditingController();
@@ -21,247 +20,42 @@ class _CadastroUsuariosState extends State<CadastroUsuarios> {
   final _senhaController = TextEditingController();
   final _confirmaSenhaController = TextEditingController();
 
-  // Estado para o Dropdown de UF
+  bool _mostrarSenha = false;
+  bool _mostrarConfirmaSenha = false;
+  bool _temMinimoCaracteres = false;
+  bool _temLetra = false;
+  bool _temNumero = false;
+
   String estadoSelecionado = 'UF';
 
   final List<String> _estados = [
-    'UF',
-    'AC',
-    'AL',
-    'AP',
-    'AM',
-    'BA',
-    'CE',
-    'DF',
-    'ES',
-    'GO',
-    'MA',
-    'MT',
-    'MS',
-    'MG',
-    'PA',
-    'PB',
-    'PR',
-    'PE',
-    'PI',
-    'RJ',
-    'RN',
-    'RS',
-    'RO',
-    'RR',
-    'SC',
-    'SP',
-    'SE',
-    'TO',
+    'UF', 'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT',
+    'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR',
+    'SC', 'SP', 'SE', 'TO',
   ];
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 20),
-            child: Column(
-              children: [
-                Column(
-                  children: [
-                    const Logo(),
-                    RichText(
-                      text: const TextSpan(
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 40),
-
-                // --- formulários(Conectando os controladores) ---
-                caixaInput(
-                  hintText: "NOME COMPLETO",
-                  controller: _nomeController, // <--- Conectado
-                ),
-                const SizedBox(height: 15),
-
-                caixaInput(
-                  hintText: "CPF",
-                  keyboardType: TextInputType.number,
-                  controller: _cpfController, // <--- Conectado
-                ),
-                const SizedBox(height: 15),
-
-                caixaInput(
-                  hintText: "E-MAIL",
-                  keyboardType: TextInputType.emailAddress,
-                  controller: _emailController, // <--- Conectado
-                ),
-                const SizedBox(height: 15),
-
-                caixaInput(
-                  hintText: "TELEFONE",
-                  keyboardType: TextInputType.phone,
-                  controller: _telefoneController, // <--- Conectado
-                ),
-                const SizedBox(height: 15),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: caixaInput(
-                        hintText: "ENDEREÇO / CIDADE",
-                        controller: _enderecoController, // <--- Conectado
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    caixaEstados(),
-                  ],
-                ),
-                const SizedBox(height: 15),
-
-                caixaInput(
-                  hintText: "SENHA",
-                  obscureText: true,
-                  controller: _senhaController, // <--- Conectado
-                ),
-                const SizedBox(height: 15),
-
-                caixaInput(
-                  hintText: "CONFIRMAR SENHA",
-                  obscureText: true,
-                  controller: _confirmaSenhaController, // <--- Conectado
-                ),
-                const SizedBox(height: 15),
-
-                // Campo de Upload
-                caixaInput(
-                  hintText: "UPLOAD DE FOTO (OPCIONAL)",
-                  suffixIcon: InkWell(
-                    onTap: () {
-                      print("Abrir seletor de arquivos");
-                    },
-                    child: const Icon(
-                      Icons.file_upload_outlined,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 40),
-
-                // --- BOTÃO CADASTRAR ---
-                SizedBox(
-                  width: double.infinity,
-                  height: 55,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      print("--- INICIANDO CLIQUE ---");
-                      //Confere se as senhas são iguais e retorna mensagem de erro se não for
-                      if (_senhaController.text !=
-                          _confirmaSenhaController.text) {
-                        print("ERRO: Senhas não batem");
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('As senhas não coincidem!'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                        return; // Para a execução aqui
-                      }
-
-                      if (_nomeController.text.isEmpty ||
-                          _emailController.text.isEmpty ||
-                          _cpfController.text.isEmpty ||
-                          _senhaController.text.isEmpty ||
-                          estadoSelecionado == 'UF') {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Preencha todos os campos obrigatórios.',
-                            ),
-                          ),
-                        );
-                        return;
-                      }
-                      print("Enviando dados para o Django...");
-                      print("Enviando cadastro de: ${_nomeController.text}");
-
-                      // chama o backend django
-                      bool sucesso = await AuthService().cadastrar(
-                        nome: _nomeController.text,
-                        email: _emailController.text,
-                        password: _senhaController.text,
-                        tipoUsuario: 'voluntario',
-                        cpf: _cpfController.text,
-                        telefone: _telefoneController.text,
-                        endereco: _enderecoController.text,
-                        uf: estadoSelecionado,
-                      );
-                      print("RESPOSTA DO SERVIÇO (Sucesso?): $sucesso");
-                      // resposta visual
-                      if (!context.mounted) return; // Segurança do Flutter
-
-                      if (sucesso) {
-                        print("Sucesso! Navegando para Login...");
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Cadastro realizado! Faça login.'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                        // Remove tudo da pilha e vai pro login
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const TelaLogin(),
-                          ),
-                          (route) => false,
-                        );
-                      } else {
-                        print("Fracasso! Mostrando erro na tela.");
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Erro ao cadastrar. Verifique email/CPF.',
-                            ),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.azulBotao,
-                      foregroundColor: Colors.black87,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      "CADASTRAR VOLUNTÁRIO",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+  void initState() {
+    super.initState();
+    _senhaController.addListener(_validarSenhaEmTempoReal);
   }
 
-  //Limpeza de memória (boa prática)
+  void _validarSenhaEmTempoReal() {
+    final senha = _senhaController.text;
+    setState(() {
+      _temMinimoCaracteres = senha.length >= 8;
+      _temLetra = RegExp(r'[a-zA-Z]').hasMatch(senha);
+      _temNumero = RegExp(r'[0-9]').hasMatch(senha);
+    });
+  }
+
+  bool _senhaValida() {
+    return _temMinimoCaracteres && _temLetra && _temNumero;
+  }
+
   @override
   void dispose() {
+    _senhaController.removeListener(_validarSenhaEmTempoReal);
     _nomeController.dispose();
     _cpfController.dispose();
     _emailController.dispose();
@@ -287,7 +81,7 @@ class _CadastroUsuariosState extends State<CadastroUsuarios> {
         borderRadius: BorderRadius.circular(0),
       ),
       child: TextField(
-        controller: controller, // conecta ao campo de texto
+        controller: controller,
         obscureText: obscureText,
         keyboardType: keyboardType,
         maxLines: maxLines,
@@ -300,6 +94,63 @@ class _CadastroUsuariosState extends State<CadastroUsuarios> {
               ? const EdgeInsets.symmetric(vertical: 10)
               : null,
         ),
+      ),
+    );
+  }
+
+  Widget _buildPasswordInput({
+    required String hintText,
+    required TextEditingController controller,
+    required bool obscureText,
+    required VoidCallback onToggleVisibility,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      decoration: BoxDecoration(
+        color: AppColors.cinzaInputFundo,
+        borderRadius: BorderRadius.circular(0),
+      ),
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          hintText: hintText,
+          hintStyle: const TextStyle(color: Colors.black87, fontSize: 14),
+          suffixIcon: IconButton(
+            icon: Icon(
+              obscureText ? Icons.visibility_off : Icons.visibility,
+              color: Colors.black54,
+            ),
+            onPressed: onToggleVisibility,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRequisitoItem(String texto, bool cumprido) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Icon(
+            cumprido ? Icons.check_circle : Icons.cancel,
+            size: 16,
+            color: cumprido ? Colors.green : Colors.grey,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              texto,
+              style: TextStyle(
+                fontSize: 11,
+                color: cumprido ? Colors.green.shade700 : Colors.black54,
+                fontWeight: cumprido ? FontWeight.w500 : FontWeight.normal,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -327,6 +178,233 @@ class _CadastroUsuariosState extends State<CadastroUsuarios> {
           items: _estados.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(value: value, child: Text(value));
           }).toList(),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 20),
+            child: Column(
+              children: [
+                Column(
+                  children: [
+                    const Logo(),
+                    RichText(
+                      text: const TextSpan(
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 40),
+
+                caixaInput(
+                  hintText: "NOME COMPLETO",
+                  controller: _nomeController,
+                ),
+                const SizedBox(height: 15),
+
+                caixaInput(
+                  hintText: "CPF",
+                  keyboardType: TextInputType.number,
+                  controller: _cpfController,
+                ),
+                const SizedBox(height: 15),
+
+                caixaInput(
+                  hintText: "E-MAIL",
+                  keyboardType: TextInputType.emailAddress,
+                  controller: _emailController,
+                ),
+                const SizedBox(height: 15),
+
+                caixaInput(
+                  hintText: "TELEFONE",
+                  keyboardType: TextInputType.phone,
+                  controller: _telefoneController,
+                ),
+                const SizedBox(height: 15),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: caixaInput(
+                        hintText: "ENDEREÇO / CIDADE",
+                        controller: _enderecoController,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    caixaEstados(),
+                  ],
+                ),
+                const SizedBox(height: 15),
+
+                _buildPasswordInput(
+                  hintText: "SENHA",
+                  controller: _senhaController,
+                  obscureText: !_mostrarSenha,
+                  onToggleVisibility: () {
+                    setState(() => _mostrarSenha = !_mostrarSenha);
+                  },
+                ),
+                const SizedBox(height: 15),
+
+                _buildPasswordInput(
+                  hintText: "CONFIRMAR SENHA",
+                  controller: _confirmaSenhaController,
+                  obscureText: !_mostrarConfirmaSenha,
+                  onToggleVisibility: () {
+                    setState(() => _mostrarConfirmaSenha = !_mostrarConfirmaSenha);
+                  },
+                ),
+                const SizedBox(height: 10),
+
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Requisitos da senha:',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      _buildRequisitoItem(
+                        'Mínimo de 8 caracteres',
+                        _temMinimoCaracteres,
+                      ),
+                      _buildRequisitoItem(
+                        'Pelo menos uma letra (A-Z ou a-z)',
+                        _temLetra,
+                      ),
+                      _buildRequisitoItem(
+                        'Pelo menos um número (0-9)',
+                        _temNumero,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 15),
+
+                const SizedBox(height: 40),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 55,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (_senhaController.text != _confirmaSenhaController.text) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('As senhas não coincidem!'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
+
+                      if (!_senhaValida()) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'A senha deve ter no mínimo 8 caracteres, incluindo letras e números',
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
+
+                      if (_nomeController.text.isEmpty ||
+                          _emailController.text.isEmpty ||
+                          _cpfController.text.isEmpty ||
+                          _senhaController.text.isEmpty ||
+                          estadoSelecionado == 'UF') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Preencha todos os campos obrigatórios.'),
+                          ),
+                        );
+                        return;
+                      }
+
+                      bool sucesso = await AuthService().cadastrar(
+                        nome: _nomeController.text,
+                        email: _emailController.text,
+                        password: _senhaController.text,
+                        tipoUsuario: 'voluntario',
+                        cpf: _cpfController.text,
+                        telefone: _telefoneController.text,
+                        endereco: _enderecoController.text,
+                        uf: estadoSelecionado,
+                      );
+
+                      if (!context.mounted) return;
+
+                      if (sucesso) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Cadastro realizado! Faça login.'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const TelaLogin(),
+                          ),
+                          (route) => false,
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Erro ao cadastrar. Verifique email/CPF.'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.azulBotao,
+                      foregroundColor: Colors.black87,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      "CADASTRAR VOLUNTÁRIO",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
         ),
       ),
     );
