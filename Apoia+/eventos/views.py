@@ -1,3 +1,4 @@
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -35,11 +36,11 @@ class EventoViewSet(ModelViewSet):
 
     def perform_update(self, serializer):
         evento = self.get_object()
+        
+        # Correção: Lançar exceção interrompe o fluxo imediatamente
         if evento.criado_por != self.request.user:
-            return Response(
-                {"erro": "Você não tem permissão para editar este evento."},
-                status=status.HTTP_403_FORBIDDEN
-            )
+            raise PermissionDenied("Você não tem permissão para editar este evento.")
+            
         serializer.save()
 
     @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
