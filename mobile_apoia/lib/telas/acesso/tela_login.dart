@@ -81,20 +81,6 @@ class _TelaLoginState extends State<TelaLogin> {
 
                 const SizedBox(height: 10),
 
-                // Esqueci minha senha
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      print("Recuperar senha");
-                    },
-                    child: const Text(
-                      "ESQUECI MINHA SENHA",
-                      style: TextStyle(color: Colors.black54, fontSize: 12),
-                    ),
-                  ),
-                ),
-
                 const SizedBox(height: 40),
 
                 // BOTÃO ENTRAR
@@ -197,20 +183,7 @@ class _TelaLoginState extends State<TelaLogin> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    TextButton(
-                      onPressed: () => print("Entrar sem login"),
-                      child: const Text(
-                        "ENTRAR SEM LOGIN",
-                        style: TextStyle(color: Colors.black87, fontSize: 12),
-                      ),
-                    ),
-                    const Text(
-                      "OU",
-                      style: TextStyle(
-                        color: AppColors.laranjaApoia,
-                        fontSize: 12,
-                      ),
-                    ),
+                    
                     TextButton(
                       onPressed: () {
                         Navigator.push(
