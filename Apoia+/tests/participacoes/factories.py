@@ -7,8 +7,8 @@ class ParticipacaoFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Participacao
 
-    # Usa a factory corrigida acima
-    usuario = factory.SubFactory(UsuarioFactory)
+    # CORREÇÃO: Renomeado de 'usuario' para 'voluntario' (igual ao Model)
+    voluntario = factory.SubFactory(UsuarioFactory)
     evento = factory.SubFactory(EventoFactory)
     
-    status_confirmacao = 'pendente'
+    # CORREÇÃO: Removido 'status_confirmacao' (campo inexistente no Model)
