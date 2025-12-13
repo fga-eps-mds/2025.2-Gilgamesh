@@ -31,7 +31,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.2.0 
+    #http: ^1.2.0 
   shared_preferences: ^2.2.2 #Salva o token no celular igual a um cookie 
 
   # The following adds the Cupertino Icons font to your application.

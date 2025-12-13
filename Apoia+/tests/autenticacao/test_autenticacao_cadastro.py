@@ -20,7 +20,7 @@ class TestCadastroView:
             "password": "SenhaForte123", 
             "tipo_usuario": "voluntario",
             "cpf": "52998224725", 
-            "uf": "DF"
+            "uf": "DF" # Adicionado
         }
         response = api_client.post(url_cadastro, data)
         assert response.status_code == status.HTTP_201_CREATED
@@ -36,7 +36,7 @@ class TestCadastroView:
             "password": "SenhaForte123",
             "tipo_usuario": "ong",
             "cnpj": "11111111000191", 
-            "uf": "SP"
+            "uf": "SP" # Adicionado
         }
         response = api_client.post(url_cadastro, data)
         
@@ -52,6 +52,7 @@ class TestCadastroView:
             "email": "fail@teste.com",
             "password": "SenhaForte123", 
             "tipo_usuario": "voluntario",
+            "uf": "RJ" # Adicionado
             # Faltou CPF
         }
         response = api_client.post(url_cadastro, data)
@@ -64,6 +65,7 @@ class TestCadastroView:
             "email": "fail_ong@teste.com",
             "password": "SenhaForte123",
             "tipo_usuario": "ong",
+            "uf": "MG" # Adicionado
             # Faltou CNPJ
         }
         response = api_client.post(url_cadastro, data)
@@ -78,7 +80,8 @@ class TestCadastroView:
             "password": "SenhaForte123",
             "tipo_usuario": "ong",
             "cnpj": "11111111000191", 
-            "cpf": "52998224725"
+            "cpf": "52998224725",
+            "uf": "ES" # Adicionado
         }
         response = api_client.post(url_cadastro, data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -92,7 +95,8 @@ class TestCadastroView:
             "password": "SenhaForte123",
             "tipo_usuario": "voluntario",
             "cpf": "52998224725",      
-            "cnpj": "11111111000191"   
+            "cnpj": "11111111000191",
+            "uf": "BA" # Adicionado
         }
         response = api_client.post(url_cadastro, data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/widgets/barra_inferior_e_superior.dart';
+import '../../models/event.dart';
+import '../../services/event_service.dart';
 
-// Cores
 const Color corAzulTexto = Color(0xFF007AFF);
 const Color corCinzaInput = Color(0xFFEFEFEF);
 const Color corLaranjaONG = Color(0xFFFF9900);
@@ -19,7 +20,6 @@ class BarraSuperiorONG extends StatelessWidget implements PreferredSizeWidget {
         icon: const Icon(Icons.arrow_back, color: Colors.white),
         onPressed: onBack ?? () => Navigator.of(context).pop(),
       ),
-
       title: const Text(
         "Apoia+",
         style: TextStyle(
@@ -37,6 +37,7 @@ class BarraSuperiorONG extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class EditarEventoTela extends StatefulWidget {
+  // Recebe o ID do evento
   final String? eventoId;
 
   const EditarEventoTela({super.key, this.eventoId});
@@ -46,23 +47,17 @@ class EditarEventoTela extends StatefulWidget {
 }
 
 class _EditarEventoTelaState extends State<EditarEventoTela> {
+  // conectar na API
+  final EventService _service = EventService();
+  bool _isLoading = false;
+
   int _selectedIndex = 0;
 
-  final TextEditingController _tituloController = TextEditingController(
-    text: 'Campanha de Doação de roupas',
-  );
-  final TextEditingController _enderecoController = TextEditingController(
-    text: 'Ponte alta, Gama',
-  );
-  final TextEditingController _horarioController = TextEditingController(
-    text: '10:00 - 16:00',
-  );
-  final TextEditingController _fotoController = TextEditingController(
-    text: 'foto_capa.jpg',
-  );
-  final TextEditingController _descricaoController = TextEditingController(
-    text: 'Doe para quem precisa!',
-  );
+  final TextEditingController _tituloController = TextEditingController();
+  final TextEditingController _enderecoController = TextEditingController();
+  final TextEditingController _horarioController = TextEditingController();
+  final TextEditingController _fotoController = TextEditingController();
+  final TextEditingController _descricaoController = TextEditingController();
 
   String estadoSelecionado = 'DF';
   final List<String> _estados = const [
@@ -157,14 +152,7 @@ class _EditarEventoTelaState extends State<EditarEventoTela> {
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: estadoSelecionado,
-          hint: Text(
-            "ESTADO (UF)",
-            style: TextStyle(
-              color: Colors.grey.shade700,
-              fontSize: 14,
-              fontWeight: FontWeight.normal,
-            ),
-          ),
+          hint: Text("ESTADO (UF)"),
           icon: const Icon(Icons.keyboard_arrow_down, color: corAzulTexto),
           isExpanded: true,
           style: const TextStyle(color: Colors.black87, fontSize: 14),
@@ -210,25 +198,55 @@ class _EditarEventoTelaState extends State<EditarEventoTela> {
     );
   }
 
-  void _salvarEdicao(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          '✅ ALTERAÇÕES FEITAS COM SUCESSO! Voltando para listagem...',
-        ),
-        duration: Duration(seconds: 2),
-      ),
+  void _salvarEdicao(BuildContext context) async {
+    print("Tentando salvar edição do evento ID: ${widget.eventoId}");
+
+    setState(() => _isLoading = true);
+
+    int idParaEditar = int.tryParse(widget.eventoId ?? "0") ?? 0;
+
+    final eventoAtualizado = Event(
+      id: idParaEditar,
+      titulo: _tituloController.text,
+      descricao: _descricaoController.text,
+      location: "${_enderecoController.text} - $estadoSelecionado",
+      date: DateTime.now(),
+      totalVagas: 50,
+      participantes: 0,
+      ongId: 1,
     );
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.of(context).popUntil((route) => route.isFirst);
-    });
+
+    // Chama o serviço (PUT)
+    bool sucesso = await _service.updateEvent(eventoAtualizado);
+
+    setState(() => _isLoading = false);
+
+    if (sucesso) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('✅ Alterações salvas no servidor!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted) Navigator.of(context).pop();
+      });
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('❌ Erro ao editar. Verifique sua conexão.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: BarraSuperiorONG(onBack: () => Navigator.of(context).pop()),
-
       bottomNavigationBar: BottomNavBar(
         iconSelecionado: _selectedIndex,
         onTap: (index) {
@@ -237,13 +255,11 @@ class _EditarEventoTelaState extends State<EditarEventoTela> {
           });
         },
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            // Título
             const Center(
               child: Text(
                 'EDIÇÃO DE INFORMAÇÕES',
@@ -255,6 +271,14 @@ class _EditarEventoTelaState extends State<EditarEventoTela> {
               ),
             ),
             const SizedBox(height: 30.0),
+
+            if (_isLoading)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
 
             _buildGrayInput(
               hintText: 'TITULO DO EVENTO',
@@ -285,18 +309,16 @@ class _EditarEventoTelaState extends State<EditarEventoTela> {
               ],
             ),
             const SizedBox(height: 20.0),
-
             _buildGrayInput(
               hintText: 'HORÁRIO',
               controller: _horarioController,
             ),
             const SizedBox(height: 20.0),
-
             _buildGrayInput(
               hintText: 'FOTO DE DIVULGAÇÃO',
               controller: _fotoController,
               suffixIcon: InkWell(
-                onTap: () => print('Abrir seletor de fotos'),
+                onTap: () => print('TODO: Upload de foto na edição'),
                 child: const Icon(
                   Icons.file_download,
                   color: corAzulTexto,
@@ -305,7 +327,6 @@ class _EditarEventoTelaState extends State<EditarEventoTela> {
               ),
             ),
             const SizedBox(height: 20.0),
-
             _buildGrayInput(
               hintText: 'DESCRIÇÃO',
               controller: _descricaoController,
@@ -322,7 +343,6 @@ class _EditarEventoTelaState extends State<EditarEventoTela> {
                   color: Colors.green.shade600,
                   onTap: () => _salvarEdicao(context),
                 ),
-
                 _buildActionButton(
                   icon: Icons.cancel_outlined,
                   text: 'SAIR SEM SALVAR',

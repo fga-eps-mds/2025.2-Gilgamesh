@@ -6,7 +6,8 @@ from utils.validators import validate_cpf, validate_cnpj, validate_strong_passwo
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
-        fields = ['id', 'nome', 'email', 'password', 'tipo_usuario', 'cpf', 'cnpj', 'endereco', 'descricao']
+        # MANTENHA O TELEFONE DO GUILHERME AQUI:
+        fields = ['id', 'nome', 'email', 'password', 'tipo_usuario', 'cpf', 'cnpj', 'endereco', 'uf', 'descricao', 'telefone']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -14,19 +15,18 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         tipo = data.get('tipo_usuario')
+        # Capturamos os dados aqui para usar nas validações abaixo
         cpf = data.get('cpf')
         cnpj = data.get('cnpj')
         password = data.get('password')
 
-        # --- VALIDAÇÃO DE SENHA FORTE ---
-        # Só valida se a senha foi enviada (importante para updates parciais futuramente)
+        # --- VALIDAÇÃO DE SENHA FORTE (Sua implementação) ---
         if password and not validate_strong_password(password):
             raise serializers.ValidationError(
                 {"password": "A senha deve ter no mínimo 8 caracteres, contendo letras e números."}
             )
 
-        # --- REGRAS DE NEGÓCIO E VALIDAÇÃO DE DOCUMENTOS ---
-        
+        # --- REGRAS DE NEGÓCIO E VALIDAÇÃO DE DOCUMENTOS (Sua implementação) ---
         if tipo == 'ong':
             if not cnpj:
                 raise serializers.ValidationError({"cnpj": "ONGs precisam informar o CNPJ."})

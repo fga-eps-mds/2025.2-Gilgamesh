@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/telas/acesso/pre_cadastro.dart';
+import 'package:mobile_apoia/telas/doador/home_usuario.dart';
+import 'package:mobile_apoia/telas/home_ongs.dart';
 import 'package:mobile_apoia/widgets/logo.dart';
 import 'package:mobile_apoia/widgets/cores.dart';
 import 'package:mobile_apoia/services/auth_service.dart';
@@ -46,7 +48,7 @@ class _TelaLoginState extends State<TelaLogin> {
                 const SizedBox(height: 60),
 
                 const Text(
-                  "LOG IN",
+                  "LOGIN",
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w500,
@@ -59,7 +61,7 @@ class _TelaLoginState extends State<TelaLogin> {
                 // CAMPO EMAIL (Com o controlador conectado)
                 _buildCustomInput(
                   icon: Icons.mail_outline,
-                  hintText: "EMAIL OU CPF/CNPJ",
+                  hintText: "EMAIL",
                   corFundoIcone: AppColors.cinzaEscuroIcone,
                   corFundoInput: AppColors.cinzaInputFundo,
                   controller: _emailController, // <--- controlador
@@ -79,20 +81,6 @@ class _TelaLoginState extends State<TelaLogin> {
 
                 const SizedBox(height: 10),
 
-                // Esqueci minha senha
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      print("Recuperar senha");
-                    },
-                    child: const Text(
-                      "ESQUECI MINHA SENHA",
-                      style: TextStyle(color: Colors.black54, fontSize: 12),
-                    ),
-                  ),
-                ),
-
                 const SizedBox(height: 40),
 
                 // BOTÃO ENTRAR
@@ -111,9 +99,8 @@ class _TelaLoginState extends State<TelaLogin> {
                     print("Email digitado: ${_emailController.text}");
                     print("Senha digitada: ${_senhaController.text}");
 
-                    // Chamando BACKEND
-                    // Mostra um loading rápido ou apenas trava o botão
-                    bool sucesso = await AuthService().login(
+                    // Chamando BACKEND para o tipo de usuário
+                    String? tipoUsuario = await AuthService().login(
                       _emailController.text,
                       _senhaController.text,
                     );
@@ -121,13 +108,30 @@ class _TelaLoginState extends State<TelaLogin> {
                     if (!context.mounted)
                       return; // Segurança do Flutter para não dar erro se a tela fechar
 
-                    if (sucesso) {
-                      print("Login autorizado! Indo para Home...");
-                      // Navega para a próxima tela e remove a tela de login da pilha (para não voltar)
-                      Navigator.pushReplacementNamed(
-                        context,
-                        '/home',
-                      ); // LEMBRAR DE ARRUMAR ESSA ROTA
+                    if (tipoUsuario != null) {
+                      print("Login autorizado! Tipo: $tipoUsuario");
+
+                      // Lógica de Redirecionamento
+                      if (tipoUsuario == 'ong') {
+                        // Redireciona para Home da ONG
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomeOngs(),
+                          ),
+                        );
+                      } else if (tipoUsuario == 'voluntario') {
+                        // Redireciona para Home do Voluntário
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HomeUsuario(),
+                          ),
+                        );
+                      } else {
+                        // Caso seja 'admin' ou um tipo desconhecido
+                        Navigator.pushReplacementNamed(context, '/home_padrao');
+                      }
                     } else {
                       print("Falha no login.");
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -179,20 +183,7 @@ class _TelaLoginState extends State<TelaLogin> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    TextButton(
-                      onPressed: () => print("Entrar sem login"),
-                      child: const Text(
-                        "ENTRAR SEM LOG IN",
-                        style: TextStyle(color: Colors.black87, fontSize: 12),
-                      ),
-                    ),
-                    const Text(
-                      "OU",
-                      style: TextStyle(
-                        color: AppColors.laranjaApoia,
-                        fontSize: 12,
-                      ),
-                    ),
+                    
                     TextButton(
                       onPressed: () {
                         Navigator.push(
