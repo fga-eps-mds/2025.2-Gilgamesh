@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_apoia/widgets/cores.dart';
 import '../../services/user_service.dart';
+import '../../services/auth_service.dart';
 
 class AlterarSenhaPopup extends StatefulWidget {
   const AlterarSenhaPopup({super.key});
@@ -11,22 +12,62 @@ class AlterarSenhaPopup extends StatefulWidget {
 
 class _AlterarSenhaPopupState extends State<AlterarSenhaPopup> {
   final UserService _userService = UserService();
+  final AuthService _authService = AuthService();
   
   final _senhaAtualController = TextEditingController();
   final _novaSenhaController = TextEditingController();
   final _confirmaSenhaController = TextEditingController();
   
-  bool _isLoading = false;           
-  bool _mostrarSenhaAtual = false; 
+  bool _isLoading = false;
+  bool _mostrarSenhaAtual = false;
   bool _mostrarNovaSenha = false;
   bool _mostrarConfirmaSenha = false;
+  bool _temMinimoCaracteres = false;
+  bool _temLetra = false;
+  bool _temNumero = false;
+  String _tipoUsuario = 'voluntario';
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarTipoUsuario();
+    _novaSenhaController.addListener(_validarSenhaEmTempoReal);
+  }
+
+  void _carregarTipoUsuario() async {
+    final dados = await _authService.getUsuarioSalvo();
+    if (dados != null && mounted) {
+      setState(() {
+        _tipoUsuario = dados['tipo_usuario'] ?? 'voluntario';
+      });
+    }
+  }
+
+  Color get _corPrincipal {
+    return _tipoUsuario == 'ong' ? AppColors.laranjaApoia : AppColors.azulApoia;
+  }
 
   @override
   void dispose() {
+    _novaSenhaController.removeListener(_validarSenhaEmTempoReal);
     _senhaAtualController.dispose();
     _novaSenhaController.dispose();
     _confirmaSenhaController.dispose();
     super.dispose();
+  }
+
+  void _validarSenhaEmTempoReal() {
+    final senha = _novaSenhaController.text;
+    
+    setState(() {
+      _temMinimoCaracteres = senha.length >= 8;
+      _temLetra = RegExp(r'[a-zA-Z]').hasMatch(senha);
+      _temNumero = RegExp(r'[0-9]').hasMatch(senha);
+    });
+  }
+
+  bool _senhaValida() {
+    return _temMinimoCaracteres && _temLetra && _temNumero;
   }
 
   void _alterarSenha() async {
@@ -42,8 +83,11 @@ class _AlterarSenhaPopupState extends State<AlterarSenhaPopup> {
       return;
     }
 
-    if (_novaSenhaController.text.length < 6) {
-      _mostrarMensagem('A senha deve ter no mínimo 6 caracteres', erro: true);
+    if (!_senhaValida()) {
+      _mostrarMensagem(
+        'A senha deve conter no mínimo 8 caracteres, incluindo letras e números',
+        erro: true,
+      );
       return;
     }
 
@@ -113,6 +157,32 @@ class _AlterarSenhaPopupState extends State<AlterarSenhaPopup> {
     );
   }
 
+  Widget _buildRequisitoItem(String texto, bool cumprido) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Icon(
+            cumprido ? Icons.check_circle : Icons.cancel,
+            size: 16,
+            color: cumprido ? Colors.green : Colors.grey,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              texto,
+              style: TextStyle(
+                fontSize: 11,
+                color: cumprido ? Colors.green.shade700 : Colors.black54,
+                fontWeight: cumprido ? FontWeight.w500 : FontWeight.normal,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -149,10 +219,10 @@ class _AlterarSenhaPopupState extends State<AlterarSenhaPopup> {
               
               const SizedBox(height: 10),
               
-              const Icon(
+              Icon(
                 Icons.lock_reset,
                 size: 60,
-                color: AppColors.azulApoia,
+                color: _corPrincipal,
               ),
               
               const SizedBox(height: 20),
@@ -196,10 +266,10 @@ class _AlterarSenhaPopupState extends State<AlterarSenhaPopup> {
                   color: Colors.blue.shade50,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Requisitos da senha:',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -207,14 +277,18 @@ class _AlterarSenhaPopupState extends State<AlterarSenhaPopup> {
                         color: Colors.black87,
                       ),
                     ),
-                    SizedBox(height: 5),
-                    Text(
-                      '• Mínimo de 6 caracteres',
-                      style: TextStyle(fontSize: 11, color: Colors.black54),
+                    const SizedBox(height: 8),
+                    _buildRequisitoItem(
+                      'Mínimo de 8 caracteres',
+                      _temMinimoCaracteres,
                     ),
-                    Text(
-                      '• Diferente da senha atual',
-                      style: TextStyle(fontSize: 11, color: Colors.black54),
+                    _buildRequisitoItem(
+                      'Pelo menos uma letra (A-Z ou a-z)',
+                      _temLetra,
+                    ),
+                    _buildRequisitoItem(
+                      'Pelo menos um número (0-9)',
+                      _temNumero,
                     ),
                   ],
                 ),
@@ -250,7 +324,7 @@ class _AlterarSenhaPopupState extends State<AlterarSenhaPopup> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _alterarSenha,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.azulApoia,
+                        backgroundColor: _corPrincipal,
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
