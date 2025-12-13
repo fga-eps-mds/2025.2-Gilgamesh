@@ -49,8 +49,7 @@ class _DetalhesDoadorTelaState extends State<DetalhesDoadorTela> {
       idEvento,
       token,
     );
-
-    //  busca status do usuário
+    
     final idParticipacao = await _participationService
         .verificarParticipacaoUsuario(idEvento, token);
 
