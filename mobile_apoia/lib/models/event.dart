@@ -7,6 +7,7 @@ class Event {
   final int totalVagas;
   final int participantes;
   final int ongId;
+  final String? nomeOng; // NOVO: armazena o nome da ONG
 
   Event({
     required this.id,
@@ -17,7 +18,9 @@ class Event {
     required this.totalVagas,
     required this.participantes,
     required this.ongId,
+    this.nomeOng, // NOVO
   });
+
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
       id: json['id'] ?? 0,
@@ -29,9 +32,15 @@ class Event {
       location: json['local'] ?? 'Local a definir',
       totalVagas: json['vagas'] ?? 0,
       participantes: json['participantes'] ?? 0,
-      ongId: json['ong_id'] ?? 0,
+      
+      // MODIFICADO: Tenta pegar criado_por_id, se não tiver usa ong_id
+      ongId: json['criado_por_id'] ?? json['ong_id'] ?? 0,
+      
+      // NOVO: Pega o nome da ONG se vier no JSON
+      nomeOng: json['criado_por'],
     );
   }
+
   Map<String, dynamic> toJson() {
     return {
       'titulo': titulo,

@@ -5,7 +5,6 @@ import '../../widgets/barra_inferior_superior_tela_doador.dart';
 import 'sucesso_inscricao_tela.dart';
 import '../../services/auth_service.dart';
 import '../../services/participacao_service.dart';
-import 'package:mobile_apoia/telas/doador/home_usuario.dart';
 
 class DetalhesDoadorTela extends StatefulWidget {
   final Event event;
@@ -24,7 +23,7 @@ class _DetalhesDoadorTelaState extends State<DetalhesDoadorTela> {
 
   late int _participantesAtuais;
   late int _totalVagas;
-
+  
   final AuthService _authService = AuthService();
   final ParticipationService _participationService = ParticipationService();
 
@@ -50,7 +49,6 @@ class _DetalhesDoadorTelaState extends State<DetalhesDoadorTela> {
       token,
     );
 
-    //  busca status do usuário
     final idParticipacao = await _participationService
         .verificarParticipacaoUsuario(idEvento, token);
 
@@ -147,6 +145,9 @@ class _DetalhesDoadorTelaState extends State<DetalhesDoadorTela> {
         _participacaoIdUsuario = null;
       });
       if (!mounted) return;
+      
+      Navigator.pop(context, true);
+      
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Inscrição cancelada com sucesso.")),
       );
@@ -213,7 +214,6 @@ class _DetalhesDoadorTelaState extends State<DetalhesDoadorTela> {
         ? Colors.redAccent
         : AppColors.azulApoia;
 
-    // Calcula vagas
     final int vagasRestantes = _totalVagas - _participantesAtuais;
     final int vagasDisplay = vagasRestantes > _totalVagas
         ? _totalVagas
@@ -236,14 +236,16 @@ class _DetalhesDoadorTelaState extends State<DetalhesDoadorTela> {
                 ),
               ),
               const SizedBox(height: 8),
+              
               Text(
-                'ORGANIZADO PELA ONG #${widget.event.ongId}',
+                'ORGANIZADO POR ${widget.event.nomeOng ?? 'ONG'}',
                 style: const TextStyle(
                   fontSize: 14,
                   color: AppColors.laranjaApoia,
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              
               const SizedBox(height: 20),
 
               Container(
