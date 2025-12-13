@@ -1,14 +1,17 @@
 import factory
 from django.utils import timezone
 from eventos.models import Evento
-# IMPORTANTE: Agora usamos sua factory personalizada, não o User do Django
+# IMPORTANTE: Agora usamos sua factory personalizada de Usuário
 from tests.autenticacao.factories import UsuarioFactory
 
 class EventoFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Evento
 
-    nome = factory.Faker('catch_phrase')
+    # CORREÇÃO: Alterado de 'nome' para 'titulo' para compatibilidade com a develop
+    # Usamos 'catch_phrase' para gerar títulos aleatórios realistas
+    titulo = factory.Faker('catch_phrase')
+    
     descricao = factory.Faker('text')
     data_inicio = factory.LazyFunction(timezone.now)
     local = "UnB - Campus Darcy Ribeiro"
