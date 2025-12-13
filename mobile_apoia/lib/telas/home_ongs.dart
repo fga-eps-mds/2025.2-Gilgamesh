@@ -327,7 +327,7 @@ class _TelaListaDeEventosState extends State<HomeOngs> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "Minhas campanhas ativas",
+              "Campanhas",
               style: TextStyle(
                 fontSize: 22,
                 color: Color(0xFF1E5AA8),
