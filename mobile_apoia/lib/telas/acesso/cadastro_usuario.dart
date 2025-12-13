@@ -59,6 +59,16 @@ class _CadastroUsuariosState extends State<CadastroUsuarios> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.blue),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+
       body: SingleChildScrollView(
         child: SafeArea(
           child: Padding(

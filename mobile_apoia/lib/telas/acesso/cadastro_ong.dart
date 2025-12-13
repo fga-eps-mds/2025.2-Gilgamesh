@@ -59,6 +59,16 @@ class _CadastroOngsState extends State<CadastroOngs> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.orange),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+
       body: SingleChildScrollView(
         child: SafeArea(
           child: Padding(
@@ -148,21 +158,6 @@ class _CadastroOngsState extends State<CadastroOngs> {
                   controller: _descricaoController,
                 ),
                 const SizedBox(height: 15),
-
-                // Campo de Upload (Com ícone no final)
-                caixaInput(
-                  hintText: "UPLOAD DE LOGO",
-                  // Usamos um InkWell no ícone para ele ser clicável
-                  suffixIcon: InkWell(
-                    onTap: () {
-                      print("Abrir seletor de arquivos");
-                    },
-                    child: const Icon(
-                      Icons.file_upload_outlined,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ),
 
                 const SizedBox(height: 40),
 
